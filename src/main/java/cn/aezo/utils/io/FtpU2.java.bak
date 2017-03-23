@@ -1,0 +1,275 @@
+package cn.aezo.utils.io;
+
+import java.io.File;
+import java.io.FileInputStream;
+import java.io.FileOutputStream;
+import java.io.IOException;
+import java.io.InputStream;
+import java.io.OutputStream;
+
+import org.apache.commons.net.ftp.FTP;
+import org.apache.commons.net.ftp.FTPClient;
+import org.apache.commons.net.ftp.FTPFile;
+import org.apache.commons.net.ftp.FTPReply;
+
+public class FtpU2 {
+	private static FTPClient ftp;
+
+	/**
+	 * 获取ftp连接
+	 * @param ftpInfo
+	 * @return
+	 * @throws Exception
+	 */
+	public static boolean connect(FtpInfo ftpInfo) throws Exception {
+		ftp = new FTPClient();
+		boolean flag = false;
+		int reply;
+		if (ftpInfo.getPort() == null) {
+			ftp.connect(ftpInfo.getIp(), 21);
+		} else {
+			ftp.connect(ftpInfo.getIp(), ftpInfo.getPort());
+		}
+		boolean login = ftp.login(ftpInfo.getUsername(), ftpInfo.getPassword());
+		if(!login) {
+			System.out.println("ftp login fail!");
+		}
+		ftp.setFileType(FTP.BINARY_FILE_TYPE);
+		reply = ftp.getReplyCode();
+		if (!FTPReply.isPositiveCompletion(reply)) {
+			ftp.disconnect();
+			return flag;
+		}
+		ftp.changeWorkingDirectory(ftpInfo.getPath());
+		flag = true;
+		return flag;
+	}
+
+	/**
+	 * 关闭ftp连接
+	 */
+	public static void close() {
+		if (ftp != null && ftp.isConnected()) {
+			try {
+				ftp.logout();
+				ftp.disconnect();
+			} catch (IOException e) {
+				e.printStackTrace();
+			}
+		}
+	}
+
+	/**
+	 * ftp上传文件
+	 * @param file
+	 * @throws Exception
+	 */
+	public static void upload(File file) throws Exception {
+		if (file.isDirectory()) {
+			ftp.makeDirectory(file.getName());
+			ftp.changeWorkingDirectory(file.getName());
+			String[] files = file.list();
+			for (String str : files) {
+				File file1 = new File(file.getPath() + "/" + str);
+				if (file1.isDirectory()) {
+					upload(file1);
+					ftp.changeToParentDirectory();
+				} else {
+					File file2 = new File(file.getPath() + "/" + str);
+					InputStream input = new FileInputStream(file2);
+					ftp.storeFile(file2.getName(), input);
+					input.close();
+				}
+			}
+		} else {
+			File file2 = new File(file.getPath());
+			InputStream input = new FileInputStream(file2);
+			ftp.storeFile(file2.getName(), input);
+			input.close();
+		}
+	}
+	
+	public static void upload(FtpInfo ftpInfo, String fileName, InputStream inputStream) throws Exception {
+		ftp.storeFile(ftpInfo.getPath() + fileName, inputStream);
+		inputStream.close();
+	}
+
+	/**
+	 * 下载链接配置
+	 * @param f
+	 * @param localBaseDir 本地目录
+	 * @param remoteBaseDir 远程目录
+	 * @throws Exception
+	 */
+	public static void startDown(FtpInfo f,String localBaseDir,String remoteBaseDir ) throws Exception{
+		if (FtpU2.connect(f)) {
+	        try { 
+	            FTPFile[] files = null; 
+	            boolean changedir = ftp.changeWorkingDirectory(remoteBaseDir); 
+	            if (changedir) { 
+	                ftp.setControlEncoding("GBK"); 
+	                files = ftp.listFiles(); 
+	                for (int i = 0; i < files.length; i++) { 
+	                    try{ 
+	                        downloadFile(files[i], localBaseDir, remoteBaseDir); 
+	                    }catch(Exception e){ 
+	                    	e.printStackTrace();
+	                    } 
+	                } 
+	            } 
+	        } catch (Exception e) { 
+	        	e.printStackTrace();
+	        } 
+		}else{
+			System.out.println("链接失败！");
+		}
+		
+	}
+	
+	
+	/** 
+     * 
+     * 下载FTP文件 
+     * 当你需要下载FTP文件的时候，调用此方法 
+     * 根据<b>获取的文件名，本地地址，远程地址</b>进行下载 
+     * 
+     * @param ftpFile 
+     * @param relativeLocalPath 
+     * @param relativeRemotePath 
+     */ 
+    private  static void downloadFile(FTPFile ftpFile, String relativeLocalPath,String relativeRemotePath) { 
+        if (ftpFile.isFile()) {
+            if (ftpFile.getName().indexOf("?") == -1) { 
+                OutputStream outputStream = null; 
+                try { 
+                    File locaFile= new File(relativeLocalPath + ftpFile.getName()); 
+                    //判断文件是否存在，存在则返回 
+                    if(locaFile.exists()){ 
+                        return; 
+                    }else{ 
+                    	FtpInfo ftpInfo = new FtpInfo();
+            			ftpInfo.setIp("127.0.0.1");
+            			ftpInfo.setPort(21);
+            			ftpInfo.setUsername("admin");
+            			ftpInfo.setPassword("smalle");
+                        FtpU2.connect(ftpInfo);
+                    	
+                        outputStream = new FileOutputStream(relativeLocalPath + ftpFile.getName()); 
+                        
+                        System.out.println(ftp);
+                        ftp.retrieveFile(ftpFile.getName(), outputStream);
+                        outputStream.flush();
+                        outputStream.close();
+                    } 
+                } catch (Exception e) { 
+                	e.printStackTrace();
+                } finally { 
+                    try { 
+                        if (outputStream != null){ 
+                            outputStream.close(); 
+                        }
+                    } catch (IOException e) { 
+                      e.printStackTrace();
+                    } 
+                } 
+            } 
+        } else { 
+            String newlocalRelatePath = relativeLocalPath + ftpFile.getName(); 
+            String newRemote = new String(relativeRemotePath+ ftpFile.getName().toString()); 
+            File fl = new File(newlocalRelatePath); 
+            if (!fl.exists()) { 
+                fl.mkdirs(); 
+            } 
+            try { 
+                newlocalRelatePath = newlocalRelatePath + '/'; 
+                newRemote = newRemote + "/"; 
+                String currentWorkDir = ftpFile.getName().toString(); 
+                boolean changedir = ftp.changeWorkingDirectory(currentWorkDir); 
+                if (changedir) { 
+                    FTPFile[] files = null; 
+                    files = ftp.listFiles(); 
+                    for (int i = 0; i < files.length; i++) { 
+                        downloadFile(files[i], newlocalRelatePath, newRemote); 
+                    } 
+                } 
+                if (changedir){
+                	ftp.changeToParentDirectory(); 
+                } 
+            } catch (Exception e) { 
+                e.printStackTrace();
+            } 
+        } 
+    } 
+	
+	public static class FtpInfo {
+		private String ip; //ip地址
+		private Integer port; //端口号
+		private String username; //用户名
+		private String password; //密码
+		private String path; //ftp路径
+		
+		public String getIp() {
+			return ip;
+		}
+		public void setIp(String ip) {
+			this.ip = ip;
+		}
+		public Integer getPort() {
+			return port;
+		}
+		public void setPort(Integer port) {
+			this.port = port;
+		}
+		public String getUsername() {
+			return username;
+		}
+		public void setUsername(String username) {
+			this.username = username;
+		}
+		public String getPassword() {
+			return password;
+		}
+		public void setPassword(String password) {
+			this.password = password;
+		}
+		public String getPath() {
+			return path;
+		}
+		public void setPath(String path) {
+			this.path = path;
+		}
+	}
+
+	public static void main(String[] args) throws Exception {
+		for (int i=0; i<1; i++) {
+			FtpInfo ftpInfo = new FtpInfo();
+			ftpInfo.setIp("127.0.0.1");
+			ftpInfo.setPort(21);
+			ftpInfo.setUsername("admin");
+			ftpInfo.setPassword("smalle");
+			/*ftpInfo.setIp("192.168.17.50");
+			ftpInfo.setPort(23);
+			ftpInfo.setUsername("ftpservice");
+			ftpInfo.setPassword("Unilog1208");*/
+			// FtpU2.connect(ftpInfo);
+			// File file = new File("d:/temp/1.png");
+			// FtpU2.upload(file); // 把文件上传在ftp上
+			FtpU2.startDown(ftpInfo, "d:/temp/download/", "1.png"); // 下载ftp文件测试
+			
+			// 下载文件第二种方式
+			/*InputStream is = ftp.retrieveFileStream("1.png");
+			System.out.println(is);
+			OutputStream os = new FileOutputStream(new File("d:/temp/download/1.png"));
+			int bytesRead = 0;
+			byte[] buffer = new byte[8192];
+			while ((bytesRead = is.read(buffer, 0, 8192)) != -1) {
+				os.write(buffer, 0, bytesRead);
+			}
+			os.close();
+			is.close();
+			ftp.getReply();*/
+			
+			System.out.println("ok");
+		}
+	}
+}
