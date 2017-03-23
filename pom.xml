@@ -9,6 +9,8 @@
     <version>1.0-SNAPSHOT</version>
 
     <dependencies>
+        <!-- =======Util======== -->
+
         <!-- json -->
         <dependency>
             <groupId>net.sf.json-lib</groupId>
@@ -33,6 +35,17 @@
             <artifactId>com.springsource.org.apache.commons.pool</artifactId>
             <version>1.5.3</version>
         </dependency>
+
+
+        <!-- =======Demo======== -->
+        <!--betwixt：xml和javaBean相互转换工具包-->
+        <dependency>
+            <groupId>commons-betwixt</groupId>
+            <artifactId>commons-betwixt</artifactId>
+            <version>0.8</version>
+        </dependency>
+
+
 
     </dependencies>
 
