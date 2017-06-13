@@ -20,6 +20,8 @@ import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
 import java.util.Random;
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
 
 
 public class StringU {
@@ -71,50 +73,91 @@ public class StringU {
 	}
 
 	/**
+	 * 下划线转驼峰法
+	 * @param line 源字符串
+	 * @param smallCamel 大小驼峰,是否为小驼峰
+	 * @return 转换后的字符串
+	 */
+	public static String underline2Camel(String line,boolean smallCamel){
+		if(line==null||"".equals(line)){
+			return "";
+		}
+		StringBuffer sb=new StringBuffer();
+		Pattern pattern= Pattern.compile("([A-Za-z\\d]+)(_)?");
+		Matcher matcher=pattern.matcher(line);
+		while(matcher.find()){
+			String word=matcher.group();
+			sb.append(smallCamel&&matcher.start()==0?Character.toLowerCase(word.charAt(0)):Character.toUpperCase(word.charAt(0)));
+			int index=word.lastIndexOf('_');
+			if(index>0){
+				sb.append(word.substring(1, index).toLowerCase());
+			}else{
+				sb.append(word.substring(1).toLowerCase());
+			}
+		}
+		return sb.toString();
+	}
+	/**
+	 * 驼峰法转下划线
+	 * @param line 源字符串
+	 * @return 转换后的字符串
+	 */
+	public static String camel2Underline(String line){
+		if(line==null||"".equals(line)){
+			return "";
+		}
+		line=String.valueOf(line.charAt(0)).toUpperCase().concat(line.substring(1));
+		StringBuffer sb=new StringBuffer();
+		Pattern pattern=Pattern.compile("[A-Z]([a-z\\d]+)?");
+		Matcher matcher=pattern.matcher(line);
+		while(matcher.find()){
+			String word=matcher.group();
+			sb.append(word.toUpperCase());
+			sb.append(matcher.end()==line.length()?"":"_");
+		}
+		return sb.toString();
+	}
+
+	/**
 	 * 将josn字符串转成Map（此json字符串可解析为Map, 如果子项有List会自动解析为List）
 	 * @param jsonStr
 	 * @return
 	 */
-	public static Map<String, Object> parseJsonStr2Map(String jsonStr) {
-        Map<String, Object> map = new HashMap<String, Object>();  
-        //最外层解析  
-        JSONObject json = JSONObject.fromObject(jsonStr);  
-        for(Object k : json.keySet()){  
-            Object v = json.get(k);   
-            //如果内层还是数组的话，继续解析  
-            if(v instanceof JSONArray){
-                List<Map<String, Object>> list = new ArrayList<Map<String,Object>>();  
-                Iterator<JSONObject> it = ((JSONArray) v).iterator();  
-                while(it.hasNext()){  
-                    JSONObject json2 = it.next();  
-                    list.add(parseJsonStr2Map(json2.toString()));  
-                }  
-                map.put(k.toString(), list);  
-            } else {  
-                map.put(k.toString(), v);  
-            }  
-        }  
-        return map;  
-    }
+	public static Map<String, Object> parseJsonStr2Map(String jsonStr) throws Exception {
+		Map<String, Object> map = new HashMap<String, Object>();
+		//最外层解析
+		JSONObject json = JSONObject.fromObject(jsonStr);
+		for(Object k : json.keySet()){
+			Object v = json.get(k);
+			//如果内层还是数组的话，继续解析
+			if(v instanceof JSONArray){
+				List list = parseJsonStr2List(v.toString());
+				map.put(k.toString(), list);
+			} else {
+				map.put(k.toString(), v);
+			}
+		}
+		return map;
+	}
 
 	/**
 	 * 将json字符串转成List（此json字符串可解析为List）
 	 * @param jsonStr
 	 * @return
 	 */
-	public static List<Map<String, Object>> parseJsonStr2List(String jsonStr) {
-		List<Map<String, Object>> list = new ArrayList<Map<String, Object>>();
-		try {
-			JSONArray jsonArr = JSONArray.fromObject(jsonStr);
-			list = new ArrayList<Map<String,Object>>();
-			Iterator<JSONObject> it = jsonArr.iterator();
-			while(it.hasNext()){
-				JSONObject json2 = it.next();
-				list.add(parseJsonStr2Map(json2.toString()));
+	public static List parseJsonStr2List(String jsonStr) throws Exception {
+		List list = new ArrayList();
+		JSONArray jsonArr = JSONArray.fromObject(jsonStr);
+		Iterator<JSONObject> it = jsonArr.iterator();
+		while(it.hasNext()) {
+			Object obj = it.next();
+			if(obj instanceof JSONObject) {
+				list.add(parseJsonStr2Map(obj.toString()));
+			} else {
+				list.add(obj.toString());
 			}
-		} catch (Exception e) {
-			e.printStackTrace();
 		}
+
 		return list;
 	}
 
@@ -206,6 +249,28 @@ public class StringU {
 		return retStr;
 	}
 
+	/**
+	 * 数组转成字符串
+	 * @param arr
+	 * @param separator 加入的分割符, 如："\n"
+	 * @return
+	 */
+	public static String arrToStr(Object[] arr, String separator) {
+		StringBuffer sb = new StringBuffer();
+		for (Object obj : arr) {
+			sb.append(obj.toString());
+			if(separator != null) {
+				sb.append(separator);
+			}
+		}
+
+		if(separator != null) {
+			return sb.toString().substring(0, sb.toString().length() - separator.length());
+		} else {
+			return sb.toString();
+		}
+	}
+
 	public static class Security {
 
 		/**
@@ -278,6 +343,34 @@ public class StringU {
 				throw new RuntimeException(e);
 			}
 		}
+	}
+
+	/**
+	 * 生成Oracle的分页sql语句
+	 * @param sql <b>sql语句的第一个from需要小写</b>
+	 * @param pageIndex 页下标
+	 * @param pagingLength 页长
+	 * @param returnTotals 是否返回记录总数(返回的字段名为paging_total__) 注：数据量大的时候最好不要返回
+	 * @return
+	 */
+	public static String pagingSqlOracle(String sql, Integer pageIndex, Integer pagingLength, Boolean returnTotals) {
+		int _pageIndex = 1;
+		int _pagingLength = 10;
+
+		if(null != pageIndex && pageIndex.compareTo(0) != 0) {
+			_pageIndex = pageIndex;
+		}
+		if(null != pagingLength && pagingLength.compareTo(0) != 0) {
+			_pagingLength = pagingLength;
+		}
+
+		int start = (_pageIndex - 1) * _pagingLength + 1;
+
+		if(returnTotals)
+			sql = sql.replaceFirst(" from ", ", count(*) over () paging_total__ from ");
+		sql = (new StringBuilder("select * from (select rownum as rn__, paging_t1.* from (")).append(sql).append(") paging_t1 where rownum < ").append(start + _pagingLength).append(") paging_t2 where paging_t2.rn__ >= ").append(start).toString();
+
+		return sql;
 	}
 
     //test

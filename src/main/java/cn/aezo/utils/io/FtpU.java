@@ -23,8 +23,8 @@ import java.util.concurrent.BlockingQueue;
 import java.util.concurrent.TimeUnit;
 
 /**
- * 使用说明： TODO 目录设置、多FTP配置
- * (1) 随应用程序初始化FtpU,初始化连接池等
+ * 使用说明： TODO 目录设置
+ * (1) 随应用程序初始化FtpU,初始化连接池等(也可需要的时候初始化)
  * (2) 获取FtpU实例：FtpU ftpU = FtpU.getInstance();
  * (3) 上传/下载 ftpU.upload / ftpU.download
  * (4) 返回FtpU实例：ftpU.returnClient();
@@ -42,6 +42,30 @@ public class FtpU {
 	 * @throws Exception
 	 */
 	public static void init(String host, Integer port, String username, String password) throws Exception {
+		init("_default_", host, port, username, password);
+	}
+
+	/**
+	 * 随应用程序初始化多个FtpU连接(clientPoolName, host(int), port, username, password)
+	 * @param configList
+	 * @throws Exception
+	 */
+	public static void multiInit(List<List<String>> configList) throws Exception {
+		for (List<String> list : configList) {
+			String clientPoolName = list.get(0);
+			String host = list.get(1);
+			Integer port = null;
+			if(list.get(2) != null) {
+				port = Integer.valueOf(list.get(2));
+			}
+			String username = list.get(3);
+			String password = list.get(4);
+
+			init(clientPoolName, host, port, username, password);
+		}
+	}
+
+	public static void init(String clientPoolName, String host, Integer port, String username, String password) throws Exception {
 		FTPClientConfigure config = new FTPClientConfigure();
 		config.setHost(host);
 		config.setPort(port);
@@ -52,34 +76,7 @@ public class FtpU {
 		config.setClientTimeout(30 * 1000);
 
 		FtpClientFactory factory = new FtpClientFactory(config);
-		FtpU.pool.put("_default_", new FTPClientPool(factory));
-	}
-
-	/**
-	 * 随应用程序初始化多个FtpU连接(clientPool, host, port, username, password)
-	 * @param configList
-	 * @throws Exception
-	 */
-	public static void multiInit(List<List<String>> configList) throws Exception {
-		for (List<String> list : configList) {
-			String clientPool = list.get(0); // clientPool的名称
-			String host = list.get(1);
-			String port = list.get(2);
-			String username = list.get(3);
-			String password = list.get(4);
-
-			FTPClientConfigure config = new FTPClientConfigure();
-			config.setHost(host);
-			config.setPort(Integer.parseInt(port));
-			config.setUsername(username);
-			config.setPassword(password);
-			config.setFileType(FTPClient.BINARY_FILE_TYPE);
-			config.setPassiveMode("false");
-			config.setClientTimeout(30 * 1000);
-
-			FtpClientFactory factory = new FtpClientFactory(config);
-			FtpU.pool.put(clientPool, new FTPClientPool(factory));
-		}
+		FtpU.pool.put(clientPoolName, new FTPClientPool(factory));
 	}
 
 	/**
@@ -88,6 +85,8 @@ public class FtpU {
 	 * @throws Exception
 	 */
 	public static FtpU getInstance() throws Exception {
+		if(pool.get("_default_") == null) return null;
+
 		FtpU ftpU = new FtpU();
 		ftpU.ftpClient = pool.get("_default_").borrowObject();
 		ftpU.ftpClient.enterLocalPassiveMode(); // 防止Linux系统调用listFile()时返回空
@@ -96,12 +95,15 @@ public class FtpU {
 
 	/**
 	 * 获取FtpU实例
+	 * @param clientPoolName Ftp客户端连接池名
 	 * @return
 	 * @throws Exception
 	 */
-	public static FtpU getInstance(String clientPool) throws Exception {
+	public static FtpU getInstance(String clientPoolName) throws Exception {
+		if(pool.get(clientPoolName) == null) return null;
+
 		FtpU ftpU = new FtpU();
-		ftpU.ftpClient = pool.get(clientPool).borrowObject();
+		ftpU.ftpClient = pool.get(clientPoolName).borrowObject();
 		ftpU.ftpClient.enterLocalPassiveMode();
 		return ftpU;
 	}
@@ -128,13 +130,13 @@ public class FtpU {
 
 	/**
 	 * (A) ftp上传文件（可根据文件路径创建目录）
-	 * @param filePath 上传到ftp对应文件路径(基于ftp根目录), 如：/test/me.png
+	 * @param filePath 上传到ftp对应文件路径(基于ftp根目录), 如：/test/me.png 会在根目录下创建一个文件夹
 	 * @param inputStream
 	 * @throws Exception
 	 */
-	public void upload(String filePath, InputStream inputStream) throws IOException {
+	public FtpU upload(String filePath, InputStream inputStream) throws IOException {
 		if(filePath == null) {
-			return;
+			return this;
 		}
 
 		String[] paths = filePath.split("/");
@@ -154,6 +156,8 @@ public class FtpU {
 		}
 
 		inputStream.close();
+
+		return this;
 	}
 	
 	/**
@@ -687,7 +691,7 @@ public class FtpU {
 	        // FtpU.upload(file);
 	        
 	        // FtpU.upload(file, "img");
-	        ftpU.upload(i + file.getName(), new FileInputStream(file));
+	        ftpU.upload(i + file.getGradeName(), new FileInputStream(file));
 		
 	        // FtpU.download("d:/temp/download/", "/test.txt");
 	        System.out.println(i);

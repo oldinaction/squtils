@@ -1,7 +1,0 @@
-<?xml version="1.0" encoding="UTF-8" ?>
-<info>
-    <element name='example-bean'>
-        <element name='example' property='examples' class='cn.aezo.demo.betwixt.template.ExampleImpl'/>
-        <addDefaults/>
-    </element>
-</info>
