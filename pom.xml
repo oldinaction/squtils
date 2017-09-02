@@ -7,6 +7,10 @@
     <groupId>cn.aezo</groupId>
     <artifactId>smtools</artifactId>
     <version>1.0-SNAPSHOT</version>
+	<packaging>jar</packaging>
+	
+	<name>smtools</name>
+	<description>java tools</description>
 
     <dependencies>
         <!-- =======Util======== -->
