@@ -10,23 +10,28 @@ import java.util.Map;
 import java.util.Set;
 
 public final class MiscU {
-	
+
+	// ==============
+	// 操作List
+	// ==============
+
 	/**
-	 * 通过有效的key过滤map
-	 * @param map
-	 * @param keySet
+	 * 将 List(存放的Map) 按照其中map的某两个字段(keyName:valueName)提取成一个map
+	 * @param list
+	 * @param keyName
+	 * @param valueName
 	 * @return
-	 * @author smalle
-	 * @date 2016年11月15日 下午12:24:36
 	 */
-	public static <K, V, E> Map filterMap(Map<K, V> map, Set<E> keySet) {
-		Map result = new HashMap(keySet.size());
-		for (K k : map.keySet()) {
-			if(keySet.contains(k)) {
-				result.put(k, (V) map.get(k));
+	public static Map<String, Object> extractMap(List<? extends Map<String, Object>> list, String keyName, String valueName) {
+		Map<String, Object> retMap = new HashMap();
+		for (Map map : list) {
+			if(map.get(keyName) != null) {
+				String key = String.valueOf(map.get(keyName));
+				retMap.put(key, map.get(valueName));
 			}
 		}
-		return result;
+
+		return retMap;
 	}
 
 	/**
@@ -55,9 +60,32 @@ public final class MiscU {
 		return resultMap;
 	}
 
+
+	// ==============
+	// 操作Map
+	// ==============
+
 	/**
-	 * 快速组装实例
+	 * 通过有效的key过滤map
+	 * @param map
+	 * @param keySet
+	 * @return
+	 * @author smalle
+	 * @date 2016年11月15日 下午12:24:36
 	 */
+	public static <K, V, E> Map filterMap(Map<K, V> map, Set<E> keySet) {
+		Map result = new HashMap(keySet.size());
+		for (K k : map.keySet()) {
+			if(keySet.contains(k)) {
+				result.put(k, (V) map.get(k));
+			}
+		}
+		return result;
+	}
+
+	// ==============
+	// 快速组装实例
+	// ==============
 	public static class Instance {
 		/**
 		 * Create a map from passed nameX, valueX parameters

@@ -277,7 +277,7 @@ public class ExcelU {
             System.out.println(null=="null");
             System.out.println("null".equals(null));*/
 
-        ExcelU.Sax reader = new ExcelU.Sax("C:\\Users\\smalle\\Desktop\\dataservice-booking-excel.xlsx",1,100);
+        ExcelU.Sax reader = new ExcelU.Sax("C:/Users/smalle/Desktop/out_plan_boxmanager.xls",1,100);
         System.out.println("\n---"+reader.getMyDataList());
 
     }
