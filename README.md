@@ -1,2 +1,4 @@
-# smtools
-Java工具类，小Demo
+## smtools
+
+- `utils` java工具类
+- `demo` java测试
