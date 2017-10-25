@@ -1,10 +1,14 @@
 package cn.aezo.utils.base;
 
+import org.apache.commons.beanutils.BeanUtils;
+
 import java.beans.BeanInfo;
 import java.beans.Introspector;
 import java.beans.PropertyDescriptor;
 import java.lang.reflect.Method;
+import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 
 /**
@@ -18,12 +22,12 @@ public class BeanU {
      * @param map
      * @param obj
      */
-    public static void transMap2Bean(Map<String, Object> map, Object obj) {
+    public static void transMap2Bean(Map map, Object obj) {
         try {
             BeanInfo beanInfo = Introspector.getBeanInfo(obj.getClass());
             PropertyDescriptor[] propertyDescriptors = beanInfo.getPropertyDescriptors();
             for (PropertyDescriptor property : propertyDescriptors) {
-                String key = property.getName();
+                Object key = property.getName();
                 if (map.containsKey(key)) {
                     Object value = map.get(key);
                     // 得到property对应的setter方法
@@ -34,6 +38,33 @@ public class BeanU {
         } catch (Exception e) {
             e.printStackTrace();
         }
+    }
+
+    /**
+     * 将 Map对象转化为JavaBean(基于BeanUtils)
+     * @param map
+     * @param T
+     * @param <T>
+     * @return
+     * @throws Exception
+     */
+    public static <T> T transMap2Bean2(Map map, Class T) throws Exception {
+        if(map == null || map.size() == 0) {
+            return null;
+        }
+        BeanInfo beanInfo = Introspector.getBeanInfo(T);
+        T bean = (T) T.newInstance();
+        PropertyDescriptor[] propertyDescriptors = beanInfo.getPropertyDescriptors();
+        for (int i = 0, n = propertyDescriptors.length; i <n ; i++) {
+            PropertyDescriptor descriptor = propertyDescriptors[i];
+            String propertyName = descriptor.getName();
+            String upperPropertyName = propertyName.toUpperCase();
+            if (map.containsKey(upperPropertyName)) {
+                Object value = map.get(upperPropertyName);
+                BeanUtils.copyProperty(bean, propertyName, value);
+            }
+        }
+        return bean;
     }
 
     /**
@@ -66,5 +97,40 @@ public class BeanU {
         }
         return map;
     }
+
+    /**
+     * 将 List<Map>对象转化为List<JavaBean>
+     * @param listMap
+     * @param T
+     * @param <T>
+     * @return
+     * @throws Exception
+     */
+    public static <T> List<T> transListMap2ListBean(List<Map<String, Object>> listMap, Class T) throws Exception {
+        List<T> beanList = new ArrayList<T> ();
+        for(int i=0, n=listMap.size(); i<n; i++){
+            Map<String, Object> map = listMap.get(i);
+            T bean = transMap2Bean2(map, T);
+            beanList.add(bean);
+        }
+        return beanList;
+    }
+
+    /**
+     * 将 List<JavaBean>对象转化为List<Map>
+     * @param beanList
+     * @return
+     * @throws Exception
+     */
+    public static List<Map<String,Object>> transListBean2ListMap(List<Object> beanList) throws Exception {
+        List<Map<String,Object>> mapList = new ArrayList<Map<String,Object>>();
+        for(int i=0, n=beanList.size(); i<n; i++){
+            Object bean = beanList.get(i);
+            Map map = transBean2Map(bean);
+            mapList.add(map);
+        }
+        return mapList;
+    }
+
 
 }

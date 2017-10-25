@@ -1,5 +1,7 @@
 package cn.aezo.utils.base;
 
+import org.apache.commons.lang3.StringUtils;
+
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
 import java.util.Collection;
@@ -12,25 +14,20 @@ import java.util.regex.Pattern;
  * Created by smalle on 2017/2/9.
  */
 public class ValidU {
-    /** 空白字符 */
-    private static final String whitespace = " \t\n\r";
+    /** 为空或者只有空白字符(" \t\n\r"等)则返回true */
+    public static boolean isBlank(Object value) {
+        if (value == null) return true;
+        if (value instanceof CharSequence) return StringUtils.isBlank((CharSequence) value);
+        return isEmpty(value);
+    }
 
-    /** 为空或者只有空白字符(" \t\n\r")则返回true */
-    public static boolean isEmpty(String s) {
-        // Is s empty?
-        if (isEmpty(s)) return true;
-
-        // Search through string's characters one by one
-        // until we find a non-whitespace character.
-        // When we do, return false; if we don't, return true.
-        for (int i = 0; i < s.length(); i++) {
-            // Check that current character isn't whitespace.
-            char c = s.charAt(i);
-
-            if (whitespace.indexOf(c) == -1) return false;
-        }
-        // All characters are whitespace.
-        return true;
+    /**
+     * 不为空且不为空白字符串(" \t\n\r"等)
+     * @param value
+     * @return
+     */
+    public static boolean isNotBlank(Object value) {
+        return !isBlank(value);
     }
 
     /** 是否为空(包含String的""、集合的大小) */

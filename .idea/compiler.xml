@@ -22,11 +22,12 @@
         <sourceTestOutputDir name="target/generated-test-sources/test-annotations" />
         <outputRelativeToContentRoot value="true" />
         <processorPath useClasspath="true" />
-        <module name="demo" />
+        <module name="core" />
         <module name="utils" />
       </profile>
     </annotationProcessing>
     <bytecodeTargetLevel>
+      <module name="core" target="1.7" />
       <module name="demo" target="1.7" />
       <module name="smtools" target="1.5" />
       <module name="utils" target="1.7" />

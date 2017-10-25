@@ -13,15 +13,19 @@
 	
 	<modules>
 		<module>utils</module>
-		<module>demo</module>
+		<!--<module>demo</module>-->
+		<module>core</module>
 	</modules>
 
 	<properties>
 		<project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
 		<project.reporting.outputEncoding>UTF-8</project.reporting.outputEncoding>
 		<java.version>1.7</java.version>
+
+		<commons-lang3.version>3.6</commons-lang3.version>
 	</properties>
 
+	<!--依赖形式一：父项目的依赖会被子项目自动继承-->
 	<dependencies>
 		<dependency>
             <groupId>junit</groupId>
@@ -29,6 +33,18 @@
             <version>4.12</version>
         </dependency>
 	</dependencies>
+
+	<!--依赖形式二：该节点下的依赖关系只是为了统一版本号，不会被子项目自动继承，除非子项目主动引用-->
+	<!--好处是子项目可以不用写版本号 -->
+	<dependencyManagement>
+		<dependencies>
+			<dependency>
+				<groupId>org.apache.commons</groupId>
+				<artifactId>commons-lang3</artifactId>
+				<version>${commons-lang3.version}</version>
+			</dependency>
+		</dependencies>
+	</dependencyManagement>
 
 	<build>
 		<pluginManagement>
@@ -42,6 +58,22 @@
                 </plugin>
             </plugins>
         </pluginManagement>
+
+		<!--编译的资源文件。idea默认只编译resource下的xml等文件-->
+		<resources>
+			<resource>
+				<directory>src/main/java</directory>
+				<includes>
+					<include>**/*.*</include>
+					<!--<include>**/*.xml</include>
+                    <include>**/*.properties</include>
+                    <include>**/*.txt</include>-->
+				</includes>
+				<excludes>
+					<exclude>**/*.java</exclude>
+				</excludes>
+			</resource>
+		</resources>
 	</build>
 
 </project>

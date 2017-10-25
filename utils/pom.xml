@@ -15,11 +15,23 @@
         <groupId>cn.aezo</groupId>
         <artifactId>smtools</artifactId>
         <version>0.0.1-SNAPSHOT</version>
-        <relativePath/>
+        <relativePath>../pom.xml</relativePath>
     </parent>
 
     <dependencies>
         <!-- =======Util======== -->
+        <!--此依赖在父项目的dependencies中，故此处无需写版本-->
+        <dependency>
+            <groupId>org.apache.commons</groupId>
+            <artifactId>commons-lang3</artifactId>
+        </dependency>
+
+        <dependency>
+            <groupId>commons-beanutils</groupId>
+            <artifactId>commons-beanutils</artifactId>
+            <version>1.9.3</version>
+        </dependency>
+
 
         <!-- json(json-lib是较早的javaBean、xml、json互转的工具) -->
         <dependency>

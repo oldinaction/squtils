@@ -23,6 +23,8 @@ import java.util.Random;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
+import static java.lang.Character.toUpperCase;
+
 
 public class StringU {
 	private static final char[] letter = new char[] {'q', 'w', 'e', 'r', 't', 'y', 'u', 'i', 'o', 'p', 'a', 's', 'd', 'f', 'g', 'h', 'j', 'k', 'l', 'z', 'x', 'c', 'v', 'b', 'n', 'm'};
@@ -87,7 +89,7 @@ public class StringU {
 		Matcher matcher=pattern.matcher(line);
 		while(matcher.find()){
 			String word=matcher.group();
-			sb.append(smallCamel&&matcher.start()==0?Character.toLowerCase(word.charAt(0)):Character.toUpperCase(word.charAt(0)));
+			sb.append(smallCamel&&matcher.start()==0?Character.toLowerCase(word.charAt(0)): toUpperCase(word.charAt(0)));
 			int index=word.lastIndexOf('_');
 			if(index>0){
 				sb.append(word.substring(1, index).toLowerCase());
@@ -97,6 +99,7 @@ public class StringU {
 		}
 		return sb.toString();
 	}
+
 	/**
 	 * 驼峰法转下划线
 	 * @param line 源字符串
@@ -107,7 +110,7 @@ public class StringU {
 			return "";
 		}
 		line=String.valueOf(line.charAt(0)).toUpperCase().concat(line.substring(1));
-		StringBuffer sb=new StringBuffer();
+		StringBuffer sb = new StringBuffer();
 		Pattern pattern=Pattern.compile("[A-Z]([a-z\\d]+)?");
 		Matcher matcher=pattern.matcher(line);
 		while(matcher.find()){
@@ -116,6 +119,15 @@ public class StringU {
 			sb.append(matcher.end()==line.length()?"":"_");
 		}
 		return sb.toString();
+	}
+
+	/**
+	 * 首字母大写
+	 */
+	public static String toUpperCaseFirst(String string) {
+		char[] methodName = string.toCharArray();
+		methodName[0] = Character.toUpperCase(methodName[0]);
+		return String.valueOf(methodName);
 	}
 
 	/**

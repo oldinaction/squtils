@@ -1,5 +1,7 @@
 package cn.aezo.utils.base;
 
+import java.lang.reflect.InvocationTargetException;
+import java.lang.reflect.Method;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.HashMap;
@@ -22,7 +24,60 @@ public final class MiscU {
 	 * @param valueName
 	 * @return
 	 */
-	public static Map<String, Object> extractMap(List<? extends Map<String, Object>> list, String keyName, String valueName) {
+	public static Map<String, Object> extractMap(List list, Object keyName, Object valueName) {
+		Map retMap = new HashMap();
+
+		for(int i=0, n=list.size(); i<n; i++){
+			Object bean = list.get(i);
+			Map map = BeanU.transBean2Map(bean);
+			retMap.put(map.get(keyName), map.get(valueName));
+		}
+
+		return retMap;
+	}
+
+	/**
+	 * 将 List(存放的Map) 按照其中map的所有key字段和所有的value字段(keyNames : valueNames)提取成一个map
+	 * @param list
+	 * @param keyNames
+	 * @param valueNames
+	 * @return
+	 * @throws Exception
+	 */
+	public static Map<String, Object> extractMap(List list, List keyNames, List valueNames) {
+		Map retMap = new HashMap();
+
+		for(int i=0, n=list.size(); i<n; i++){
+			Object bean = list.get(i);
+			Map map = BeanU.transBean2Map(bean);
+
+			String keyStr = "";
+			for (Object keyName : keyNames) {
+				Object o = map.get(keyName);
+				keyStr += String.valueOf(o);
+			}
+
+			String valueStr = "";
+			for (Object valueName : valueNames) {
+				Object o = map.get(valueName);
+				valueStr += String.valueOf(o);
+			}
+
+			retMap.put(keyStr, valueStr);
+		}
+
+		return retMap;
+	}
+
+	/**
+	 * 将 List(存放的Map) 按照其中map的某两个字段(keyName:valueName)提取成一个map (无依赖)
+	 * @param list
+	 * @param keyName
+	 * @param valueName
+	 * @return
+	 */
+	@Deprecated
+	public static Map<String, Object> extractMap2(List<? extends Map<String, Object>> list, String keyName, String valueName) {
 		Map<String, Object> retMap = new HashMap();
 		for (Map map : list) {
 			if(map.get(keyName) != null) {
@@ -43,7 +98,7 @@ public final class MiscU {
 	 * @date 2016年11月26日 下午8:27:37
 	 */
 	@SuppressWarnings({ "rawtypes", "unchecked" })
-	public static Map<String, List> groupByMapKey(List dataList, String key) {
+	public static Map<String, List> listMapGroupBy(List dataList, String key) {
 		Map<String, List> resultMap = new HashMap<String, List>();
 		for (Map map : (List<Map>) dataList) {
 			if(resultMap.containsKey(map.get(key))){
@@ -60,6 +115,50 @@ public final class MiscU {
 		return resultMap;
 	}
 
+	/**
+	 * 将 List(存放的Bean) 按照bean的某个字段(filed)的值分组. (使用反射)
+	 * @param beanList
+	 * @param filedName
+	 * @param classes
+	 * @return
+	 */
+	public static Map<Object, List> listBeanGroupBy(List<? extends Object> beanList, String filedName, Class classes) {
+		HashMap<Object, List> resultMap = new HashMap();
+
+		Method method = null;
+		Method[] methods = classes.getMethods();
+		for (Method m : methods) {
+			if(("get" + StringU.toUpperCaseFirst(filedName)).equals(m.getName())) {
+				method = m;
+				break;
+			}
+		}
+
+		if(method != null) {
+			for (Object object : beanList) {
+				Object retObj = null;
+				try {
+					retObj = method.invoke(object);
+				} catch (IllegalAccessException e) {
+					e.printStackTrace();
+				} catch (InvocationTargetException e) {
+					e.printStackTrace();
+				}
+
+				if(resultMap.containsKey(retObj)) {
+					(resultMap.get(retObj)).add(object);
+				} else {
+					ArrayList list = new ArrayList();
+					list.add(object);
+					if(null != retObj) {
+						resultMap.put(retObj, list);
+					}
+				}
+			}
+		}
+
+		return resultMap;
+	}
 
 	// ==============
 	// 操作Map

@@ -11,6 +11,32 @@ import java.util.Date;
  * Created by smalle on 2017/1/12.
  */
 public class DateU {
+    /**
+     * 日期打印(yyyy-MM-dd HH:mm:ss)
+     * @param date
+     */
+    public void printDate(Date date) {
+        System.out.println(format(date));
+    }
+
+    /**
+     * 日期格式化为字符串(yyyy/MM/dd HH:mm:ss)
+     * @param date
+     * @return
+     */
+    public static String format(Date date) {
+        return format(date, "yyyy/MM/dd HH:mm:ss");
+    }
+
+    /**
+     * 日期格式化为字符串
+     * @param date
+     * @param format 如：yyyy/MM/dd HH:mm:ss
+     * @return
+     */
+    public static String format(Date date, String format) {
+        return format(date, new SimpleDateFormat(format));
+    }
 
     /**
      * 日期格式化为字符串
@@ -20,16 +46,6 @@ public class DateU {
      */
     public static String format(Date date, SimpleDateFormat dateFormat) {
         return dateFormat.format(date);
-    }
-
-    /**
-     * 获取当前时间字符串：yyyyMMddHHmmssSSS
-     * @return
-     */
-    public static String now() {
-        Date now = new Date();
-        SimpleDateFormat dateFormat = new SimpleDateFormat("yyyyMMddHHmmssSSS");
-        return format(now, dateFormat);
     }
 
     /**

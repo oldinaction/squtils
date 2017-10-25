@@ -1,6 +1,8 @@
 package cn.aezo.utils.base;
 
 import java.math.BigDecimal;
+import java.util.Map;
+import java.util.Random;
 
 /**
  * Created by smalle on 2017/6/2.
@@ -10,7 +12,56 @@ public class MathU {
     /*
      * 小数精确的位数
      */
-    private static final int DEF_DIV_SCALE = 10;
+    private static final int DEF_DIV_SCALE = 2;
+
+
+    /**
+     * 按比例生成随机数
+     * @param keyPercentMap MiscU.Instance.toMap("A", 60, "B", 40); 按照比率填写
+     * @return
+     */
+    public static String randomPercent(Map<String, Integer> keyPercentMap) {
+        if (keyPercentMap == null || keyPercentMap.size() == 0)
+            return null;
+
+        Integer sum = 0;
+        for (Integer value : keyPercentMap.values()) {
+            sum += value;
+        }
+
+        Integer rand = new Random().nextInt(sum) + 1;
+
+        for (Map.Entry<String, Integer> entry : keyPercentMap.entrySet()) {
+            rand -= entry.getValue();
+            if (rand <= 0) {
+                String item = entry.getKey();
+                return item;
+            }
+        }
+        return null;
+    }
+
+    /**
+     * 获取随机的Double
+     * @param min
+     * @param max
+     * @param scale 小数点
+     * @return
+     */
+    public static Double randomDouble(final double min, final double max, Integer scale) {
+        if (max < min) return null;
+        if (min == max) {
+            return min;
+        }
+
+        Double d = min + ((max - min) * new Random().nextDouble());
+        if(scale != null) {
+            d = Double.valueOf(String.format("%."+ scale +"f", d));
+        }
+
+        return d;
+    }
+
 
     /**
      * 提供精确的加法运算
@@ -43,12 +94,12 @@ public class MathU {
      *
      * @param v1 被加数
      * @param v2 加数
+     * @param scale 小数点, 默认向上四舍五入
      * @return 两个参数的和
      */
     public static String strAdd(String v1, String v2, int scale) {
         if (scale < 0) {
-            throw new IllegalArgumentException(
-                    "The scale must be a positive integer or zero");
+            throw new IllegalArgumentException("The scale must be a positive integer or zero");
         }
         BigDecimal b1 = new BigDecimal(v1);
         BigDecimal b2 = new BigDecimal(v2);
@@ -313,41 +364,6 @@ public class MathU {
         return res;
     }
 
-    /**
-     * 比较大小 如果v1 大于等于v2 则 返回true 否则false
-     * @param v1
-     * @param v2
-     * @return
-     */
-    public static boolean strcompareTo2(String v1,String v2){
-        BigDecimal b1 = new BigDecimal(v1);
-        BigDecimal b2 = new BigDecimal(v2);
-        int bj = b1.compareTo(b2);
-        boolean res ;
-        if(bj>=0)
-            res = true;
-        else
-            res = false;
-        return res;
-    }
-
-    /**
-     * 比较大小 如果v1 等于v2 则 返回true 否则false
-     * @param v1
-     * @param v2
-     * @return
-     */
-    public static boolean strcompareTo3(String v1,String v2){
-        BigDecimal b1 = new BigDecimal(v1);
-        BigDecimal b2 = new BigDecimal(v2);
-        int bj = b1.compareTo(b2);
-        boolean res ;
-        if(bj==0)
-            res = true;
-        else
-            res = false;
-        return res;
-    }
     /**
      * 取余数  BigDecimal
      * @param v1
