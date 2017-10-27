@@ -5,7 +5,7 @@
 
 	<groupId>cn.aezo</groupId>
     <artifactId>smtools</artifactId>
-    <version>0.0.1-SNAPSHOT</version>
+    <version>sm-minions-1.0</version>
 	<packaging>pom</packaging>
 
 	<name>smtools</name>
@@ -13,7 +13,7 @@
 	
 	<modules>
 		<module>utils</module>
-		<!--<module>demo</module>-->
+		<module>demo</module>
 		<module>core</module>
 	</modules>
 

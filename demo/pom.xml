@@ -14,10 +14,8 @@
     <parent>
         <groupId>cn.aezo</groupId>
         <artifactId>smtools</artifactId>
-        <version>0.0.1-SNAPSHOT</version>
-        <!--<relativePath>../pom.xml</relativePath>-->
-        <!--同<relativePath>../pom.xml</relativePath>, 仅打包此项目时会报错-->
-        <relativePath/>
+        <version>sm-minions-1.0</version>
+        <relativePath>../pom.xml</relativePath>
     </parent>
 
     <dependencies>
