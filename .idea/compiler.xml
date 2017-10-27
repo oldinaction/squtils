@@ -23,6 +23,7 @@
         <outputRelativeToContentRoot value="true" />
         <processorPath useClasspath="true" />
         <module name="core" />
+        <module name="demo" />
         <module name="utils" />
       </profile>
     </annotationProcessing>
