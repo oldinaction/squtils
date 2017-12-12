@@ -1,19 +1,79 @@
 package cn.aezo.utils.io;
 
-import java.io.BufferedReader;
-import java.io.File;
-import java.io.FileInputStream;
-import java.io.FileReader;
-import java.io.FileWriter;
-import java.io.IOException;
-import java.io.InputStream;
-import java.io.InputStreamReader;
-import java.io.Reader;
+import cn.aezo.utils.base.ValidU;
+
+import java.io.*;
+import java.net.URL;
 
 /**
  * Created by smalle on 2017/5/10.
  */
 public class FileU {
+    /**
+     * 根据classpath获取文件
+     * @param relativePath 相对classpath的路径, 开头不需要/ (如：cn/aezo/utils/data.json)
+     * @return
+     */
+    public static File getFileByClasspath(String relativePath) {
+        URL url = FileU.class.getClassLoader().getResource(relativePath);
+        if(url == null) return null;
+
+        File file = new File(url.getFile());
+        return file;
+    }
+
+    /**
+     * 创建目录(包含目录是否存在判断)
+     * @param dirPath 绝对路径
+     */
+    public static void mkdir(String dirPath) {
+        File root = new File(dirPath);
+        if(root.exists()) {
+            if (!root.isDirectory()) {
+                throw new RuntimeException("目录被占用");
+            }
+        } else {
+            root.mkdir();
+        }
+    }
+
+    /**
+     * 智能创建目录(无父目录会自动创建，目录分割符需为"/")
+     * @param rootDir 根目录(结尾不含"/")
+     * @param dirPath 目录名称(开头不含"/")
+     */
+    public static void mkdirAuto(String rootDir, String dirPath) {
+        if(ValidU.isEmpty(rootDir) || ValidU.isEmpty(dirPath)) {
+            throw new RuntimeException("目录不能为空");
+        }
+
+        String[] dirArr = dirPath.split("/");
+        String dirName = rootDir + "/";
+        for (String dir : dirArr) {
+            if(ValidU.isNotEmpty(dir)) {
+                dirName += dir + "/";
+                mkdir(dirName);
+            }
+        }
+    }
+
+    /**
+     * 创建多个目录
+     * @param rootDir 根目录(结尾不含"/")
+     * @param dirName 目录名称(开头不含"/")
+     */
+    public static void mkdirs(String rootDir, String... dirName) {
+        for (String dir : dirName) {
+            File root = new File(rootDir + "/" + dir);
+            if(root.exists()) {
+                if (!root.isDirectory()) {
+                    throw new RuntimeException("目录被占用");
+                }
+            } else {
+                root.mkdir();
+            }
+        }
+    }
 
     /**
      * 以行为单位读取文件，常用于读面向行的格式化文件
@@ -156,5 +216,24 @@ public class FileU {
         } catch (IOException e) {
             e.printStackTrace();
         }
+    }
+
+    /**
+     * 复制文件
+     * @param fromFile
+     * @param toFile
+     * @throws IOException
+     */
+    public static void copyFile(File fromFile, File toFile) throws IOException{
+        FileInputStream ins = new FileInputStream(fromFile);
+        FileOutputStream out = new FileOutputStream(toFile);
+        byte[] b = new byte[1024];
+        int n = 0;
+        while((n=ins.read(b))!=-1){
+            out.write(b, 0, n);
+        }
+
+        ins.close();
+        out.close();
     }
 }

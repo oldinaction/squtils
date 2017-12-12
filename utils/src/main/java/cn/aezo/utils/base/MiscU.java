@@ -11,6 +11,8 @@ import java.util.List;
 import java.util.Map;
 import java.util.Set;
 
+import static cn.aezo.utils.base.StringU.toUpperCaseFirst;
+
 public final class MiscU {
 
 	// ==============
@@ -90,6 +92,52 @@ public final class MiscU {
 	}
 
 	/**
+	 * 从List(Bean)中将某个字段的值放到一个新list中
+	 * @param beanList
+	 * @param filedName
+	 * @param classes
+	 * @param containNull 默认不包含空/""
+	 * @return
+	 */
+	public static List extractList(List<? extends Object> beanList, String filedName, Class classes, Boolean containNull) {
+		List results = new ArrayList();
+
+		Method method = null;
+		Method[] methods = classes.getMethods();
+		for (Method m : methods) {
+			if(("get" + toUpperCaseFirst(filedName)).equals(m.getName())) {
+				method = m;
+				break;
+			}
+		}
+
+		if(method != null) {
+			for (Object object : beanList) {
+				Object retObj = null;
+				try {
+					retObj = method.invoke(object);
+				} catch (IllegalAccessException e) {
+					e.printStackTrace();
+				} catch (InvocationTargetException e) {
+					e.printStackTrace();
+				}
+
+				if(containNull != null && containNull) {
+					results.add(retObj);
+				} else {
+					if(retObj != null && !(retObj instanceof String)) {
+						results.add(retObj);
+					} else if(retObj != null && !"".equals(retObj)) {
+						results.add(retObj);
+					}
+				}
+			}
+		}
+
+		return results;
+	}
+
+	/**
 	 * 将 List(存放的Map) 按照map的某个字段(key)的值分组
 	 * @param dataList
 	 * @param key 分组字段
@@ -98,16 +146,16 @@ public final class MiscU {
 	 * @date 2016年11月26日 下午8:27:37
 	 */
 	@SuppressWarnings({ "rawtypes", "unchecked" })
-	public static Map<String, List> listMapGroupBy(List dataList, String key) {
-		Map<String, List> resultMap = new HashMap<String, List>();
+	public static <K> Map<K, List> listMapGroupBy(List dataList, K key) {
+		Map<K, List> resultMap = new HashMap<K, List>();
 		for (Map map : (List<Map>) dataList) {
 			if(resultMap.containsKey(map.get(key))){
 				resultMap.get(map.get(key)).add(map);
 			} else {
 				List<Map> list = new ArrayList<Map>();
 				list.add(map);
-				if(null != map.get(key) && !"".equals(map.get(key))) { // 业务上要求不为空
-					resultMap.put(String.valueOf(map.get(key)), list);
+				if(ValidU.isNotEmpty(map.get(key))) { // 业务上要求不为空
+					resultMap.put((K) map.get(key), list);
 				}
 			}
 		}
@@ -128,7 +176,7 @@ public final class MiscU {
 		Method method = null;
 		Method[] methods = classes.getMethods();
 		for (Method m : methods) {
-			if(("get" + StringU.toUpperCaseFirst(filedName)).equals(m.getName())) {
+			if(("get" + toUpperCaseFirst(filedName)).equals(m.getName())) {
 				method = m;
 				break;
 			}

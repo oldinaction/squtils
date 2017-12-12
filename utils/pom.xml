@@ -19,63 +19,41 @@
     </parent>
 
     <dependencies>
-        <!-- =======Util======== -->
-        <!--此依赖在父项目的dependencies中，故此处无需写版本-->
         <dependency>
             <groupId>org.apache.commons</groupId>
             <artifactId>commons-lang3</artifactId>
         </dependency>
-
         <dependency>
             <groupId>commons-beanutils</groupId>
             <artifactId>commons-beanutils</artifactId>
-            <version>1.9.3</version>
         </dependency>
 
-
-        <!-- json(json-lib是较早的javaBean、xml、json互转的工具) -->
         <dependency>
             <groupId>net.sf.json-lib</groupId>
             <artifactId>json-lib</artifactId>
-            <version>2.4</version>
             <classifier>jdk15</classifier>
         </dependency>
 
-        <!-- Excel -->
-        <dependency>
-            <groupId>org.apache.poi</groupId>
-            <artifactId>poi</artifactId>
-            <version>3.9</version>
-        </dependency>
         <dependency>
             <groupId>org.apache.poi</groupId>
             <artifactId>poi-ooxml</artifactId>
-            <version>3.9</version>
         </dependency>
-        <!--excel sax-->
         <dependency>
             <groupId>xerces</groupId>
             <artifactId>xercesImpl</artifactId>
-            <version>2.9.1</version>
         </dependency>
 
-        <!-- FtpU上传所需jar包 -->
         <dependency>
-            <!-- 含有FtpClient对象 -->
-            <groupId>org.apache.commons</groupId>
-            <artifactId>com.springsource.org.apache.commons.net</artifactId>
-            <version>2.0.0</version>
+            <groupId>commons-net</groupId>
+            <artifactId>commons-net</artifactId>
         </dependency>
         <dependency>
-            <groupId>org.apache.commons</groupId>
-            <artifactId>com.springsource.org.apache.commons.pool</artifactId>
-            <version>1.5.3</version>
+            <groupId>commons-pool</groupId>
+            <artifactId>commons-pool</artifactId>
         </dependency>
-        <!--文件上传-->
         <dependency>
-            <groupId>org.apache.commons</groupId>
-            <artifactId>com.springsource.org.apache.commons.fileupload</artifactId>
-            <version>1.2.1</version>
+            <groupId>commons-fileupload</groupId>
+            <artifactId>commons-fileupload</artifactId>
         </dependency>
 
     </dependencies>
