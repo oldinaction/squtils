@@ -1,24 +1,13 @@
 package cn.aezo.utils.base;
 
-import net.sf.json.JSONArray;
-import net.sf.json.JSONObject;
 import sun.misc.BASE64Encoder;
 
-import java.io.BufferedReader;
-import java.io.InputStream;
-import java.io.InputStreamReader;
 import java.io.UnsupportedEncodingException;
 import java.math.BigInteger;
-import java.net.URL;
 import java.security.MessageDigest;
 import java.security.NoSuchAlgorithmException;
 import java.text.SimpleDateFormat;
-import java.util.ArrayList;
 import java.util.Date;
-import java.util.HashMap;
-import java.util.Iterator;
-import java.util.List;
-import java.util.Map;
 import java.util.Random;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
@@ -36,18 +25,55 @@ public class StringU {
 	private static OrderNo orderNo = new OrderNo(0, 0);
 
 	/**
+	 * 连接字符串
+	 * @param objects
+	 * @return
+	 */
+	public static String buffer(Object... objects) {
+		StringBuffer stringBuffer = new StringBuffer();
+		for (Object o : objects) {
+			stringBuffer.append(o);
+		}
+		return stringBuffer.toString();
+	}
+
+	/**
+	 * 连接字符串
+	 * @param objects
+	 * @return
+	 */
+	public static String buffer(String joinStr, Object... objects) {
+		StringBuffer stringBuffer = new StringBuffer();
+
+		if(objects != null) {
+			int size = objects.length;
+			if(size > 0) {
+				for (int i = 0; i < size - 1; i++) {
+					stringBuffer.append(objects[i]);
+					if(joinStr != null) {
+						stringBuffer.append(joinStr);
+					}
+				}
+				stringBuffer.append(objects[size - 1]);
+			}
+		}
+
+		return stringBuffer.toString();
+	}
+
+	/**
 	 * 生成随机字符串
 	 * @param length 字符串长度
-	 * @param type 生成字符串类型(null: 字母数字混合, true: 纯字母, false: 纯数字)
+	 * @param letterOrNum 生成字符串类型(null: 字母数字混合, true: 纯字母, false: 纯数字)
 	 * @return
 	 * @author smalle
 	 * @date 2016年12月8日 下午12:20:24
 	 */
-	public static String random(int length, Boolean type) {
+	public static String random(int length, Boolean letterOrNum) {
 		char[] randomChar;
-		if(type == null) {
+		if(letterOrNum == null) {
 			randomChar = letterNumber;
-		} else if(type == true) {
+		} else if(letterOrNum == true) {
 			randomChar = letter;
 		} else {
 			randomChar = number;
@@ -81,20 +107,20 @@ public class StringU {
 	/**
 	 * 下划线转驼峰法
 	 * @param line 源字符串
-	 * @param smallCamel 大小驼峰,是否为小驼峰
+	 * @param yesLowerCaseFirst 首字母是否小写
 	 * @return 转换后的字符串
 	 */
-	public static String underline2Camel(String line,boolean smallCamel){
+	public static String underline2Camel(String line,boolean yesLowerCaseFirst){
 		if(line==null||"".equals(line)){
 			return "";
 		}
-		StringBuffer sb=new StringBuffer();
+		StringBuffer sb = new StringBuffer();
 		Pattern pattern= Pattern.compile("([A-Za-z\\d]+)(_)?");
-		Matcher matcher=pattern.matcher(line);
+		Matcher matcher = pattern.matcher(line);
 		while(matcher.find()){
-			String word=matcher.group();
-			sb.append(smallCamel&&matcher.start()==0?Character.toLowerCase(word.charAt(0)): toUpperCase(word.charAt(0)));
-			int index=word.lastIndexOf('_');
+			String word = matcher.group();
+			sb.append(yesLowerCaseFirst && matcher.start() == 0 ? Character.toLowerCase(word.charAt(0)) : toUpperCase(word.charAt(0)));
+			int index = word.lastIndexOf('_');
 			if(index>0){
 				sb.append(word.substring(1, index).toLowerCase());
 			}else{
@@ -133,101 +159,6 @@ public class StringU {
 		methodName[0] = Character.toUpperCase(methodName[0]);
 		return String.valueOf(methodName);
 	}
-
-	/**
-	 * 将josn字符串转成Map（此json字符串可解析为Map, 如果子项有List会自动解析为List）
-	 * @param jsonStr
-	 * @return
-	 */
-	public static Map<String, Object> parseJsonStr2Map(String jsonStr) throws Exception {
-		Map<String, Object> map = new HashMap<String, Object>();
-		//最外层解析
-		JSONObject json = JSONObject.fromObject(jsonStr);
-		for(Object k : json.keySet()){
-			Object v = json.get(k);
-			//如果内层还是数组的话，继续解析
-			if(v instanceof JSONArray){
-				List list = parseJsonStr2List(v.toString());
-				map.put(k.toString(), list);
-			} else {
-				map.put(k.toString(), v);
-			}
-		}
-		return map;
-	}
-
-	/**
-	 * 将json字符串转成List（此json字符串可解析为List）
-	 * @param jsonStr
-	 * @return
-	 */
-	public static List parseJsonStr2List(String jsonStr) throws Exception {
-		List list = new ArrayList();
-		JSONArray jsonArr = JSONArray.fromObject(jsonStr);
-		Iterator<JSONObject> it = jsonArr.iterator();
-		while(it.hasNext()) {
-			Object obj = it.next();
-			if(obj instanceof JSONObject) {
-				list.add(parseJsonStr2Map(obj.toString()));
-			} else {
-				list.add(obj.toString());
-			}
-		}
-
-		return list;
-	}
-
-	/**
-	 * 将Map转成json字符串
-	 * @param map
-	 * @return
-	 */
-	public static String parseMap2JsonStr(Map<String, Object> map) {
-		return JSONObject.fromObject(map).toString();
-	}
-
-	/**
-	 * 通过HTTP获取JSON数据（List）
-	 * @param url
-	 * @return
-	 */
-    public static List<Map<String, Object>> getListByUrl(String url) {
-        try {
-            InputStream in = new URL(url).openStream();  
-            BufferedReader reader = new BufferedReader(new InputStreamReader(in));  
-            StringBuilder sb = new StringBuilder();  
-            String line;  
-            while((line=reader.readLine())!=null){  
-                sb.append(line);  
-            }  
-            return parseJsonStr2List(sb.toString());  
-        } catch (Exception e) {  
-            e.printStackTrace();  
-        }  
-        return null;  
-    }
-
-	/**
-	 * 通过HTTP获取JSON数据（Map）
-	 * 北京的天气接口: "http://apistore.baidu.com/microservice/cityinfo?cityname=%E5%8C%97%E4%BA%AC"
-	 * @param url
-	 * @return
-	 */
-	public static Map<String, Object> getMapByUrl(String url){
-        try {
-            InputStream in = new URL(url).openStream();  
-            BufferedReader reader = new BufferedReader(new InputStreamReader(in));  
-            StringBuilder sb = new StringBuilder();  
-            String line;  
-            while((line=reader.readLine())!=null){  
-                sb.append(line);  
-            }  
-            return parseJsonStr2Map(sb.toString());  
-        } catch (Exception e) {  
-            e.printStackTrace();  
-        }  
-        return null;  
-    }
 
 	/**
 	 * 解析字节型((2^8)-1 = 0 ~ 225)字符串为字符串.如：104,101,108,108,111 转换成 hello

@@ -52,6 +52,14 @@
             <artifactId>freemarker</artifactId>
             <version>2.3.23</version>
         </dependency>
+
+        <!-- json(json-lib是较早的javaBean、xml、json互转的工具) -->
+        <dependency>
+            <groupId>net.sf.json-lib</groupId>
+            <artifactId>json-lib</artifactId>
+            <version>2.4</version>
+            <classifier>jdk15</classifier>
+        </dependency>
     </dependencies>
 
     <build>

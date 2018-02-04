@@ -2,6 +2,7 @@ package cn.aezo.core.controller;
 
 import cn.aezo.core.common.CommonKeys;
 import cn.aezo.core.model.SmUser;
+import cn.aezo.utils.base.BeanU;
 import cn.aezo.utils.base.ValidU;
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
@@ -10,6 +11,7 @@ import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 import java.io.IOException;
 import java.io.PrintWriter;
+import java.util.Map;
 
 /**
  * Created by smalle on 2017/9/24.
@@ -74,55 +76,43 @@ public class CommonControl {
         }
     }
 
-    /**
-     * 返回成功json
-     * @param response
-     */
-    public static void writeSuccess(HttpServletResponse response) {
-        Result result = new Result(Result.StatusSuccess, null);
-        writeJson(response, result);
-    }
-
-    /**
-     * 返回成功json
-     * @param response
-     */
     public static void writeSuccess(HttpServletResponse response, String message) {
         Result result = new Result(Result.StatusSuccess, message);
-        writeJson(response, result);
+        Map<String, Object> map = BeanU.transBean2Map(result);
+        writeJson(response, map);
     }
 
-    /**
-     * 返回成功json
-     * @param response
-     * @param message
-     */
     public static void writeError(HttpServletResponse response, String message) {
         Result result = new Result(Result.StatusError, message);
-        writeJson(response, result);
+        Map<String, Object> map = BeanU.transBean2Map(result);
+        writeJson(response, map);
     }
 
-    /**
-     * 返回失败json
-     * @param response
-     * @param message
-     * @param retCode
-     */
-    public static void writeError(HttpServletResponse response, String message, Integer retCode) {
-        Result result = new Result(Result.StatusError, message, retCode);
-        writeJson(response, result);
+    public static void writeError(HttpServletResponse response, String message, Integer status) {
+        Result result = new Result(Result.StatusError, message, status);
+        Map<String, Object> map = BeanU.transBean2Map(result);
+        writeJson(response, map);
     }
 
-    public static Result returnSuccess(String message) {
-        return new Result(Result.StatusSuccess, message);
+    public static void writeSuccess(HttpServletResponse response, String message, Map<String, ? extends Object> payload) {
+        Result result = new Result(Result.StatusSuccess, message);
+        Map<String, Object> map = BeanU.transBean2Map(result);
+        map.putAll(payload);
+        writeJson(response, map);
     }
 
-    public static Result returnError(String message) {
-        return new Result(Result.StatusError, message);
+    public static void writeError(HttpServletResponse response, String message, Map<String, ? extends Object> payload) {
+        Result result = new Result(Result.StatusError, message);
+        Map<String, Object> map = BeanU.transBean2Map(result);
+        map.putAll(payload);
+        writeJson(response, map);
     }
 
-    public static Result returnError(String message, Integer status) {
-        return new Result(Result.StatusError, message, status);
+    public static void writeError(HttpServletResponse response, String message, Integer status, Map<String, ? extends Object> payload) {
+        Result result = new Result(Result.StatusError, message, status);
+        Map<String, Object> map = BeanU.transBean2Map(result);
+        map.putAll(payload);
+        writeJson(response, map);
     }
 
     public static class Result {
