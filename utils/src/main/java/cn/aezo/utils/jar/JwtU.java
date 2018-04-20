@@ -16,6 +16,7 @@ import java.util.UUID;
  * Created by smalle on 2017/10/27.
  *
  * 依赖：jjwt
+ * 注释的为基于Spring Security的权限验证
  */
 public class JwtU {
 	// public static final String Role_Refresh_Token = "Role_Refresh_Token";
@@ -35,7 +36,7 @@ public class JwtU {
 	//@Value("${jwt.refreshTokenExpiration}")
 	private Long refresh_token_expiration = 1000L*60*60*24*7;  // refresh_token 默认7天
 
-	private final SignatureAlgorithm Signature_Algorithm = SignatureAlgorithm.HS256;
+	private final SignatureAlgorithm signature_algorithm = SignatureAlgorithm.HS256;
 
 	// public JwtUserDetails getUserFromToken(String token) {
 	// 	JwtUserDetails user;
@@ -230,7 +231,7 @@ public class JwtU {
 				.setIssuedAt(new Date())
 				.setExpiration(generateExpirationDate(expiration))
 				.compressWith(CompressionCodecs.DEFLATE)
-				.signWith(Signature_Algorithm, generalSecretKey())
+				.signWith(signature_algorithm, generalSecretKey())
 				.compact();
 	}
 

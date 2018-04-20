@@ -14,7 +14,7 @@ public class ExceptionU extends Exception {
     /**
      * 通用错误
      */
-    public static class CommonException extends Exception {
+    public static class CommonException extends RuntimeException {
         public CommonException() {}
 
         public CommonException(String message) {
@@ -23,9 +23,20 @@ public class ExceptionU extends Exception {
     }
 
     /**
+     * 数据转换错误
+     */
+    public static class DataConvertException extends RuntimeException {
+        public DataConvertException() {}
+
+        public DataConvertException(String message) {
+            super(message);
+        }
+    }
+
+    /**
      * 登录失败
      */
-    public static class AuthLoginFailedException extends Exception {
+    public static class AuthLoginFailedException extends RuntimeException {
         public AuthLoginFailedException() {}
 
         public AuthLoginFailedException(String message) {
@@ -36,7 +47,7 @@ public class ExceptionU extends Exception {
     /**
      * 无效的Token
      */
-    public static class AuthTokenInvalidException extends Exception {
+    public static class AuthTokenInvalidException extends RuntimeException {
         public AuthTokenInvalidException() {}
 
         public AuthTokenInvalidException(String message) {
@@ -47,7 +58,7 @@ public class ExceptionU extends Exception {
     /**
      * 不支持此方法
      */
-    public static class MethodNotSupportedException extends Exception {
+    public static class MethodNotSupportedException extends RuntimeException {
         public MethodNotSupportedException() {}
 
         public MethodNotSupportedException(String message) {
@@ -58,7 +69,7 @@ public class ExceptionU extends Exception {
     /**
      * 缺少参数
      */
-    public static class ArgumentMissingException extends Exception {
+    public static class ArgumentMissingException extends RuntimeException {
         public ArgumentMissingException() {}
 
         public ArgumentMissingException(String message) {
@@ -69,7 +80,7 @@ public class ExceptionU extends Exception {
     /**
      * 参数解析失败
      */
-    public static class ArgumentParseException extends Exception {
+    public static class ArgumentParseException extends RuntimeException {
         public ArgumentParseException() {}
 
         public ArgumentParseException(String message) {
@@ -80,7 +91,7 @@ public class ExceptionU extends Exception {
     /**
      * 参数验证失败
      */
-    public static class ArgumentInvalidException extends Exception {
+    public static class ArgumentInvalidException extends RuntimeException {
         public ArgumentInvalidException() {}
 
         public ArgumentInvalidException(String message) {
@@ -91,7 +102,7 @@ public class ExceptionU extends Exception {
     /**
      * 待解决错误
      */
-    public static class TodoException extends Exception {
+    public static class TodoException extends RuntimeException {
         public TodoException() {}
 
         public TodoException(String message) {
