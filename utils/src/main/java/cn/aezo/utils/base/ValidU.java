@@ -53,6 +53,16 @@ public class ValidU {
         return !isEmpty(value);
     }
 
+    /** 是否都不为空(包含String的""、集合的大小) */
+    public static boolean isAllNotEmpty(Object... objects) {
+        for (Object o : objects) {
+            if (isEmpty(o)) {
+                return false;
+            }
+        }
+        return true;
+    }
+
     /** 判断一组字符串是否有效 */
     public static boolean isEmpty(String... str) {
         for (String s : str) {

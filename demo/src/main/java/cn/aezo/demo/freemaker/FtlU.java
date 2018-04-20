@@ -1,19 +1,21 @@
 package cn.aezo.demo.freemaker;
 
-import cn.aezo.utils.base.MiscU;
+import cn.aezo.utils.io.FileU;
 import freemarker.template.Configuration;
 import freemarker.template.Template;
 import freemarker.template.TemplateException;
 
 import java.io.BufferedWriter;
-import java.io.File;
-import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.OutputStream;
 import java.io.OutputStreamWriter;
 import java.io.PrintWriter;
 import java.io.Writer;
+import java.util.ArrayList;
+import java.util.HashSet;
+import java.util.List;
 import java.util.Map;
+import java.util.Set;
 
 /**
  * Created by smalle on 2017/9/2.
@@ -23,7 +25,7 @@ public class FtlU {
     /**
      * 根据模板文件输出内容到指定的输出流中(文件中)
      * @param name 模板文件的名称
-     * @param path 模板文件的目录: 如ftl与此java文件同目录, 则此处为 ""
+     * @param path 模板文件的目录: 如ftl与此java文件同目录, 则此处为 "", 基于classpath目录以/开头
      * @param rootMap 模板的数据模型
      * @param outputStream 输出流
      */
@@ -82,17 +84,106 @@ public class FtlU {
     }
 
     /**
+     * 根据FTL模板初始化目录
+     * @param rootDir 根目录
+     * @param dirTpl 模板字符串：src----main--------java------------cn.aezo.minionsdemo
+     */
+    public static void mkdirByTemplate(String rootDir, String dirTpl) {
+        List<String> dirList = new ArrayList<>();
+        List<Integer> levelList = new ArrayList<>();
+
+        // 分割字符串
+        int length = dirTpl.length();
+        int splitLength = 0;
+        String lineDir = "";
+        for (int i = 0; i < length; i++) {
+            Character c = dirTpl.charAt(i);
+            if('-' == c) {
+                if(!"".equals(lineDir)) {
+                    dirList.add(lineDir);
+                    levelList.add(splitLength);
+                    splitLength = 0;
+                }
+
+                splitLength++;
+                lineDir = "";
+            } else {
+                lineDir += String.valueOf(c);
+            }
+        }
+        dirList.add(lineDir);
+        levelList.add(splitLength);
+
+        System.out.println(String.format("FtlU.mkdirByTemplate: dirList = %s, levelList = %s", dirList, levelList));
+
+        // 创建文件夹
+        for(int i = 0; i < dirList.size(); i++) {
+            String dirItem = dirList.get(i);
+            Integer levelItem = levelList.get(i);
+
+            // 获取父路径
+            String parentDir = "";
+            Set<Integer> parentLevel = new HashSet<>();
+            for(int j = i - 1; j >= 0; j--) {
+                Integer level = levelList.get(j);
+                if(level < levelItem && !parentLevel.contains(level)) {
+                    String dirTemp = dirList.get(j);
+                    if(dirTemp.contains(".")) {
+                        String[] dirTempArr = dirTemp.split("\\.");
+                        dirTemp = "";
+                        for (String tempItem : dirTempArr) {
+                            dirTemp += tempItem + "/";
+                        }
+                        if(dirTemp.length() > 0) {
+                            dirTemp = dirTemp.substring(0, dirTemp.length() - 1);
+                        }
+                    }
+
+                    parentDir = dirTemp + "/" + parentDir;
+                    parentLevel.add(level);
+                }
+            }
+
+            // 创建
+            if(dirItem.contains(".")) {
+                String[] dirTempArr = dirItem.split("\\.");
+                String dirTemp = "";
+                for (String tempItem : dirTempArr) {
+                    dirTemp += tempItem + "/";
+
+                    String dir = rootDir + "/" + parentDir + "/" + dirTemp;
+                    FileU.mkdir(dir);
+                }
+            } else {
+                String dir = rootDir + "/" + parentDir + "/" + dirItem;
+                FileU.mkdir(dir);
+            }
+        }
+    }
+
+    /**
      * 测试程序
      * @param args
      */
     public static void main(String[] args) throws IOException, TemplateException {
-        rendToConsole("Hello ${name}", MiscU.Instance.toMap("name", "smalle1"));
+        // rendToConsole("Hello ${name}", MiscU.Instance.toMap("name", "smalle1"));
 
-        rendToStream("Hello ${name}", MiscU.Instance.toMap("name", "smalle2"), new FileOutputStream(new File("D://temp/target0.ftl")));
+        // rendToStream("Hello ${name}", MiscU.Instance.toMap("name", "smalle2"), new FileOutputStream(new File("D://temp/target0.ftl")));
 
-        rendToConsole("test.ftl", "", MiscU.Instance.toMap("name", "smalle3"));
+        // rendToConsole("test.ftl", "", MiscU.Instance.toMap("name", "smalle3"));
 
-        rendToStream("test.ftl", "", MiscU.Instance.toMap("name", "smalle4"), new FileOutputStream(new File("D://temp/target.ftl")));
+        // rendToStream("test.ftl", "", MiscU.Instance.toMap("name", "smalle4"), new FileOutputStream(new File("D://temp/target.ftl")));
+
+        // 根据FTL模板初始化目录
+        // String rootDir = "d:/temp/smtools";
+        // FileU.mkdir(rootDir);
+        //
+        // File dirFile = FileU.getFileByClasspath("cn/aezo/demo/freemaker/dir.ftl");
+        // String dirTpl = FileU.readFileByLines(dirFile.getPath());
+        // dirTpl = dirTpl.replaceAll("\\$\\{projectPackageName\\}", "cn.aezo.demo").trim();
+        //
+        // mkdirByTemplate(rootDir, dirTpl);
+
     }
 
 }

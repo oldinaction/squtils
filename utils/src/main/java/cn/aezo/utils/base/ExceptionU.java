@@ -4,14 +4,31 @@ package cn.aezo.utils.base;
  * 异常类
  * Created by smalle on 2017/5/11.
  */
-public class ExceptionU {
-    /**
-     * 未知错误
-     */
-    public static class UnknowException extends Exception {
-        public UnknowException() {}
+public class ExceptionU extends Exception {
+    public ExceptionU() {}
 
-        public UnknowException(String message) {
+    public ExceptionU(String message) {
+        super(message);
+    }
+
+    /**
+     * 通用错误
+     */
+    public static class CommonException extends RuntimeException {
+        public CommonException() {}
+
+        public CommonException(String message) {
+            super(message);
+        }
+    }
+
+    /**
+     * 数据转换错误
+     */
+    public static class DataConvertException extends RuntimeException {
+        public DataConvertException() {}
+
+        public DataConvertException(String message) {
             super(message);
         }
     }
@@ -19,10 +36,10 @@ public class ExceptionU {
     /**
      * 登录失败
      */
-    public static class AuthLoginFaildException extends Exception {
-        public AuthLoginFaildException() {}
+    public static class AuthLoginFailedException extends RuntimeException {
+        public AuthLoginFailedException() {}
 
-        public AuthLoginFaildException(String message) {
+        public AuthLoginFailedException(String message) {
             super(message);
         }
     }
@@ -30,7 +47,7 @@ public class ExceptionU {
     /**
      * 无效的Token
      */
-    public static class AuthTokenInvalidException extends Exception {
+    public static class AuthTokenInvalidException extends RuntimeException {
         public AuthTokenInvalidException() {}
 
         public AuthTokenInvalidException(String message) {
@@ -41,7 +58,7 @@ public class ExceptionU {
     /**
      * 不支持此方法
      */
-    public static class MethodNotSupportedException extends Exception {
+    public static class MethodNotSupportedException extends RuntimeException {
         public MethodNotSupportedException() {}
 
         public MethodNotSupportedException(String message) {
@@ -52,10 +69,10 @@ public class ExceptionU {
     /**
      * 缺少参数
      */
-    public static class MissingArgumentException extends Exception {
-        public MissingArgumentException() {}
+    public static class ArgumentMissingException extends RuntimeException {
+        public ArgumentMissingException() {}
 
-        public MissingArgumentException(String message) {
+        public ArgumentMissingException(String message) {
             super(message);
         }
     }
@@ -63,10 +80,10 @@ public class ExceptionU {
     /**
      * 参数解析失败
      */
-    public static class ParseArgumentException extends Exception {
-        public ParseArgumentException() {}
+    public static class ArgumentParseException extends RuntimeException {
+        public ArgumentParseException() {}
 
-        public ParseArgumentException(String message) {
+        public ArgumentParseException(String message) {
             super(message);
         }
     }
@@ -74,10 +91,21 @@ public class ExceptionU {
     /**
      * 参数验证失败
      */
-    public static class ValidArgumentException extends Exception {
-        public ValidArgumentException() {}
+    public static class ArgumentInvalidException extends RuntimeException {
+        public ArgumentInvalidException() {}
 
-        public ValidArgumentException(String message) {
+        public ArgumentInvalidException(String message) {
+            super(message);
+        }
+    }
+
+    /**
+     * 待解决错误
+     */
+    public static class TodoException extends RuntimeException {
+        public TodoException() {}
+
+        public TodoException(String message) {
             super(message);
         }
     }

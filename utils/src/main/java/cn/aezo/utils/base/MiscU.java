@@ -5,11 +5,15 @@ import java.lang.reflect.Method;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.HashMap;
+import java.util.HashSet;
 import java.util.LinkedHashSet;
 import java.util.LinkedList;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
+
+import static cn.aezo.utils.base.StringU.toUpperCaseFirst;
+import static cn.aezo.utils.base.ValidU.isAllNotEmpty;
 
 public final class MiscU {
 
@@ -90,6 +94,52 @@ public final class MiscU {
 	}
 
 	/**
+	 * 从List(Bean)中将某个字段的值放到一个新list中
+	 * @param beanList
+	 * @param filedName
+	 * @param classes
+	 * @param containNull 默认不包含空/""
+	 * @return
+	 */
+	public static List extractList(List<? extends Object> beanList, String filedName, Class classes, Boolean containNull) {
+		List results = new ArrayList();
+
+		Method method = null;
+		Method[] methods = classes.getMethods();
+		for (Method m : methods) {
+			if(("get" + toUpperCaseFirst(filedName)).equals(m.getName())) {
+				method = m;
+				break;
+			}
+		}
+
+		if(method != null) {
+			for (Object object : beanList) {
+				Object retObj = null;
+				try {
+					retObj = method.invoke(object);
+				} catch (IllegalAccessException e) {
+					e.printStackTrace();
+				} catch (InvocationTargetException e) {
+					e.printStackTrace();
+				}
+
+				if(containNull != null && containNull) {
+					results.add(retObj);
+				} else {
+					if(retObj != null && !(retObj instanceof String)) {
+						results.add(retObj);
+					} else if(retObj != null && !"".equals(retObj)) {
+						results.add(retObj);
+					}
+				}
+			}
+		}
+
+		return results;
+	}
+
+	/**
 	 * 将 List(存放的Map) 按照map的某个字段(key)的值分组
 	 * @param dataList
 	 * @param key 分组字段
@@ -98,16 +148,16 @@ public final class MiscU {
 	 * @date 2016年11月26日 下午8:27:37
 	 */
 	@SuppressWarnings({ "rawtypes", "unchecked" })
-	public static Map<String, List> listMapGroupBy(List dataList, String key) {
-		Map<String, List> resultMap = new HashMap<String, List>();
+	public static <K> Map<K, List> listMapGroupBy(List dataList, K key) {
+		Map<K, List> resultMap = new HashMap<K, List>();
 		for (Map map : (List<Map>) dataList) {
 			if(resultMap.containsKey(map.get(key))){
 				resultMap.get(map.get(key)).add(map);
 			} else {
 				List<Map> list = new ArrayList<Map>();
 				list.add(map);
-				if(null != map.get(key) && !"".equals(map.get(key))) { // 业务上要求不为空
-					resultMap.put(String.valueOf(map.get(key)), list);
+				if(ValidU.isNotEmpty(map.get(key))) { // 业务上要求不为空
+					resultMap.put((K) map.get(key), list);
 				}
 			}
 		}
@@ -128,7 +178,7 @@ public final class MiscU {
 		Method method = null;
 		Method[] methods = classes.getMethods();
 		for (Method m : methods) {
-			if(("get" + StringU.toUpperCaseFirst(filedName)).equals(m.getName())) {
+			if(("get" + toUpperCaseFirst(filedName)).equals(m.getName())) {
 				method = m;
 				break;
 			}
@@ -172,7 +222,7 @@ public final class MiscU {
 	 * @author smalle
 	 * @date 2016年11月15日 下午12:24:36
 	 */
-	public static <K, V, E> Map filterMap(Map<K, V> map, Set<E> keySet) {
+	public static <K, V, E> Map mapFilter(Map<K, V> map, Set<E> keySet) {
 		Map result = new HashMap(keySet.size());
 		for (K k : map.keySet()) {
 			if(keySet.contains(k)) {
@@ -181,6 +231,180 @@ public final class MiscU {
 		}
 		return result;
 	}
+
+	/**
+	 * 获取map中所有的值
+	 * @param map
+	 * @return
+	 */
+	public static List<Object> mapValueList(Map<String, Object> map) {
+		List<Object> valueList = new ArrayList<>();
+		for (Map.Entry<String, Object> entry : map.entrySet()) {
+			valueList.add(entry.getValue());
+		}
+		return valueList;
+	}
+
+	/**
+	 * 移除map中的null(含"")值
+	 * @param map
+	 * @param <K>
+	 * @param <V>
+	 * @return
+	 */
+	public static <K, V> Map<K, V> mapRemoveNullValue(Map<K, V> map) {
+		Map<K, V> retMap = new HashMap<K, V>();
+		for (Map.Entry<K, V> entry : map.entrySet()) {
+			if(entry.getValue() != null && !"".equals(entry.getValue())) {
+				retMap.putAll(map);
+			}
+		}
+		return retMap;
+	}
+
+	/**
+	 * 求两个map的并集(后面的会覆盖前面的)
+	 * @param maps
+	 * @return
+	 */
+	public static <K, V> Map<K, V> mapUnicon(Map<K, V>... maps) {
+		Map<K, V> retMap = new HashMap<>();
+		for (Map<K, V> map : maps) {
+			retMap.putAll(map);
+		}
+		return retMap;
+	}
+
+	/**
+	 * 根据字段名求Map集合的交集(需要 V 实现了equals方法)
+	 * @param map1
+	 * @param map2
+	 * @return
+	 */
+	public final static <K, V> Map<K, V> mapIntersection(Map<K, V> map1, Map<K, V> map2) {
+		Map<K, V> map = new HashMap<>();
+		if (isAllNotEmpty(map1, map2)) {
+			Set<K> key1 = new HashSet<>(map1.keySet());
+			Set<K> key2 = new HashSet<>(map2.keySet());
+			key1.retainAll(key2);
+			for (K k : key1) {
+				if(map2.containsValue(map1.get(k))) {
+					map.put(k, map1.get(k));
+				}
+			}
+		}
+		return map;
+	}
+
+	/**
+	 * 根据字段名求两个map的差集 map1-map2 = map1`
+	 * @param map1
+	 * @param map2
+	 * @return
+	 */
+	public final static <K, V> Map<K, V> mapSubtractByKey(Map<K, V> map1, Map<K, V> map2) {
+		Map<K, V> map = new HashMap<>();
+		if (map1 != null && map2 != null) {
+			Set<K> key1 = new HashSet<>(map1.keySet());
+			Set<K> key2 = new HashSet<>(map2.keySet());
+			for (K k : key2) {
+				key1.remove(k);
+			}
+			for (K k : key1) {
+				map.put(k, map1.get(k));
+			}
+		} else if (map1 != null) {
+			map.putAll(map1);
+		}
+		return map;
+	}
+
+	/**
+	 * 根据字段值求差集 map1-map2 = map1`
+	 * @param map1
+	 * @param map2
+	 * @return
+	 */
+	public final static <K, V> Map<K, V> mapSubtractByValue(Map<K, V> map1, Map<K, V> map2) {
+		Map<K, V> map = new HashMap<>();
+		if (map1 != null && map2 != null) {
+			Set<K> setkey1 = new HashSet<>(map1.keySet());
+			Set<K> setkey2 = new HashSet<>(map2.keySet());
+			for (K k : setkey2) {
+				if(("" + map1.get(k)).equals("" + map2.get(k))) {
+					setkey1.remove(k);
+				}
+			}
+			for (K k : setkey1) {
+				map.put(k, map1.get(k));
+			}
+		} else if (map1 != null) {
+			map.putAll(map1);
+		}
+		return map;
+	}
+
+	/**
+	 * 根据map中values获取keys
+	 * @param map
+	 * @param values
+	 * @return
+	 */
+	public static <T> List<T> mapGetKeysByValues(Map<T, Object> map, Object... values) {
+		if(map == null) return null;
+
+		List<T> retList = new ArrayList<>();
+		for (Map.Entry<T, Object> entry : map.entrySet()) {
+			T key = entry.getKey();
+			Object valueItem = entry.getValue();
+			for (Object o : values) {
+				if(o != null && o.equals(valueItem)) {
+					retList.add(key);
+				}
+			}
+		}
+
+		return retList;
+	}
+
+	/**
+	 * 对map中的字符串去空格并转大写
+	 * @param map
+	 * @param keySet 需要去重的key(null表示全部执行)
+	 * @return
+	 */
+	public final static <K, V> Map mapValueTrimAndUpper(Map<K, V> map, Set<String> keySet) {
+		for (K k : map.keySet()) {
+			if(keySet == null || keySet.size() == 0 || keySet.contains(k)) {
+				V value = map.get(k);
+				if(value != null && value instanceof String)
+					map.put(k, (V) ((String) value).trim().toUpperCase());
+			}
+		}
+
+		return map;
+	}
+
+	/**
+	 * 对map中的字符串去空格并转大写(忽略某些key)
+	 * @param map
+	 * @param ignoreKeySet 忽略的key(为空则都不忽略)
+	 * @return
+	 */
+	public final static <K, V> Map mapValueTrimAndUpperWithIgnoreKeys(Map<K, V> map, Set<String> ignoreKeySet) {
+		for (K k : map.keySet()) {
+			if(ignoreKeySet != null && ignoreKeySet.contains(k)) {
+				continue;
+			} else {
+				V value = map.get(k);
+				if(value != null && value instanceof String)
+					map.put(k, (V) ((String) value).trim().toUpperCase());
+			}
+		}
+
+		return map;
+	}
+
 
 	// ==============
 	// 快速组装实例

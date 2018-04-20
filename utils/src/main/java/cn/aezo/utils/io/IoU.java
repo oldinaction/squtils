@@ -28,7 +28,7 @@ public class IoU {
         return sb.toString();
     }
 
-    public static void closeIO(InputStream inputStream, OutputStream outputStream) {
+    public static void close(InputStream inputStream, OutputStream outputStream) {
         try {
             if(inputStream != null){
                 inputStream.close();

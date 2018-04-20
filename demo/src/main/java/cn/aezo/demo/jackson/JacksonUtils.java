@@ -1,5 +1,6 @@
 package cn.aezo.demo.jackson;
 
+import cn.aezo.utils.base.MiscU;
 import com.fasterxml.jackson.core.JsonGenerator;
 import com.fasterxml.jackson.core.JsonParser;
 import com.fasterxml.jackson.core.type.TypeReference;
@@ -23,7 +24,7 @@ public class JacksonUtils {
     /**
      * javaBean,list,array convert to json string
      */
-    public static String obj2json(Object obj) throws Exception{
+    public static String obj2json(Object obj) throws Exception {
         return objectMapper.writeValueAsString(obj);
     }
 
@@ -96,5 +97,14 @@ public class JacksonUtils {
         jp.close();
         jg.close();
         return w.toString();
+    }
+
+    public static void main(String[] args) throws Exception {
+        Map<String, Object> map = MiscU.Instance.toMap("a", 1, "b", "bb", "c", MiscU.Instance.toList("DD", "EE"));
+        String s = obj2json(map);
+        System.out.println("obj2json(map) = " + s);
+
+        System.out.println("json2map(s) = " + json2map(s));
+
     }
 }
