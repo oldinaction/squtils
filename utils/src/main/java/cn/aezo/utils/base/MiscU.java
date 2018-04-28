@@ -15,7 +15,7 @@ import java.util.Set;
 import static cn.aezo.utils.base.StringU.toUpperCaseFirst;
 import static cn.aezo.utils.base.ValidU.isAllNotEmpty;
 
-public final class MiscU {
+public class MiscU {
 
 	// ==============
 	// 操作List

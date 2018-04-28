@@ -312,7 +312,7 @@ public class StringU {
 	 */
 	public static String getNextNo(Boolean startDate) {
 		long id = orderNo.nextId();
-		return startDate ? (DateU.format(new Date(), "yyMMdd") + id) : ("" + id);
+		return startDate ? (new SimpleDateFormat("yyMMdd").format(new Date()) + id) : ("" + id);
 	}
 
 	/**

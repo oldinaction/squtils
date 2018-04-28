@@ -5,25 +5,16 @@ package cn.aezo.utils.base;
  * Created by smalle on 2017/5/11.
  */
 public class ExceptionU extends Exception {
-    public ExceptionU() {}
-
+    /**
+     * 通用错误
+     * @param message
+     */
     public ExceptionU(String message) {
         super(message);
     }
 
     /**
-     * 通用错误
-     */
-    public static class CommonException extends RuntimeException {
-        public CommonException() {}
-
-        public CommonException(String message) {
-            super(message);
-        }
-    }
-
-    /**
-     * 数据转换错误
+     * 数据转换
      */
     public static class DataConvertException extends RuntimeException {
         public DataConvertException() {}
@@ -100,12 +91,23 @@ public class ExceptionU extends Exception {
     }
 
     /**
-     * 待解决错误
+     * 待解决异常
      */
     public static class TodoException extends RuntimeException {
         public TodoException() {}
 
         public TodoException(String message) {
+            super(message);
+        }
+    }
+
+    /**
+     * 未知异常
+     */
+    public static class UnknownException extends RuntimeException {
+        public UnknownException() {}
+
+        public UnknownException(String message) {
             super(message);
         }
     }
