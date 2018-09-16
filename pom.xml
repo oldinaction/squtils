@@ -13,8 +13,6 @@
 	
 	<modules>
 		<module>utils</module>
-		<module>demo</module>
-		<module>core</module>
 	</modules>
 
 	<properties>
