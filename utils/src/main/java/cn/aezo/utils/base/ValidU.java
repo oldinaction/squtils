@@ -55,6 +55,7 @@ public class ValidU {
 
     /** 是否都不为空(包含String的""、集合的大小) */
     public static boolean isAllNotEmpty(Object... objects) {
+        if(objects == null) return false;
         for (Object o : objects) {
             if (isEmpty(o)) {
                 return false;
@@ -65,6 +66,7 @@ public class ValidU {
 
     /** 判断一组字符串是否有效 */
     public static boolean isEmpty(String... str) {
+        if(str == null) return true;
         for (String s : str) {
             if (!isEmpty(s)) {
                 return false;
@@ -75,6 +77,7 @@ public class ValidU {
 
     /** 判断一组集合是否有效 */
     public static boolean isEmpty(Collection... cols) {
+        if(cols == null) return true;
         for (Collection c : cols) {
             if (!isEmpty(c)) {
                 return false;
@@ -85,6 +88,7 @@ public class ValidU {
 
     /** 判断一组Map是否有效 */
     public static boolean isEmpty(Map... maps) {
+        if(maps == null) return true;
         for (Map m : maps) {
             if (!isEmpty(m)) {
                 return false;

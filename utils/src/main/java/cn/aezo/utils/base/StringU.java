@@ -3,7 +3,6 @@ package cn.aezo.utils.base;
 import sun.misc.BASE64Encoder;
 
 import java.io.UnsupportedEncodingException;
-import java.math.BigInteger;
 import java.security.MessageDigest;
 import java.security.NoSuchAlgorithmException;
 import java.text.SimpleDateFormat;
@@ -14,11 +13,13 @@ import java.util.regex.Pattern;
 
 import static java.lang.Character.toUpperCase;
 
-
 public class StringU {
 	private static final char[] letter = new char[] {'q', 'w', 'e', 'r', 't', 'y', 'u', 'i', 'o', 'p', 'a', 's', 'd', 'f', 'g', 'h', 'j', 'k', 'l', 'z', 'x', 'c', 'v', 'b', 'n', 'm'};
 	private static final char[] number = new char[] {'0', '1', '2', '3', '4', '5', '6', '7', '8', '9'};
-	private static final char[] letterNumber = new char[] {'q', 'w', 'e', 'r', 't', 'y', 'u', 'i', 'p', 'a', 's', 'd', 'f', 'g', 'h', 'j', 'k', 'z', 'x', 'c', 'v', 'b', 'n', 'm', '2', '3', '4', '5', '6', '7', '8', '9'};
+	/**
+	 * 字母、数字（去掉0, o, l, 1）
+	 */
+	private static final char[] letterNumberIncomplete = new char[] {'q', 'w', 'e', 'r', 't', 'y', 'u', 'i', 'p', 'a', 's', 'd', 'f', 'g', 'h', 'j', 'k', 'z', 'x', 'c', 'v', 'b', 'n', 'm', '2', '3', '4', '5', '6', '7', '8', '9'};
 	/**
 	 * 生成唯一订单编号
 	 */
@@ -42,7 +43,7 @@ public class StringU {
 	 * @param objects
 	 * @return
 	 */
-	public static String buffer(String joinStr, Object... objects) {
+	public static String bufferJoin(String joinStr, Object... objects) {
 		StringBuffer stringBuffer = new StringBuffer();
 
 		if(objects != null) {
@@ -72,7 +73,7 @@ public class StringU {
 	public static String random(int length, Boolean letterOrNum) {
 		char[] randomChar;
 		if(letterOrNum == null) {
-			randomChar = letterNumber;
+			randomChar = letterNumberIncomplete;
 		} else if(letterOrNum == true) {
 			randomChar = letter;
 		} else {
@@ -257,7 +258,7 @@ public class StringU {
 		}
 
 		/**
-		 * md5加密
+		 * md5加密(32位)
 		 * @param str
 		 * @return
 		 */
@@ -268,12 +269,34 @@ public class StringU {
 			try {
 				md = MessageDigest.getInstance("MD5"); // 生成一个MD5加密计算摘要
 				md.update(str.getBytes()); // 计算md5函数
+
+				byte b[] = md.digest();
+				int i;
+				StringBuffer buf = new StringBuffer();
+				for (int offset = 0; offset < b.length; offset++) {
+					i = b[offset];
+					if (i < 0)
+						i += 256;
+					if (i < 16)
+						buf.append("0");
+					buf.append(Integer.toHexString(i));
+				}
+				str = buf.toString();
 			} catch (NoSuchAlgorithmException e) {
 				e.printStackTrace();
 				return null;
 			}
 
-			return new BigInteger(1, md.digest()).toString(16);
+			return str;
+		}
+
+		/**
+		 * md5加密(16位)
+		 * @param str
+		 * @return
+		 */
+		public static String md516(String str) {
+			return md5(str).substring(8, 24);
 		}
 
 		/**
@@ -396,13 +419,13 @@ public class StringU {
 		public synchronized long nextId() {
 			long timestamp = timeGen();
 
-			//如果当前时间小于上一次ID生成的时间戳，说明系统时钟回退过这个时候应当抛出异常
+			// 如果当前时间小于上一次ID生成的时间戳，说明系统时钟回退过这个时候应当抛出异常
 			if (timestamp < lastTimestamp) {
 				throw new RuntimeException(
 						String.format("Clock moved backwards.  Refusing to generate id for %d milliseconds", lastTimestamp - timestamp));
 			}
 
-			//如果是同一时间生成的，则进行毫秒内序列
+			// 如果是同一时间生成的，则进行毫秒内序列
 			if (lastTimestamp == timestamp) {
 				sequence = (sequence + 1) & sequenceMask;
 				//毫秒内序列溢出
@@ -411,18 +434,18 @@ public class StringU {
 					timestamp = tilNextMillis(lastTimestamp);
 				}
 			}
-			//时间戳改变，毫秒内序列重置
+			// 时间戳改变，毫秒内序列重置
 			else {
 				sequence = 0L;
 			}
 
-			//上次生成ID的时间截
+			// 上次生成ID的时间截
 			lastTimestamp = timestamp;
 
-			//移位并通过或运算拼到一起组成64位的ID
-			return ((timestamp - twepoch) << timestampLeftShift) //
-					| (datacenterId << datacenterIdShift) //
-					| (workerId << workerIdShift) //
+			// 移位并通过或运算拼到一起组成64位的ID
+			return ((timestamp - twepoch) << timestampLeftShift)
+					| (datacenterId << datacenterIdShift)
+					| (workerId << workerIdShift)
 					| sequence;
 		}
 
@@ -446,11 +469,5 @@ public class StringU {
 		protected long timeGen() {
 			return System.currentTimeMillis();
 		}
-	}
-
-
-    // test
-    public static void main(String[] args) throws Exception {
-
 	}
 }

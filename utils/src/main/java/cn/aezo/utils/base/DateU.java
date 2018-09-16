@@ -6,6 +6,7 @@ import java.text.ParseException;
 import java.text.SimpleDateFormat;
 import java.util.Calendar;
 import java.util.Date;
+import java.util.GregorianCalendar;
 
 /**
  * Created by smalle on 2017/1/12.
@@ -16,7 +17,7 @@ public class DateU {
      * @param date
      */
     public void printDate(Date date) {
-        System.out.println(format(date));
+        System.out.println(formatToTime(date));
     }
 
     /**
@@ -24,8 +25,17 @@ public class DateU {
      * @param date
      * @return
      */
-    public static String format(Date date) {
+    public static String formatToTime(Date date) {
         return format(date, "yyyy/MM/dd HH:mm:ss");
+    }
+
+    /**
+     * 日期格式化为字符串(yyyy/MM/dd)
+     * @param date
+     * @return
+     */
+    public static String formatToDate(Date date) {
+        return format(date, "yyyy/MM/dd");
     }
 
     /**
@@ -45,6 +55,7 @@ public class DateU {
      * @return
      */
     public static String format(Date date, SimpleDateFormat dateFormat) {
+        if(date == null) return "";
         return dateFormat.format(date);
     }
 
@@ -74,6 +85,13 @@ public class DateU {
         return new Timestamp(Long.parseLong(milliSecs));
     }
 
+    /**
+     * 两个时间相差距离多少天多少小时多少分多少秒
+     * @param str1
+     * @param str2
+     * @return
+     * @throws ParseException
+     */
     public static long[] getDistanceTimes(String str1, String str2) throws ParseException {
         return getDistanceTimes(str1, str2, "yyyy-MM-dd HH:mm:ss");
     }
@@ -163,6 +181,98 @@ public class DateU {
 
         long[] times = {day, hour, min, sec};
         return times;
+    }
+
+    /**
+     * 加减时间
+     * @param date 为空则为当前时间。如当前时间的前一天：null, Calendar.DAY_OF_MONTH, -1
+     * @param field
+     * @param amount
+     * @return
+     */
+    public static Date add(Date date, int field, int amount) {
+        Calendar calendar = new GregorianCalendar();
+        if(date != null) calendar.setTime(date);
+        calendar.add(field, amount);
+        return calendar.getTime();
+    }
+
+    /**
+     * 获取一天的开始时间 yyyy/MM/dd 00:00:00
+     * @param date 为空则为当前时间
+     * @return
+     */
+    public static Date getDayStart(Date date) {
+        Calendar calendar = new GregorianCalendar();
+        if(date != null) calendar.setTime(date);
+
+        calendar.set(Calendar.HOUR_OF_DAY, 0);
+        calendar.set(Calendar.MINUTE, 0);
+        calendar.set(Calendar.SECOND, 0);
+        calendar.set(Calendar.MILLISECOND, 0);
+
+        return calendar.getTime();
+    }
+
+    /**
+     * 获取一天的结束时间 yyyy/MM/dd 23:59:59
+     * @param date 为空则为当前时间
+     * @return
+     */
+    public static Date getDayEnd(Date date) {
+        Calendar calendar = new GregorianCalendar();
+        if(date != null) calendar.setTime(date);
+
+        calendar.set(Calendar.HOUR_OF_DAY, 23);
+        calendar.set(Calendar.MINUTE, 59);
+        calendar.set(Calendar.SECOND, 59);
+        calendar.set(Calendar.MILLISECOND, 999);
+
+        return calendar.getTime();
+    }
+
+    /**
+     * 获取某月的开始时间 yyyy/MM/01 00:00:00
+     * @param date 为空则为当前时间
+     * @return
+     */
+    public static Date getMonthStart(Date date) {
+        Calendar calendar = new GregorianCalendar();
+        if(date != null) calendar.setTime(date);
+
+        // 获取某月最小天数
+        int firstDay = calendar.getActualMinimum(Calendar.DAY_OF_MONTH);
+        // 设置日历中月份的最小天数
+        calendar.set(Calendar.DAY_OF_MONTH, firstDay);
+
+        calendar.set(Calendar.HOUR_OF_DAY, 0);
+        calendar.set(Calendar.MINUTE, 0);
+        calendar.set(Calendar.SECOND, 0);
+        calendar.set(Calendar.MILLISECOND, 0);
+
+        return calendar.getTime();
+    }
+
+    /**
+     * 获取某月的结束时间 yyyy/MM/31 23:59:59
+     * @param date 为空则为当前时间
+     * @return
+     */
+    public static Date getMonthEnd(Date date) {
+        Calendar calendar = new GregorianCalendar();
+        if(date != null) calendar.setTime(date);
+
+        //获取某月最大天数
+        int lastDay = calendar.getActualMaximum(Calendar.DAY_OF_MONTH);
+        //设置日历中月份的最大天数
+        calendar.set(Calendar.DAY_OF_MONTH, lastDay);
+
+        calendar.set(Calendar.HOUR_OF_DAY, 23);
+        calendar.set(Calendar.MINUTE, 59);
+        calendar.set(Calendar.SECOND, 59);
+        calendar.set(Calendar.MILLISECOND, 999);
+
+        return calendar.getTime();
     }
 
 }

@@ -27,7 +27,13 @@ public class JdbcU {
 
         if(returnTotals)
             sql = sql.replaceFirst(" from ", ", count(*) over () paging_total__ from ");
-        sql = (new StringBuilder("select * from (select rownum as rn__, paging_t1.* from (")).append(sql).append(") paging_t1 where rownum < ").append(start + _pagingLength).append(") paging_t2 where paging_t2.rn__ >= ").append(start).toString();
+        sql = new StringBuffer("select * from (select rownum as rn__, paging_t1.* from (")
+                .append(sql)
+                .append(") paging_t1 where rownum < ")
+                .append(start + _pagingLength)
+                .append(") paging_t2 where paging_t2.rn__ >= ")
+                .append(start)
+                .toString();
 
         return sql;
     }
