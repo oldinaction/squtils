@@ -11,11 +11,12 @@ import java.security.cert.X509Certificate;
 
 /**
  * Created by smalle on 2017/11/30.
+ * 如模拟https请求
  */
-public class SSLU implements X509TrustManager {
+public class SslU implements X509TrustManager {
     private SSLSocketFactory sslFactory = null;
 
-    private SSLU(){
+    private SslU(){
     }
 
     public void checkClientTrusted(X509Certificate[] arg0, String arg1)
@@ -35,14 +36,14 @@ public class SSLU implements X509TrustManager {
         return sslFactory;
     }
 
-    private static SSLU _instance = null;
+    private static SslU _instance = null;
 
     /** 获取SSL管理助手类实例 */
-    synchronized public static SSLU getInstance() throws NoSuchAlgorithmException, KeyManagementException {
-        if (_instance == null){
-            _instance = new SSLU();
+    synchronized public static SslU getInstance() throws NoSuchAlgorithmException, KeyManagementException {
+        if (_instance == null) {
+            _instance = new SslU();
             SSLContext sc = SSLContext.getInstance("SSLv3");
-            sc.init(null, new TrustManager[]{new SSLU()}, null);
+            sc.init(null, new TrustManager[]{new SslU()}, null);
             _instance.sslFactory = sc.getSocketFactory();
         }
         return _instance;

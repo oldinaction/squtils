@@ -5,7 +5,7 @@
 
 	<groupId>cn.aezo</groupId>
     <artifactId>smtools</artifactId>
-    <version>sm-minions-1.1</version>
+    <version>0.0.1-SNAPSHOT</version>
 	<packaging>pom</packaging>
 
 	<name>smtools</name>
@@ -13,6 +13,7 @@
 	
 	<modules>
 		<module>utils</module>
+		<module>core</module>
 	</modules>
 
 	<properties>
@@ -33,11 +34,18 @@
 		<poi_ooxml_version>3.9</poi_ooxml_version>
 		<poi_sax_xerces_version>2.9.1</poi_sax_xerces_version>
 
-		<spring_version>4.3.10.RELEASE</spring_version>
+		<lombok_version>1.16.20</lombok_version>
 		<jjwt_version>0.6.0</jjwt_version>
 	</properties>
 
 	<dependencies>
+		<dependency>
+			<groupId>org.projectlombok</groupId>
+			<artifactId>lombok</artifactId>
+			<version>${lombok_version}</version>
+			<optional>true</optional>
+		</dependency>
+
 		<dependency>
             <groupId>junit</groupId>
             <artifactId>junit</artifactId>
@@ -112,19 +120,14 @@
 				<version>${commons_fileupload_version}</version>
 			</dependency>
 
-
-			<dependency>
-				<groupId>org.springframework</groupId>
-				<artifactId>spring-context</artifactId>
-				<version>${spring_version}</version>
-				<scope>provided</scope>
-			</dependency>
-
+			<!-- ================== -->
+			<!-- provided/optional  -->
+			<!-- ================== -->
 			<dependency>
 				<groupId>io.jsonwebtoken</groupId>
 				<artifactId>jjwt</artifactId>
 				<version>${jjwt_version}</version>
-				<scope>provided</scope>
+				<optional>true</optional>
 			</dependency>
 		</dependencies>
 

@@ -47,6 +47,17 @@ public class ExceptionU extends Exception {
     }
 
     /**
+     * token 过期
+     */
+    public static class AuthTokenExpiredException extends RuntimeException {
+        public AuthTokenExpiredException() {}
+
+        public AuthTokenExpiredException(String message) {
+            super(message);
+        }
+    }
+
+    /**
      * 不支持此方法
      */
     public static class MethodNotSupportedException extends RuntimeException {
@@ -91,6 +102,28 @@ public class ExceptionU extends Exception {
     }
 
     /**
+     * 403 无权访问
+     */
+    public static class AccessForbiddenException extends RuntimeException {
+        public AccessForbiddenException() {}
+
+        public AccessForbiddenException(String message) {
+            super(message);
+        }
+    }
+
+    /**
+     * 404 无效页面
+     */
+    public static class AccessNotFoundException extends RuntimeException {
+        public AccessNotFoundException() {}
+
+        public AccessNotFoundException(String message) {
+            super(message);
+        }
+    }
+
+    /**
      * 待解决异常
      */
     public static class TodoException extends RuntimeException {
@@ -111,5 +144,5 @@ public class ExceptionU extends Exception {
             super(message);
         }
     }
-
 }
+

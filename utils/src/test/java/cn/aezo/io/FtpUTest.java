@@ -11,8 +11,7 @@ public class FtpUTest extends Thread {
 	public void run() {
         try {
             /********************业务代码调用样例*********************/  
-            FtpU ftpU = FtpU.getInstance();
-            System.out.println(ftpU.ftpClient);
+            FtpU ftpU = FtpU.getInstanceDefault();
             File file = new File("d:/temp/1.png");
 
             String dir = "";
@@ -35,8 +34,8 @@ public class FtpUTest extends Thread {
             sleep(3000);
             ftpU.upload(dir, new FileInputStream(file));
 
-            ftpU.returnClient();
-            System.out.println(t + "释放连接==>" + ftpU.ftpClient);  
+            ftpU.returnDefaultClient();
+            System.out.println(t + "释放连接==>");
             /***************************************************/  
         } catch (Exception e) {
             e.printStackTrace();  

@@ -1,4 +1,4 @@
 ## smtools
 
 - `utils` java工具类
-- `demo` java测试
+- `core` 基于spring的常用写法

@@ -258,7 +258,7 @@ public class StringU {
 		}
 
 		/**
-		 * md5加密(32位)
+		 * md5加密(32位小写)
 		 * @param str
 		 * @return
 		 */
@@ -329,17 +329,17 @@ public class StringU {
 	}
 
 	/**
-	 * 获取下一个编号(以时间开头，如：171119381785090499280898)
+	 * 获取下一个编号(以时间开头，如：20171119381785090499280898)
 	 * @param startDate
 	 * @return
 	 */
 	public static String getNextNo(Boolean startDate) {
 		long id = orderNo.nextId();
-		return startDate ? (new SimpleDateFormat("yyMMdd").format(new Date()) + id) : ("" + id);
+		return startDate ? (new SimpleDateFormat("yyyyMMdd").format(new Date()) + id) : ("" + id);
 	}
 
 	/**
-	 * 生成订单编号
+	 * 生成订单编号(18位)
 	 * Twitter Snowflake<br>
 	 * SnowFlake的结构如下(每部分用-分开):<br>
 	 * 0 - 0000000000 0000000000 0000000000 0000000000 0 - 00000 - 00000 - 000000000000 <br>
@@ -353,19 +353,19 @@ public class StringU {
 	 */
 	public static class OrderNo {
 		/** 开始时间截 (2015-01-01) */
-		private final long twepoch = 1420041600000L;
+		private final long epoch = 1420041600000L;
 
 		/** 机器id所占的位数 */
 		private final long workerIdBits = 5L;
 
 		/** 数据标识id所占的位数 */
-		private final long datacenterIdBits = 5L;
+		private final long dataCenterIdBits = 5L;
 
 		/** 支持的最大机器id，结果是31 (这个移位算法可以很快的计算出几位二进制数所能表示的最大十进制数) */
 		private final long maxWorkerId = -1L ^ (-1L << workerIdBits);
 
 		/** 支持的最大数据标识id，结果是31 */
-		private final long maxDatacenterId = -1L ^ (-1L << datacenterIdBits);
+		private final long maxDataCenterId = -1L ^ (-1L << dataCenterIdBits);
 
 		/** 序列在id中占的位数 */
 		private final long sequenceBits = 12L;
@@ -374,10 +374,10 @@ public class StringU {
 		private final long workerIdShift = sequenceBits;
 
 		/** 数据标识id向左移17位(12+5) */
-		private final long datacenterIdShift = sequenceBits + workerIdBits;
+		private final long dataCenterIdShift = sequenceBits + workerIdBits;
 
 		/** 时间截向左移22位(5+5+12) */
-		private final long timestampLeftShift = sequenceBits + workerIdBits + datacenterIdBits;
+		private final long timestampLeftShift = sequenceBits + workerIdBits + dataCenterIdBits;
 
 		/** 生成序列的掩码，这里为4095 (0b111111111111=0xfff=4095) */
 		private final long sequenceMask = -1L ^ (-1L << sequenceBits);
@@ -386,7 +386,7 @@ public class StringU {
 		private long workerId;
 
 		/** 数据中心ID(0~31) */
-		private long datacenterId;
+		private long dataCenterId;
 
 		/** 毫秒内序列(0~4095) */
 		private long sequence = 0L;
@@ -399,17 +399,17 @@ public class StringU {
 		/**
 		 * 构造函数
 		 * @param workerId 工作ID (0~31)
-		 * @param datacenterId 数据中心ID (0~31)
+		 * @param dataCenterId 数据中心ID (0~31)
 		 */
-		public OrderNo(long workerId, long datacenterId) {
+		public OrderNo(long workerId, long dataCenterId) {
 			if (workerId > maxWorkerId || workerId < 0) {
 				throw new IllegalArgumentException(String.format("worker Id can't be greater than %d or less than 0", maxWorkerId));
 			}
-			if (datacenterId > maxDatacenterId || datacenterId < 0) {
-				throw new IllegalArgumentException(String.format("datacenter Id can't be greater than %d or less than 0", maxDatacenterId));
+			if (dataCenterId > maxDataCenterId || dataCenterId < 0) {
+				throw new IllegalArgumentException(String.format("dataCenter Id can't be greater than %d or less than 0", maxDataCenterId));
 			}
 			this.workerId = workerId;
-			this.datacenterId = datacenterId;
+			this.dataCenterId = dataCenterId;
 		}
 
 		/**
@@ -443,8 +443,8 @@ public class StringU {
 			lastTimestamp = timestamp;
 
 			// 移位并通过或运算拼到一起组成64位的ID
-			return ((timestamp - twepoch) << timestampLeftShift)
-					| (datacenterId << datacenterIdShift)
+			return ((timestamp - epoch) << timestampLeftShift)
+					| (dataCenterId << dataCenterIdShift)
 					| (workerId << workerIdShift)
 					| sequence;
 		}

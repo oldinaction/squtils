@@ -17,8 +17,18 @@ public class FileU {
     public static File getFileByClasspath(String relativePath) {
         URL url = FileU.class.getClassLoader().getResource(relativePath);
         if(url == null) return null;
+        return new File(url.getFile());
+    }
 
-        File file = new File(url.getFile());
+    public static File newFile(String fileFullName) throws IOException {
+        File file = new File(fileFullName);
+        boolean flag;
+        if (!file.getParentFile().exists()) {
+            flag = file.getParentFile().mkdirs();
+            if(!flag) throw new IOException("创建父目录失败");
+            flag = file.createNewFile();
+            if(!flag) throw new IOException("创建文件失败");
+        }
         return file;
     }
 
@@ -62,7 +72,8 @@ public class FileU {
      * @param rootDir 根目录(结尾不含"/")
      * @param dirName 目录名称(开头不含"/")
      */
-    public static void mkdirs(String rootDir, String... dirName) {
+    public static boolean mkdirs(String rootDir, String... dirName) {
+        boolean flag = true;
         for (String dir : dirName) {
             File root = new File(rootDir + "/" + dir);
             if(root.exists()) {
@@ -70,16 +81,17 @@ public class FileU {
                     throw new RuntimeException("目录被占用");
                 }
             } else {
-                root.mkdir();
+                flag = root.mkdir();
             }
         }
+        return flag;
     }
 
     /**
-     * 以行为单位读取文件，常用于读面向行的格式化文件
+     * 读取文件内容(以行为单位读取)
      */
-    public static String readFileByLines(String fileName) {
-        File file = new File(fileName);
+    public static String read(Object fileOrName) throws IOException {
+        File file = fileOrName instanceof String ? new File((String) fileOrName) : (File) fileOrName;
         StringBuffer buffer = new StringBuffer();
         BufferedReader reader = null;
         try {
@@ -89,16 +101,8 @@ public class FileU {
             while ((tempString = reader.readLine()) != null) {
                 buffer.append(tempString);
             }
-            reader.close();
-        } catch (IOException e) {
-            e.printStackTrace();
         } finally {
-            if (reader != null) {
-                try {
-                    reader.close();
-                } catch (IOException e1) {
-                }
-            }
+            close(reader);
         }
         return buffer.toString();
     }
@@ -193,47 +197,83 @@ public class FileU {
         } catch (Exception e1) {
             e1.printStackTrace();
         } finally {
-            if (reader != null) {
-                try {
-                    reader.close();
-                } catch (IOException e1) {
-                }
-            }
+            close(reader);
         }
     }
 
     /**
-     * 追加文件：使用FileWriter
-     * @param fileName
+     * 追加/覆盖文件内容(使用FileWriter)
+     * @param fileOrPath 文件或文件路径
      * @param content
+     * @param append true 追加; false 覆盖
      */
-    public static void appendMethod(String fileName, String content) {
+    public static void write(Object fileOrPath, String content, boolean append) throws IOException {
+        BufferedWriter writer = null; // FileWriter容易产生乱码
         try {
-            //打开一个写文件器，构造函数中的第二个参数true表示以追加形式写文件
-            FileWriter writer = new FileWriter(fileName, true);
+            if(fileOrPath instanceof File) {
+                writer = new BufferedWriter (new OutputStreamWriter(new FileOutputStream((File) fileOrPath, append),"UTF-8"));
+            } else {
+                writer = new BufferedWriter (new OutputStreamWriter(new FileOutputStream((String) fileOrPath, append),"UTF-8"));
+            }
             writer.write(content);
-            writer.close();
-        } catch (IOException e) {
-            e.printStackTrace();
+        }  finally {
+            close(writer);
         }
     }
 
     /**
      * 复制文件
      * @param fromFile
-     * @param toFile
+     * @param toFile 复制到的文件完整路径。建议使用FileU.newFile传入文件(会自动创建目录)
      * @throws IOException
      */
-    public static void copyFile(File fromFile, File toFile) throws IOException{
-        FileInputStream ins = new FileInputStream(fromFile);
-        FileOutputStream out = new FileOutputStream(toFile);
-        byte[] b = new byte[1024];
-        int n = 0;
-        while((n=ins.read(b))!=-1){
-            out.write(b, 0, n);
+    public static void copyFile(File fromFile, File toFile) throws IOException {
+        FileInputStream ins = null;
+        FileOutputStream out = null;
+        try {
+            ins = new FileInputStream(fromFile);
+            out = new FileOutputStream(toFile);
+            byte[] b = new byte[1024];
+            int n;
+            while((n=ins.read(b))!=-1){
+                out.write(b, 0, n);
+            }
+        } finally {
+            close(ins, out);
+        }
+    }
+
+    /**
+     * 读入流转换为字符串
+     * @param is
+     * @return
+     * @throws IOException
+     */
+    public static String inputStreamToString(InputStream is) throws IOException {
+        StringBuilder sb = new StringBuilder();
+        BufferedReader br = null;
+        try {
+            br = new BufferedReader(new InputStreamReader(is));
+            String line;
+            while ((line = br.readLine()) != null) {
+                sb.append(line);
+            }
+        } finally {
+            close(br);
         }
 
-        ins.close();
-        out.close();
+        return sb.toString();
+    }
+
+    public static void close(Closeable... closeables) {
+        if(closeables == null) return;
+        for (Closeable closeable: closeables) {
+            try {
+                if(closeable != null)
+                    closeable.close();
+            } catch (IOException e) {
+                e.printStackTrace();
+            }
+        }
     }
 }
