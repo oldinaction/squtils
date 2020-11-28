@@ -116,7 +116,7 @@ public class GlobalExceptionHandlerController extends BasicErrorController {
             body = JsonU.json2map(str);
         } catch (Exception e) {
             logger.error("return error info failed", e);
-            body = MiscU.Instance.toMap("metaStatus", "error");
+            body = MiscU.toMap("metaStatus", "error");
         }
 
         return new ResponseEntity<>(body, status);

@@ -1,10 +1,6 @@
 package cn.aezo.utils.base;
 
-import sun.misc.BASE64Encoder;
-
 import java.io.UnsupportedEncodingException;
-import java.security.MessageDigest;
-import java.security.NoSuchAlgorithmException;
 import java.text.SimpleDateFormat;
 import java.util.Date;
 import java.util.Random;
@@ -162,6 +158,16 @@ public class StringU {
 	}
 
 	/**
+	 * 首字母小写
+	 */
+	public static String toLowerCaseFirst(String string) {
+		char[] methodName = string.toCharArray();
+		methodName[0] = Character.toLowerCase(methodName[0]);
+		return String.valueOf(methodName);
+	}
+
+
+	/**
 	 * 解析字节型((2^8)-1 = 0 ~ 225)字符串为字符串.如：104,101,108,108,111 转换成 hello
 	 * @param byteStr
 	 * @param split
@@ -216,106 +222,6 @@ public class StringU {
 			return sb.toString().substring(0, sb.toString().length() - separator.length());
 		} else {
 			return sb.toString();
-		}
-	}
-
-	public static class Security {
-
-		/**
-		 * md5和base64加密
-		 * @param s
-		 * @return
-		 */
-		public static String md5AndBase64(String s) {
-			if (s == null) return null;
-
-			String encodeStr;
-			byte[] utfBytes = s.getBytes();
-			MessageDigest md;
-			try {
-				md = MessageDigest.getInstance("MD5");
-				md.update(utfBytes);
-				byte[] bytes = md.digest();
-
-				BASE64Encoder b64Encoder = new BASE64Encoder();
-				encodeStr = b64Encoder.encode(bytes);
-			} catch (NoSuchAlgorithmException e) {
-				return null;
-			}
-
-			return encodeStr;
-		}
-
-		/**
-		 * base64加密
-		 * @param str
-		 * @return
-		 */
-		public static String base64(String str) {
-			if (str == null) return null;
-			BASE64Encoder b64Encoder = new BASE64Encoder();
-			return b64Encoder.encode(str.getBytes());
-		}
-
-		/**
-		 * md5加密(32位小写)
-		 * @param str
-		 * @return
-		 */
-		public static String md5(String str) {
-			if (str == null) return null;
-
-			MessageDigest md;
-			try {
-				md = MessageDigest.getInstance("MD5"); // 生成一个MD5加密计算摘要
-				md.update(str.getBytes()); // 计算md5函数
-
-				byte b[] = md.digest();
-				int i;
-				StringBuffer buf = new StringBuffer();
-				for (int offset = 0; offset < b.length; offset++) {
-					i = b[offset];
-					if (i < 0)
-						i += 256;
-					if (i < 16)
-						buf.append("0");
-					buf.append(Integer.toHexString(i));
-				}
-				str = buf.toString();
-			} catch (NoSuchAlgorithmException e) {
-				e.printStackTrace();
-				return null;
-			}
-
-			return str;
-		}
-
-		/**
-		 * md5加密(16位)
-		 * @param str
-		 * @return
-		 */
-		public static String md516(String str) {
-			return md5(str).substring(8, 24);
-		}
-
-		/**
-		 * 生成一串token：WSLqf5fVUJxGVkUnDOTpig==
-		 * @return
-		 */
-		public static String makeToken() {
-			// 7346734837483  834u938493493849384  43434384
-			String token = (System.currentTimeMillis() + new Random().nextInt(999999999)) + "";
-			// 数据指纹   128位长   16个字节  md5
-			try {
-				MessageDigest md = MessageDigest.getInstance("md5");
-				byte md5[] = md.digest(token.getBytes());
-				//base64编码--任意二进制编码明文字符
-				BASE64Encoder encoder = new BASE64Encoder();
-				return encoder.encode(md5);
-			} catch (NoSuchAlgorithmException e) {
-				throw new RuntimeException(e);
-			}
 		}
 	}
 

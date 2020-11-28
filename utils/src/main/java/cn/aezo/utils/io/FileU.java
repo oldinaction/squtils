@@ -10,6 +10,23 @@ import java.net.URL;
  */
 public class FileU {
     /**
+     * 换行符
+     */
+    public enum LINE_SEPARATOR {
+        WINDOWS("\r\n"), LINUX("\n"), MAC("\r"), UNKNOWN("");
+
+        private String value;
+
+        LINE_SEPARATOR(String value) {
+            this.value = value;
+        }
+
+        public String getValue() {
+            return value;
+        }
+    }
+
+    /**
      * 根据classpath获取文件
      * @param relativePath 相对classpath的路径, 开头不需要/ (如：cn/aezo/utils/data.json)
      * @return
@@ -88,23 +105,47 @@ public class FileU {
     }
 
     /**
-     * 读取文件内容(以行为单位读取)
+     * 读取文件内容(以行为单位读取，忽略换行符)
      */
     public static String read(Object fileOrName) throws IOException {
+        return read(fileOrName, false);
+    }
+
+    /**
+     * 读取文件内容(以行为单位读取，包含换行符)
+     */
+    public static String readWithSeparator(Object fileOrName) throws IOException {
+        return read(fileOrName, true);
+    }
+
+    /**
+     * 读取文件内容
+     * @param fileOrName
+     * @param withSeparator 是否包含换行符
+     * @return
+     * @throws IOException
+     */
+    public static String read(Object fileOrName, boolean withSeparator) throws IOException {
         File file = fileOrName instanceof String ? new File((String) fileOrName) : (File) fileOrName;
-        StringBuffer buffer = new StringBuffer();
+        LINE_SEPARATOR ls = LINE_SEPARATOR.UNKNOWN;
+        if(withSeparator) {
+            ls = getLineSeparator(file);
+        }
+        StringBuilder builder = new StringBuilder();
         BufferedReader reader = null;
         try {
             reader = new BufferedReader(new FileReader(file));
-            String tempString = null;
-            // 一次读入一行，直到读入null为文件结束
+            String tempString;
             while ((tempString = reader.readLine()) != null) {
-                buffer.append(tempString);
+                builder.append(tempString);
+                if(withSeparator) {
+                    builder.append(ls.getValue());
+                }
             }
         } finally {
             close(reader);
         }
-        return buffer.toString();
+        return builder.toString();
     }
 
     /**
@@ -223,19 +264,23 @@ public class FileU {
 
     /**
      * 复制文件
-     * @param fromFile
+     * @param fromFileOrInputStream
      * @param toFile 复制到的文件完整路径。建议使用FileU.newFile传入文件(会自动创建目录)
      * @throws IOException
      */
-    public static void copyFile(File fromFile, File toFile) throws IOException {
-        FileInputStream ins = null;
+    public static void copyFile(Object fromFileOrInputStream, File toFile) throws IOException {
+        InputStream ins = null;
         FileOutputStream out = null;
         try {
-            ins = new FileInputStream(fromFile);
+            if(fromFileOrInputStream instanceof File) {
+                ins = new FileInputStream((File) fromFileOrInputStream);
+            } else {
+                ins = (InputStream) fromFileOrInputStream;
+            }
             out = new FileOutputStream(toFile);
             byte[] b = new byte[1024];
             int n;
-            while((n=ins.read(b))!=-1){
+            while((n=ins.read(b))!=-1) {
                 out.write(b, 0, n);
             }
         } finally {
@@ -275,5 +320,135 @@ public class FileU {
                 e.printStackTrace();
             }
         }
+    }
+
+    /**
+     * 获取文件换行符
+     * @param f
+     * @return
+     * @throws IllegalArgumentException
+     */
+    public static LINE_SEPARATOR getLineSeparator(File f) throws IllegalArgumentException {
+        if (f == null || !f.isFile() || !f.exists()) {
+            throw new IllegalArgumentException("file must exists!");
+        }
+
+        RandomAccessFile raf = null;
+        try {
+            raf = new RandomAccessFile(f, "r");
+            String line = raf.readLine();
+            if (line == null) {
+                return LINE_SEPARATOR.UNKNOWN;
+            }
+
+            // 必须执行这一步，因为 RandomAccessFile 的 readLine() 会自动忽略并跳过换行符，所以需要先回退文件指针位置
+            // "ISO-8859-1" 为 RandomAccessFile 使用的字符集，此处必须指定，否则中文 length 获取不对
+            raf.seek(line.getBytes("ISO-8859-1").length);
+
+            byte nextByte = raf.readByte();
+            if (nextByte == 0x0A) {
+                return LINE_SEPARATOR.LINUX;
+            }
+
+            if (nextByte != 0x0D) {
+                return LINE_SEPARATOR.UNKNOWN;
+            }
+
+            try {
+                nextByte = raf.readByte();
+                if (nextByte == 0x0A) {
+                    return LINE_SEPARATOR.WINDOWS;
+                }
+                return LINE_SEPARATOR.MAC;
+            } catch (EOFException e) {
+                return LINE_SEPARATOR.MAC;
+            }
+        } catch (IOException e) {
+            e.printStackTrace();
+        } finally {
+            if (raf != null) {
+                try {
+                    raf.close();
+                } catch (IOException e) {
+                    e.printStackTrace();
+                }
+            }
+        }
+
+        return LINE_SEPARATOR.UNKNOWN;
+    }
+
+    /**
+     * 转换文件换行符
+     * @param f
+     * @param targetSeparator 文件目标换行符
+     * @param charset 文件编码，默认UTF-8
+     * @return
+     */
+    @SuppressWarnings("ResultOfMethodCallIgnored")
+    public static boolean convertFileSeparator(File f, LINE_SEPARATOR targetSeparator, String charset) {
+        if (targetSeparator == null || targetSeparator == LINE_SEPARATOR.UNKNOWN) {
+            return false;
+        }
+        if (f == null || !f.isFile() || !f.exists()) {
+            return false;
+        }
+        if (charset == null || charset.isEmpty()) {
+            charset = "UTF-8";
+        }
+        LINE_SEPARATOR nowLs = getLineSeparator(f);
+        if (nowLs == targetSeparator) {
+            return true;
+        }
+
+        File temp = new File(f.getParent(), "temp.txt");
+        if (temp.exists()) {
+            temp.delete();
+        }
+
+        BufferedReader br = null;
+        BufferedWriter bw = null;
+        try {
+            br = new BufferedReader(new InputStreamReader(new FileInputStream(f), charset));
+            bw = new BufferedWriter(new OutputStreamWriter(new FileOutputStream(temp), charset));
+            String line;
+            int lineNumber = 0;
+            while ((line = br.readLine()) != null) {
+                if (lineNumber != 0) {
+                    switch (targetSeparator) {
+                        case WINDOWS:
+                            bw.append('\r').append('\n');
+                            break;
+                        case LINUX:
+                            bw.append('\n');
+                            break;
+                        case MAC:
+                            bw.append('\r');
+                            break;
+                        default:
+                    }
+                }
+                bw.write(line);
+                ++lineNumber;
+            }
+            return true;
+        } catch (IOException e) {
+            e.printStackTrace();
+        } finally {
+            try {
+                if (br != null) {
+                    br.close();
+                }
+                if (bw != null) {
+                    bw.close();
+                }
+            } catch (IOException e) {
+                e.printStackTrace();
+            }
+            f.delete();
+            temp.renameTo(f);
+        }
+
+        return false;
     }
 }

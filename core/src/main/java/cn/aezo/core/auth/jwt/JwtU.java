@@ -57,7 +57,7 @@ public class JwtU {
     public Map<String, Object> createTokenInfo(UserAuthInfo userAuthInfo) {
         String access_token = createAccessToken(userAuthInfo);
         String refresh_token = createRefreshToken(userAuthInfo);
-        return MiscU.Instance.toMap(
+        return MiscU.toMap(
                 "access_token", access_token,
                 "refresh_token", refresh_token,
                 "expires_in", access_token_expiration); // expires_in单位s
@@ -74,7 +74,7 @@ public class JwtU {
         if(userAuthInfo == null || userAuthInfo.getUsername() == null)
             throw new ExceptionU.AuthTokenInvalidException("无效的用户标识");
         Map<String, Object> claims = generateClaims(userAuthInfo);
-        claims.put(Claim_Key_Roles, MiscU.Instance.toList(Role_Refresh_Token)); // 只授于更新 token 的权限
+        claims.put(Claim_Key_Roles, MiscU.toList(Role_Refresh_Token)); // 只授于更新 token 的权限
         return generateRefreshToken(userAuthInfo.getUsername(), claims);
     }
 

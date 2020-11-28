@@ -1,9 +1,11 @@
 package cn.aezo.utils.base;
 
+import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.core.type.TypeReference;
 import com.fasterxml.jackson.databind.ObjectMapper;
 
 import java.io.BufferedReader;
+import java.io.IOException;
 import java.io.InputStream;
 import java.io.InputStreamReader;
 import java.net.URL;
@@ -22,21 +24,29 @@ public class JsonU {
     /**
      * javaBean,list,array convert to json string(map中包含list亦可转换)
      */
-    public static String obj2json(Object obj) throws Exception {
+    public static String obj2json(Object obj) throws JsonProcessingException {
         return objectMapper.writeValueAsString(obj);
+    }
+
+    public static Map obj2map(Object obj) {
+        return objectMapper.convertValue(obj, Map.class);
+    }
+
+    public static <T> T convertValue(Object obj,  Class<T> c) {
+        return objectMapper.convertValue(obj, c);
     }
 
     /**
      * json string convert to map
      */
-    public static Map<String, Object> json2map(String jsonStr)throws Exception{
+    public static Map<String, Object> json2map(String jsonStr) throws IOException {
         return objectMapper.readValue(jsonStr, Map.class);
     }
 
     /**
      * json string convert to map with javaBean(map中存放的为某个javaBean)
      */
-    public static <T> Map<String, T> json2map(String jsonStr, Class<T> clazz)throws Exception{
+    public static <T> Map<String, T> json2map(String jsonStr, Class<T> clazz) throws IOException {
         Map<String, Map<String,Object>> map =  objectMapper.readValue(jsonStr, new TypeReference<Map<String,T>>() {});
         Map<String, T> result = new HashMap<String, T>();
         for (Map.Entry<String, Map<String,Object>> entry : map.entrySet()) {
@@ -48,21 +58,21 @@ public class JsonU {
     /**
      * json string convert to javaBean
      */
-    public static <T> T json2pojo(String jsonStr, Class<T> clazz) throws Exception{
+    public static <T> T json2pojo(String jsonStr, Class<T> clazz) throws IOException {
         return objectMapper.readValue(jsonStr, clazz);
     }
 
     /**
      * json array string convert to list with string
      */
-    public static List<String> json2list(String jsonArrayStr) throws Exception {
+    public static List<String> json2list(String jsonArrayStr) throws IOException {
         return json2list(jsonArrayStr, String.class);
     }
 
     /**
      * json array string convert to list with javaBean
      */
-    public static <T> List<T> json2list(String jsonArrayStr, Class<T> clazz)throws Exception{
+    public static <T> List<T> json2list(String jsonArrayStr, Class<T> clazz)throws IOException {
         List<Map<String,Object>> list = objectMapper.readValue(jsonArrayStr, new TypeReference<List<T>>() {
         });
         List<T> result = new ArrayList<T>();

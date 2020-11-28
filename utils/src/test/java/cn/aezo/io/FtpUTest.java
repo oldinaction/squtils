@@ -64,9 +64,9 @@ public class FtpUTest extends Thread {
         }
 
         // 测试二
-	    FtpU.multiInit(MiscU.Instance.toList(
-	            MiscU.Instance.toList("tx", "xx.xx.xx.xx", "21", "ftp1", "aa"),
-                MiscU.Instance.toList("ug", "192.168.17.50", "23", "ftpservice", "xxx")));
+	    FtpU.multiInit(MiscU.toList(
+	            MiscU.toList("tx", "xx.xx.xx.xx", "21", "ftp1", "aa"),
+                MiscU.toList("ug", "192.168.17.50", "23", "ftpservice", "xxx")));
         File tx = new File("d:/temp/1.png");
         FtpU.getInstance("tx").upload("/a/1.png", new FileInputStream(tx));
 

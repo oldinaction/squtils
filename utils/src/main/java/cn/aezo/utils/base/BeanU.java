@@ -43,7 +43,7 @@ public class BeanU {
     }
 
     /**
-     * 将 Map对象转化为JavaBean(基于BeanUtils)
+     * 将 Map对象转化为JavaBean(基于apache BeanUtils)
      * @param map
      * @param T
      * @param <T>

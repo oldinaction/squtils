@@ -709,7 +709,7 @@ public class FtpU {
 	}
 
 	// public static void main(String[] args) throws Exception {
-	// 	FtpU.initDefault("192.168.17.196", 21, "ds", "ds88", MiscU.Instance.toMap("poolSize", 1));
+	// 	FtpU.initDefault("192.168.17.196", 21, "ds", "ds88", MiscU.toMap("poolSize", 1));
     //
 	// 	for (int i=0; i<5; i++) {
 	// 		FtpU ftpU = FtpU.getInstanceDefault();

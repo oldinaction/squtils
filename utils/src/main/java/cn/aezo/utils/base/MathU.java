@@ -17,7 +17,7 @@ public class MathU {
 
     /**
      * 按比例生成随机数
-     * @param keyPercentMap MiscU.Instance.toMap("A", 60, "B", 40); 按照比率填写
+     * @param keyPercentMap MiscU.toMap("A", 60, "B", 40); 按照比率填写
      * @return
      */
     public static String randomPercent(Map<String, Integer> keyPercentMap) {

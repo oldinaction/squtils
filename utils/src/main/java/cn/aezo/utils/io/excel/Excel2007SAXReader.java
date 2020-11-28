@@ -249,13 +249,12 @@ public abstract class Excel2007SAXReader extends DefaultHandler {
 
 
     public static void main(String[] args) throws Exception {
-        Excel2007SAXReader example = new Excel2007SAXReader(){
+        Excel2007SAXReader example = new Excel2007SAXReader() {
             @Override
             public void dealCurrentRow(Map<String, String> valueMap, String nowRow) {
                 System.out.println("valueMap = " + valueMap);
             }
         };
-        // example.readAllSheets("D:\\test.xlsx");
-        example.readAllSheets("D:\\unilog\\fedex\\phb-484628-20181127-164923.xls.xlsx");
+        example.readAllSheets("D:\\test.xlsx");
     }
 }
