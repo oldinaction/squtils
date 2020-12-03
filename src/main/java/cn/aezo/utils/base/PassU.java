@@ -2,6 +2,7 @@ package cn.aezo.utils.base;
 
 import cn.hutool.core.codec.Base64;
 import sun.misc.BASE64Encoder;
+
 import javax.crypto.Cipher;
 import javax.crypto.spec.IvParameterSpec;
 import javax.crypto.spec.SecretKeySpec;
@@ -19,7 +20,7 @@ import java.security.spec.PKCS8EncodedKeySpec;
 import java.security.spec.X509EncodedKeySpec;
 import java.util.HashMap;
 import java.util.Map;
-import java.util.Random;
+import java.util.UUID;
 
 /**
  * @author smalle
@@ -48,7 +49,7 @@ public class PassU {
             BASE64Encoder b64Encoder = new BASE64Encoder();
             encodeStr = b64Encoder.encode(bytes);
         } catch (NoSuchAlgorithmException e) {
-            return null;
+            throw new ExceptionU("加密出错", e);
         }
 
         return encodeStr;
@@ -68,7 +69,7 @@ public class PassU {
     }
 
     /**
-     * md5加密(32位小写)
+     * md5加密(32位小写，大写可自行转换)
      * @param bytes eg: str.getBytes()
      * @return
      */
@@ -97,15 +98,14 @@ public class PassU {
             }
             md5 = buf.toString();
         } catch (NoSuchAlgorithmException e) {
-            e.printStackTrace();
-            return null;
+            throw new ExceptionU("加密出错", e);
         }
 
         return md5;
     }
 
     /**
-     * md5加密(16位)
+     * md5加密(16位小写)
      * @param str
      * @return
      */
@@ -114,12 +114,12 @@ public class PassU {
     }
 
     /**
-     * 生成一串token：WSLqf5fVUJxGVkUnDOTpig==
+     * 生成一串token(24位)：moFC0gvBUe7AzHPTWRuDYQ==
      * @return
      */
     public static String getToken() {
         // 7346734837483  834u938493493849384  43434384
-        String token = (System.currentTimeMillis() + new Random().nextInt(999999999)) + "";
+        String token = UUID.randomUUID().toString();
         // 数据指纹   128位长   16个字节  md5
         try {
             MessageDigest md = MessageDigest.getInstance("md5");
@@ -128,18 +128,24 @@ public class PassU {
             BASE64Encoder encoder = new BASE64Encoder();
             return encoder.encode(md5);
         } catch (NoSuchAlgorithmException e) {
-            throw new RuntimeException(e);
+            throw new ExceptionU("生成Token出错", e);
         }
     }
 
     // ====================== 对称密钥算法AES(公钥私钥一致，使用秘钥多次加密后的数据是一样的)
     /**
      *
-     * 使用的是 AES/CBC/PKCS5Padding (算法/模式/填充)
+     * 使用的是 AES/CBC/PKCS5Padding (算法/模式/填充)。对应的有 AES/CBC/PKCS7Padding(jdk默认不支持，具体参考博客)、DES/CBC/PKCS5Padding
      */
-    private static String AES_KEY_STRING = "128bitslength@#*"; // 16个字节大小
-    private static final String AES_IV_STRING = "A-16-Byte-String"; // 16个字节大小
-    private static final String AES_CHARSET = "UTF-8";
+    private static final String AES_INSTANCE_NAME = "AES/CBC/PKCS5Padding";
+    /**
+     * 秘钥：16个字节大小(128位)。如：0123456789abcdef
+     */
+    private static String AES_KEY_STRING = "0123456789abcdef";
+    /**
+     * 偏移量：16个字节大小(128位)。如：0123456789abcdef
+     */
+    private static final String AES_IV_STRING = "0123456789abcdef";
 
     /**
      * 加密(数据越大，密文越长)。KRXiw6C1Py7ELBaxg1OlbQ==
@@ -147,70 +153,49 @@ public class PassU {
      * @return
      */
     public static String aesEncrypt(String content) {
-        try {
-            byte[] contentBytes = content.getBytes(AES_CHARSET);
-            byte[] keyBytes = AES_KEY_STRING.getBytes(AES_CHARSET);
-            byte[] encryptedBytes = aesEncryptBytes(contentBytes, keyBytes);
-            return Base64.encode(encryptedBytes);
-        } catch (Exception e) {
-            e.printStackTrace();
-        }
-        return null;
+        return aesEncrypt(content, AES_INSTANCE_NAME, AES_KEY_STRING, AES_IV_STRING);
     }
 
+    /**
+     * 解密
+     * @param content
+     * @return java.lang.String
+     */
     public static String aesDecrypt(String content) {
+        return aesDecrypt(content, AES_INSTANCE_NAME, AES_KEY_STRING, AES_IV_STRING);
+    }
+
+    public static String aesEncrypt(String content, String instanceName, String key, String iv) {
+        try {
+            byte[] contentBytes = content.getBytes();
+            Cipher cipher = initCipher(instanceName, key, iv, Cipher.ENCRYPT_MODE);
+            byte[] encryptedBytes = cipher.doFinal(contentBytes);
+            return Base64.encode(encryptedBytes);
+        } catch (Exception e) {
+            throw new ExceptionU("加密出错", e);
+        }
+    }
+
+    public static String aesDecrypt(String content, String instanceName, String key, String iv) {
         try {
             byte[] encryptedBytes = Base64.decode(content);
-            byte[] keyBytes = AES_KEY_STRING.getBytes(AES_CHARSET);
-            byte[] decryptedBytes = aesDecryptBytes(encryptedBytes, keyBytes);
+            Cipher cipher = initCipher(instanceName, key, iv, Cipher.DECRYPT_MODE);
+            byte[] decryptedBytes = cipher.doFinal(encryptedBytes);
             if(decryptedBytes == null) {
                 return null;
             }
-            return new String(decryptedBytes, AES_CHARSET);
+            return new String(decryptedBytes);
         } catch (Exception e) {
-            e.printStackTrace();
+            throw new ExceptionU("解密出错", e);
         }
-        return null;
     }
 
-    public static byte[] aesEncryptBytes(byte[] contentBytes, byte[] keyBytes) {
-        try {
-            return cipherOperation(contentBytes, keyBytes, Cipher.ENCRYPT_MODE);
-        } catch (Exception e) {
-            e.printStackTrace();
-        }
-        return null;
-    }
-
-    public static byte[] aesDecryptBytes(byte[] contentBytes, byte[] keyBytes) {
-        try {
-            return cipherOperation(contentBytes, keyBytes, Cipher.DECRYPT_MODE);
-        } catch (Exception e) {
-            e.printStackTrace();
-        }
-        return null;
-    }
-
-    private static byte[] cipherOperation(byte[] contentBytes, byte[] keyBytes, int mode) {
-        try {
-            SecretKeySpec secretKey = new SecretKeySpec(keyBytes, "AES");
-            byte[] initParam = AES_IV_STRING.getBytes(AES_CHARSET);
-            IvParameterSpec ivParameterSpec = new IvParameterSpec(initParam);
-            Cipher cipher = Cipher.getInstance("AES/CBC/PKCS5Padding");
-            cipher.init(mode, secretKey, ivParameterSpec);
-            return cipher.doFinal(contentBytes);
-        } catch (Exception e) {
-            e.printStackTrace();
-        }
-        return null;
-    }
-
-    private static void aesTest() {
-        String e = PassU.aesEncrypt(MiscU.toMap("username", "smalle", "role", "admin",
-                "description", "O(∩_∩)O哈哈~O(∩_∩)O哈哈~", "createTime", System.currentTimeMillis()).toString());
-        System.out.println("加密后 = " + e);
-        String d = PassU.aesDecrypt(e);
-        System.out.println("解密后 = " + d);
+    private static Cipher initCipher(String instanceName, String key, String iv, int mode) throws Exception {
+        SecretKeySpec secretKey = new SecretKeySpec(key.getBytes(), "AES");
+        IvParameterSpec ivParameterSpec = new IvParameterSpec(iv.getBytes());
+        Cipher cipher = Cipher.getInstance(instanceName);
+        cipher.init(mode, secretKey, ivParameterSpec);
+        return cipher;
     }
 
     // ====================== 非对称密钥算法(公钥私钥不一致)

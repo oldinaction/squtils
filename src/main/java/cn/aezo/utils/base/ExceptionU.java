@@ -13,6 +13,10 @@ public class ExceptionU extends RuntimeException {
         super(message);
     }
 
+    public ExceptionU(String message, Throwable cause) {
+        super(message, cause);
+    }
+
     /**
      * 数据转换
      */

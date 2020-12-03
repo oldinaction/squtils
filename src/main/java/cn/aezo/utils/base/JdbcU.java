@@ -10,11 +10,15 @@ import java.util.Arrays;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
 
 /**
  * Created by smalle on 2017/11/19.
  */
 public class JdbcU {
+    private static Pattern FROM_PATTERN = Pattern.compile("(?s)(.*?)[ \t\n\r]+from[ \t\n\r]+(.*?)", Pattern.CASE_INSENSITIVE);
+
     /**
      * ResultSet转成List，Map中的key为数据库字段大写
      * @param rs
@@ -116,35 +120,32 @@ public class JdbcU {
 
     /**
      * 生成Oracle的分页sql语句
-     * @param sql <b>sql语句的第一个from需要小写</b>
-     * @param pageIndex 页下标
-     * @param pagingLength 页长
+     * @param sql
+     * @param pageCurrent 页下标
+     * @param pageSize 页长
      * @param returnTotals 是否返回记录总数(返回的字段名为 paging_total__) 注：数据量大的时候最好不要返回
      * @return
      */
-    public static String pagingSqlOracle(String sql, Integer pageIndex, Integer pagingLength, Boolean returnTotals) {
-        int _pageIndex = 1;
-        int _pagingLength = 10;
+    public static String packPageSqlOracle(String sql, Integer pageCurrent, Integer pageSize, Boolean returnTotals) {
+        int _pageCurrent = 1;
+        int _pageSize = 10;
 
-        if(null != pageIndex && pageIndex.compareTo(0) != 0) {
-            _pageIndex = pageIndex;
+        if(null != pageCurrent && pageCurrent.compareTo(0) != 0) {
+            _pageCurrent = pageCurrent;
         }
-        if(null != pagingLength && pagingLength.compareTo(0) != 0) {
-            _pagingLength = pagingLength;
+        if(null != pageSize && pageSize.compareTo(0) != 0) {
+            _pageSize = pageSize;
         }
 
-        int start = (_pageIndex - 1) * _pagingLength + 1;
+        int start = (_pageCurrent - 1) * _pageSize + 1;
 
         if(returnTotals) {
-            sql = sql.replaceFirst(" from ", ", count(*) over () paging_total__ from ");
+            Matcher m = FROM_PATTERN.matcher(sql);
+            sql = m.replaceFirst(", count(*) over () paging_total__ from ");
+            // sql = sql.replaceFirst(" (?i)from ", ", count(*) over () paging_total__ from ");
         }
-        sql = new StringBuffer("select * from (select rownum as rn__, paging_t1.* from (")
-                .append(sql)
-                .append(") paging_t1 where rownum < ")
-                .append(start + _pagingLength)
-                .append(") paging_t2 where paging_t2.rn__ >= ")
-                .append(start)
-                .toString();
+        sql = "select * from (select rownum as rn__, paging_t1.* from (" + sql + ") paging_t1 where rownum < " +
+                (start + _pageSize) + ") paging_t2 where paging_t2.rn__ >= " + start;
         return sql;
     }
 
