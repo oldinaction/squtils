@@ -9,7 +9,10 @@ import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
 /**
- * Created by smalle on 2017/2/9.
+ * 校验
+ *
+ * @author smalle
+ * @since 2017/2/9 21:04
  */
 public class ValidU {
     /** 为空或者只有空白字符(" \t\n\r"等)则返回true */
@@ -139,56 +142,58 @@ public class ValidU {
 
     /** 全部不为空(true) */
     public static Boolean allNotEmpty(List<Object> list) {
-        Boolean flag = true;
-
         if(isEmpty(list)) {
-            return null;
+            return false;
         }
+        return allNotEmpty(list.toArray());
+    }
 
-        for (Object object : list) {
+    public static Boolean allNotEmpty(Object... arr) {
+        Boolean flag = true;
+        for (Object object : arr) {
             if(isEmpty(object)) {
                 flag = false;
                 break;
             }
         }
-
         return flag;
     }
 
     /** 全部为空(true) */
     public static Boolean allEmpty(List<Object> list) {
-        Boolean flag = true;
-
         if(isEmpty(list)) {
-            return false;
+            return true;
         }
+        return allEmpty(list.toArray());
+    }
 
-        for (Object object : list) {
+    public static Boolean allEmpty(Object... arr) {
+        Boolean flag = true;
+        for (Object object : arr) {
             if(isNotEmpty(object)) {
                 flag = false;
                 break;
             }
         }
-
         return flag;
     }
 
     /** 至少有一个为空(true) */
-    public static Boolean haveEmptyOne(List<Object> list) {
-        Boolean flag = false;
+    public static Boolean hasEmpty(List<Object> list) {
+        return !allNotEmpty(list);
+    }
 
-        if(isEmpty(list)) {
-            return null;
-        }
+    public static Boolean hasEmpty(Object... arr) {
+        return !allNotEmpty(arr);
+    }
 
-        for (Object object : list) {
-            if(isEmpty(object)) {
-                flag = true;
-                break;
-            }
-        }
+    /** 至少有一个不为空(true) */
+    public static Boolean hasNotEmpty(List<Object> list) {
+        return !allEmpty(list);
+    }
 
-        return flag;
+    public static Boolean hasNotEmpty(Object... arr) {
+        return !allEmpty(arr);
     }
 
     /** 相互equals(包含null == null) */

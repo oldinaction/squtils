@@ -167,6 +167,25 @@ public class StringU {
 		return String.valueOf(methodName);
 	}
 
+	/**
+	 * 去掉指定后缀
+	 *
+	 * @param str    字符串
+	 * @param suffix 后缀
+	 * @return 切掉后的字符串，若后缀不是 suffix， 返回原字符串
+	 */
+	public static String removeSuffix(CharSequence str, CharSequence suffix) {
+		if (ValidU.isEmpty(str) || ValidU.isEmpty(suffix)) {
+			return "";
+		}
+
+		final String str2 = str.toString();
+		if (str2.endsWith(suffix.toString())) {
+			return str2.substring(0, str2.length() - suffix.length());
+		}
+		return str2;
+	}
+
 
 	/**
 	 * 解析字节型((2^8)-1 = 0 ~ 225)字符串为字符串.如：104,101,108,108,111 转换成 hello
