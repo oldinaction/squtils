@@ -1,16 +1,13 @@
 package cn.aezo.utils.base;
 
+import cn.hutool.core.util.StrUtil;
+
 import java.io.UnsupportedEncodingException;
 import java.text.SimpleDateFormat;
 import java.util.Date;
 import java.util.Random;
-import java.util.regex.Matcher;
-import java.util.regex.Pattern;
 
-import static java.lang.Character.toUpperCase;
-import static java.util.regex.Pattern.*;
-
-public class StringU {
+public class StrU extends StrUtil {
 	private static final char[] letter = new char[] {'q', 'w', 'e', 'r', 't', 'y', 'u', 'i', 'o', 'p', 'a', 's', 'd', 'f', 'g', 'h', 'j', 'k', 'l', 'z', 'x', 'c', 'v', 'b', 'n', 'm'};
 	private static final char[] number = new char[] {'0', '1', '2', '3', '4', '5', '6', '7', '8', '9'};
 	/**
@@ -100,53 +97,6 @@ public class StringU {
     	SimpleDateFormat formatter = new SimpleDateFormat(fromat);
     	String dateString = formatter.format(currentTime);
 		return dateString;
-	}
-
-	/**
-	 * 下划线转驼峰法
-	 * @param line 源字符串
-	 * @param yesLowerCaseFirst 首字母是否小写
-	 * @return 转换后的字符串
-	 */
-	public static String underline2Camel(String line, boolean yesLowerCaseFirst){
-		if(line==null||"".equals(line)){
-			return "";
-		}
-		StringBuffer sb = new StringBuffer();
-		Pattern pattern= compile("([A-Za-z\\d]+)(_)?");
-		Matcher matcher = pattern.matcher(line);
-		while(matcher.find()){
-			String word = matcher.group();
-			sb.append(yesLowerCaseFirst && matcher.start() == 0 ? Character.toLowerCase(word.charAt(0)) : toUpperCase(word.charAt(0)));
-			int index = word.lastIndexOf('_');
-			if(index>0){
-				sb.append(word.substring(1, index).toLowerCase());
-			}else{
-				sb.append(word.substring(1).toLowerCase());
-			}
-		}
-		return sb.toString();
-	}
-
-	/**
-	 * 驼峰法转下划线
-	 * @param line 源字符串
-	 * @return 转换后的字符串
-	 */
-	public static String camel2Underline(String line){
-		if(line==null||"".equals(line)){
-			return "";
-		}
-		line=String.valueOf(line.charAt(0)).toUpperCase().concat(line.substring(1));
-		StringBuffer sb = new StringBuffer();
-		Pattern pattern=compile("[A-Z]([a-z\\d]+)?");
-		Matcher matcher=pattern.matcher(line);
-		while(matcher.find()){
-			String word=matcher.group();
-			sb.append(word.toUpperCase());
-			sb.append(matcher.end()==line.length()?"":"_");
-		}
-		return sb.toString();
 	}
 
 	/**

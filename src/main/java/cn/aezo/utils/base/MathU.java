@@ -1,5 +1,7 @@
 package cn.aezo.utils.base;
 
+import cn.hutool.core.math.MathUtil;
+
 import java.math.BigDecimal;
 import java.util.Map;
 import java.util.Random;
@@ -8,7 +10,7 @@ import java.util.Random;
  * Created by smalle on 2017/6/2.
  * 1. 基于BigDecimal的精确计算
  */
-public class MathU {
+public class MathU extends MathUtil {
     /*
      * 小数精确的位数
      */

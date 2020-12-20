@@ -1,5 +1,7 @@
 package cn.aezo.utils.base;
 
+import cn.hutool.core.lang.Validator;
+
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
 import java.util.Collection;
@@ -14,7 +16,7 @@ import java.util.regex.Pattern;
  * @author smalle
  * @since 2017/2/9 21:04
  */
-public class ValidU {
+public class ValidU extends Validator {
     /** 为空或者只有空白字符(" \t\n\r"等)则返回true */
     public static boolean isBlank(Object value) {
         if (value == null) {

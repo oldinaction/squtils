@@ -16,7 +16,7 @@ import java.util.Map;
 /**
  * Created by smalle on 2017/1/15.
  */
-public class BeanU {
+public class BeanU extends BeanUtil {
     /**
      * 将一个map对象转化为bean
      * <br/>(1) 利用Introspector和PropertyDescriptor

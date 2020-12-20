@@ -1,5 +1,7 @@
 package cn.aezo.utils.base;
 
+import cn.hutool.http.HttpUtil;
+
 import java.net.Inet4Address;
 import java.net.InetAddress;
 import java.net.NetworkInterface;
@@ -9,7 +11,7 @@ import java.util.ArrayList;
 import java.util.Enumeration;
 import java.util.List;
 
-public class HttpU {
+public class HttpU extends HttpUtil {
     /**
      * 获取一个合理的ipv4(使用VPN/虚拟机后优先取VPN/虚拟机的内网)
      * @return

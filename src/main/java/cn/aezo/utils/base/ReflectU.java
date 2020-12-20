@@ -11,10 +11,10 @@ import java.lang.reflect.Method;
  * @author smalle
  * @since 2020-12-10 21:04
  */
-public class ReflectU {
+public class ReflectU extends ReflectUtil {
 
     /**
-     * 仅获取当前类的方法
+     * 仅获取当前类的方法(包括继承的直接父类方法)
      * @author smalle
      * @since 2020/12/10 21:07 
      * @param clazz

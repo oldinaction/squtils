@@ -1,12 +1,14 @@
 package cn.aezo.utils.base;
 
+import cn.hutool.core.io.FileUtil;
+
 import java.io.*;
 import java.net.URL;
 
 /**
  * Created by smalle on 2017/5/10.
  */
-public class FileU {
+public class FileU extends FileUtil {
     /**
      * 换行符
      */
@@ -37,7 +39,7 @@ public class FileU {
         return new File(url.getFile());
     }
 
-    public static File newFile(String fileFullName) throws IOException {
+    public static File newFileSafe(String fileFullName) throws IOException {
         File file = new File(fileFullName);
         boolean flag;
         if (!file.getParentFile().exists()) {
@@ -51,21 +53,6 @@ public class FileU {
             }
         }
         return file;
-    }
-
-    /**
-     * 创建目录(包含目录是否存在判断)
-     * @param dirPath 绝对路径
-     */
-    public static void mkdir(String dirPath) {
-        File root = new File(dirPath);
-        if(root.exists()) {
-            if (!root.isDirectory()) {
-                throw new RuntimeException("目录被占用");
-            }
-        } else {
-            root.mkdir();
-        }
     }
 
     /**

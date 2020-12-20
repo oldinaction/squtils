@@ -1,5 +1,7 @@
 package cn.aezo.utils.base;
 
+import cn.hutool.core.date.DateUtil;
+
 import java.sql.Timestamp;
 import java.text.DateFormat;
 import java.text.ParseException;
@@ -11,7 +13,7 @@ import java.util.GregorianCalendar;
 /**
  * Created by smalle on 2017/1/12.
  */
-public class DateU {
+public class DateU extends DateUtil {
     /**
      * 日期打印(yyyy-MM-dd HH:mm:ss)
      * @param date

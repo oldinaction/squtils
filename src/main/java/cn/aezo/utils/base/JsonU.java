@@ -1,7 +1,7 @@
 package cn.aezo.utils.base;
 
-
 import cn.hutool.json.JSONArray;
+import cn.hutool.json.JSONObject;
 import cn.hutool.json.JSONUtil;
 
 import java.io.BufferedReader;
@@ -15,7 +15,7 @@ import java.util.Map;
  * Created by smalle on 2017/12/30.
  * XmlMapper(解析xml)需要引入jackson-dataformat-xml
  */
-public class JsonU {
+public class JsonU extends JSONObject {
     /**
      * 通过HTTP获取JSON数据（Map）
      * 北京的天气接口: "http://apistore.baidu.com/microservice/cityinfo?cityname=%E5%8C%97%E4%BA%AC"
