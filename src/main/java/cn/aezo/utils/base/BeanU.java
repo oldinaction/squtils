@@ -1,6 +1,8 @@
 package cn.aezo.utils.base;
 
 import cn.hutool.core.bean.BeanUtil;
+import cn.hutool.core.collection.CollUtil;
+import cn.hutool.core.convert.Convert;
 
 import java.beans.BeanInfo;
 import java.beans.Introspector;
@@ -10,13 +12,48 @@ import java.lang.reflect.ParameterizedType;
 import java.lang.reflect.Type;
 import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
+import java.util.Set;
 
 /**
  * Created by smalle on 2017/1/15.
  */
 public class BeanU extends BeanUtil {
+
+    /**
+     * 仅复制部分字段
+     * @author smalle
+     * @since 2020/12/22
+     * @param source
+     * @param target
+     * @param copyProperties
+     * @return void
+     */
+    public static void copyPropertiesOnly(Object source, Object target, String... copyProperties) {
+        final HashSet<String> ignoreSet = new HashSet<>();
+        List<String> copyKeyList = Convert.toList(String.class, copyProperties);
+        if(source instanceof Map) {
+            Set keys = ((Map) source).keySet();
+            for (Object key : keys) {
+                if(key instanceof String && !copyKeyList.contains(key)) {
+                    ignoreSet.add((String) key);
+                }
+            }
+        } else {
+            BeanUtil.descForEach(source.getClass(), (prop) -> {
+                String fieldName = prop.getFieldName();
+                if (!CollUtil.contains(copyKeyList, fieldName)) {
+                    ignoreSet.add(fieldName);
+                    return;
+                }
+            });
+        }
+
+        BeanUtil.copyProperties(source, target, Convert.toStrArray(ignoreSet));
+    }
+
     /**
      * 将一个map对象转化为bean
      * <br/>(1) 利用Introspector和PropertyDescriptor
