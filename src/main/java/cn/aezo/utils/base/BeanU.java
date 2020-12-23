@@ -1,6 +1,7 @@
 package cn.aezo.utils.base;
 
 import cn.hutool.core.bean.BeanUtil;
+import cn.hutool.core.bean.PropDesc;
 import cn.hutool.core.collection.CollUtil;
 import cn.hutool.core.convert.Convert;
 
@@ -16,6 +17,7 @@ import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
+import java.util.function.Consumer;
 
 /**
  * Created by smalle on 2017/1/15.
@@ -42,11 +44,13 @@ public class BeanU extends BeanUtil {
                 }
             }
         } else {
-            BeanUtil.descForEach(source.getClass(), (prop) -> {
-                String fieldName = prop.getFieldName();
-                if (!CollUtil.contains(copyKeyList, fieldName)) {
-                    ignoreSet.add(fieldName);
-                    return;
+            BeanUtil.descForEach(source.getClass(), new Consumer<PropDesc>() {
+                @Override
+                public void accept(PropDesc prop) {
+                    String fieldName = prop.getFieldName();
+                    if (!CollUtil.contains(copyKeyList, fieldName)) {
+                        ignoreSet.add(fieldName);
+                    }
                 }
             });
         }

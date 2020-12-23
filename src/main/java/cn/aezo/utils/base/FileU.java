@@ -1,33 +1,80 @@
 package cn.aezo.utils.base;
 
 import cn.hutool.core.io.FileUtil;
+import cn.hutool.core.io.IoUtil;
+import cn.hutool.core.io.resource.ClassPathResource;
+import lombok.SneakyThrows;
 
 import java.io.*;
 import java.net.URL;
+import java.util.UUID;
 
 /**
  * Created by smalle on 2017/5/10.
  */
 public class FileU extends FileUtil {
     /**
-     * 换行符
+     * 基于流从classpath获取文件内容(一般用于读取文本文件)
+     * @author smalle
+     * @since 2020/12/23
+     * @param srcXpath 如：data.json，/spring/config.xml
+     * @throws Exception 如找不到相关文件时会报错
+     * @return java.lang.String
      */
-    public enum LINE_SEPARATOR {
-        WINDOWS("\r\n"), LINUX("\n"), MAC("\r"), UNKNOWN("");
-
-        private String value;
-
-        LINE_SEPARATOR(String value) {
-            this.value = value;
+    @SneakyThrows
+    public static String getFileContentByClasspath(String srcXpath) {
+        if (!srcXpath.startsWith("/")) {
+            srcXpath = "/" + srcXpath;
         }
 
-        public String getValue() {
-            return value;
+        String content;
+        InputStream inputStream = FileU.class.getResourceAsStream(srcXpath);
+        BufferedReader reader = new BufferedReader(new InputStreamReader(inputStream, "utf-8"));
+        StringBuilder builder = new StringBuilder();
+        char[] charArray = new char[200];
+        int number;
+        while ((number = reader.read(charArray)) != -1) {
+            builder.append(charArray, 0, number);
         }
+        content = builder.toString();
+        return content;
     }
 
     /**
-     * 根据classpath获取文件
+     * 基于流读取classpath文件并生成临时文件返回(一般用于读取二进制文件)<br/>
+     * 1.SpringBoot打包成jar后无法直接返回File，此方式是生成一个临时文件，使用完之后建议删除临时文件<br/>
+     * 2.下列方式在IDEA中可获取，打包成(SpringBoot)JAR后无法获取<br/>
+     *
+     * ResourceUtils.getFile(ResourceUtils.CLASSPATH_URL_PREFIX + "data.json"); // spring<br/>
+     * FileUtil.file(getClass().getClassLoader().getResource("data.json")); // hutool<br/>
+     * FileUtil.file(ResourceUtil.getResource("data.json")); // hutool<br/>
+     * FileU.getFileByClasspath("data.json"); // 同 getClass().getClassLoader().getResource("data.json")<br/>
+     *
+     * @author smalle
+     * @since 2020/12/23
+     * @param relativePath
+     * @throws Exception 如找不到相关文件时会报错
+     * @return java.io.File
+     */
+    @SneakyThrows
+    public static File getFileTempByClasspath(String relativePath) {
+        File tempFile = null;
+        InputStream in = null;
+        try {
+            ClassPathResource classPathResource = new ClassPathResource(relativePath);
+            in = classPathResource.getStream();
+            tempFile = File.createTempFile(UUID.randomUUID().toString(), "");
+            FileUtil.writeFromStream(in, tempFile);
+        } finally {
+            if(in != null) {
+                IoUtil.close(in);
+            }
+        }
+        return tempFile;
+    }
+
+    /**
+     * 根据classpath获取文件(SpringBoot打包成jar后，此方法无效) {@link FileU#getFileTempByClasspath}
      * @param relativePath 相对classpath的路径, 开头不需要/ (如：cn/aezo/utils/data.json)
      * @return
      */
@@ -38,6 +85,8 @@ public class FileU extends FileUtil {
         }
         return new File(url.getFile());
     }
+
+    // SQ ===============================================================
 
     public static File newFileSafe(String fileFullName) throws IOException {
         File file = new File(fileFullName);
@@ -444,5 +493,28 @@ public class FileU extends FileUtil {
         }
 
         return false;
+    }
+
+    /**
+     * 换行符
+     */
+    public enum LINE_SEPARATOR {
+        /**
+         * windows 系统
+         */
+        WINDOWS("\r\n"),
+        LINUX("\n"),
+        MAC("\r"),
+        UNKNOWN("");
+
+        private String value;
+
+        LINE_SEPARATOR(String value) {
+            this.value = value;
+        }
+
+        public String getValue() {
+            return value;
+        }
     }
 }
