@@ -4,7 +4,9 @@ import cn.hutool.core.util.StrUtil;
 
 import java.io.UnsupportedEncodingException;
 import java.text.SimpleDateFormat;
+import java.util.ArrayList;
 import java.util.Date;
+import java.util.List;
 import java.util.Random;
 
 public class StrU extends StrUtil {
@@ -196,18 +198,30 @@ public class StrU extends StrUtil {
 	}
 
 	/**
-	 * 获取下一个编号(如：381785090499280897)
-	 * @return
+	 * 获取下一个雪花ID编号(如：381785090499280897)
+	 *
+	 * 381785090499280897
+	 * 792800768355729408
+	 *
+	 * @return String
 	 */
 	public static String getNextNo() {
 		long id = orderNo.nextId();
 		return "" + id;
 	}
 
+	public static List<String> getNextNo(int count) {
+		List<String> ret = new ArrayList<>();
+		for (int i = 0; i < count; i++) {
+			ret.add(orderNo.nextId() + "");
+		}
+		return ret;
+	}
+
 	/**
 	 * 获取下一个编号(以时间开头，如：20171119381785090499280898)
 	 * @param startDate
-	 * @return
+	 * @return String
 	 */
 	public static String getNextNo(Boolean startDate) {
 		long id = orderNo.nextId();
@@ -274,7 +288,7 @@ public class StrU extends StrUtil {
 
 		/**
 		 * 构造函数
-		 * @param workerId 工作ID (0~31)
+		 * @param workerId 工作机器ID (0~31)
 		 * @param dataCenterId 数据中心ID (0~31)
 		 */
 		public OrderNo(long workerId, long dataCenterId) {
