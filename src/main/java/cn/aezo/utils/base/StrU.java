@@ -1,5 +1,6 @@
 package cn.aezo.utils.base;
 
+import cn.hutool.core.util.CharUtil;
 import cn.hutool.core.util.StrUtil;
 
 import java.io.UnsupportedEncodingException;
@@ -20,6 +21,24 @@ public class StrU extends StrUtil {
 	 * 生成唯一订单编号
 	 */
 	private static OrderNo orderNo = new OrderNo(0, 0);
+
+
+	/**
+	 * 将驼峰式命名的字符串转换为中划线方式。例如：<br/>
+	 *
+	 * <pre>
+	 * HelloWorld=》hello-world
+	 * Hello_World=》hello-world
+	 * HelloWorld_test=》hello-world-test
+	 * </pre>
+	 *
+	 * @param str
+	 * @return java.lang.String
+	 */
+	public static String toDashedCase(CharSequence str) {
+		return toSymbolCase(str, CharUtil.DASHED);
+	}
+
 
 	/**
 	 * 连接字符串
