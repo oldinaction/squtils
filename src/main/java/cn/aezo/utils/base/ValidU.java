@@ -1,11 +1,11 @@
 package cn.aezo.utils.base;
 
+import cn.hutool.core.exceptions.ValidateException;
 import cn.hutool.core.lang.Validator;
 
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
 import java.util.Collection;
-import java.util.List;
 import java.util.Map;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
@@ -17,6 +17,24 @@ import java.util.regex.Pattern;
  * @since 2017/2/9 21:04
  */
 public class ValidU extends Validator {
+
+    /**
+     * 验证是否为非空，为空时抛出异常<br>
+     * 对于String类型判定是否为empty(null 或 "")<br>
+     *
+     * @param <T>      值类型
+     * @param value    值
+     * @param errorMsg 验证错误的信息
+     * @return 验证后的值，验证通过返回此值，非空值
+     * @throws ValidateException 验证异常
+     */
+    public static <T> T validateNotEmpty(T value, String errorMsg) throws ValidateException {
+        if (isEmpty(value)) {
+            throw new ValidateException(errorMsg);
+        }
+        return value;
+    }
+
     /** 为空或者只有空白字符(" \t\n\r"等)则返回true */
     public static boolean isBlank(Object value) {
         if (value == null) {
@@ -90,52 +108,21 @@ public class ValidU extends Validator {
         return !isEmpty(value);
     }
 
-    /** 是否都不为空(包含String的""、集合的大小) */
-    public static boolean isAllNotEmpty(Object... objects) {
-        if(objects == null) {
-            return false;
-        }
-        for (Object o : objects) {
-            if (isEmpty(o)) {
-                return false;
-            }
-        }
-        return true;
-    }
-
-    /** 判断一组字符串是否有效 */
-    public static boolean isEmpty(String... str) {
-        if(str == null) {
+    /** 全部为空(true) */
+    public static boolean isAllEmpty(Collection<Object> collection) {
+        if(isEmpty(collection)) {
             return true;
         }
-        for (String s : str) {
-            if (!isEmpty(s)) {
-                return false;
-            }
-        }
-        return true;
+        return isAllEmpty(collection.toArray());
     }
 
-    /** 判断一组集合是否有效 */
-    public static boolean isEmpty(Collection... cols) {
-        if(cols == null) {
+    /** 判断一组对象是否全部有效 */
+    public static boolean isAllEmpty(Object... arr) {
+        if(arr == null) {
             return true;
         }
-        for (Collection c : cols) {
-            if (!isEmpty(c)) {
-                return false;
-            }
-        }
-        return true;
-    }
-
-    /** 判断一组Map是否有效 */
-    public static boolean isEmpty(Map... maps) {
-        if(maps == null) {
-            return true;
-        }
-        for (Map m : maps) {
-            if (!isEmpty(m)) {
+        for (Object o : arr) {
+            if (!isEmpty(o)) {
                 return false;
             }
         }
@@ -143,36 +130,18 @@ public class ValidU extends Validator {
     }
 
     /** 全部不为空(true) */
-    public static Boolean allNotEmpty(List<Object> list) {
-        if(isEmpty(list)) {
+    public static boolean isAllNotEmpty(Collection<Object> collection) {
+        if(isEmpty(collection)) {
             return false;
         }
-        return allNotEmpty(list.toArray());
+        return isAllNotEmpty(collection.toArray());
     }
 
-    public static Boolean allNotEmpty(Object... arr) {
-        Boolean flag = true;
-        for (Object object : arr) {
-            if(isEmpty(object)) {
-                flag = false;
-                break;
-            }
-        }
-        return flag;
-    }
-
-    /** 全部为空(true) */
-    public static Boolean allEmpty(List<Object> list) {
-        if(isEmpty(list)) {
-            return true;
-        }
-        return allEmpty(list.toArray());
-    }
-
-    public static Boolean allEmpty(Object... arr) {
-        Boolean flag = true;
-        for (Object object : arr) {
-            if(isNotEmpty(object)) {
+    /** 判断一组对象是否全部无效 */
+    public static boolean isAllNotEmpty(Object... arr) {
+        boolean flag = true;
+        for (Object o : arr) {
+            if(isEmpty(o)) {
                 flag = false;
                 break;
             }
@@ -181,22 +150,23 @@ public class ValidU extends Validator {
     }
 
     /** 至少有一个为空(true) */
-    public static Boolean hasEmpty(List<Object> list) {
-        return !allNotEmpty(list);
+    public static Boolean hasEmpty(Collection<Object> collection) {
+        return !isAllNotEmpty(collection);
     }
 
     public static Boolean hasEmpty(Object... arr) {
-        return !allNotEmpty(arr);
+        return !isNotEmpty(arr);
     }
 
     /** 至少有一个不为空(true) */
-    public static Boolean hasNotEmpty(List<Object> list) {
-        return !allEmpty(list);
+    public static Boolean hasNotEmpty(Collection<Object> collection) {
+        return !isAllEmpty(collection);
     }
 
     public static Boolean hasNotEmpty(Object... arr) {
-        return !allEmpty(arr);
+        return !isEmpty(arr);
     }
+
 
     /** 相互equals(包含null == null) */
     public static boolean equals(Object obj, Object obj2) {
