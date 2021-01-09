@@ -4,6 +4,9 @@ import cn.hutool.core.bean.BeanUtil;
 import cn.hutool.core.bean.PropDesc;
 import cn.hutool.core.collection.CollUtil;
 import cn.hutool.core.convert.Convert;
+import cn.hutool.core.util.ArrayUtil;
+import org.springframework.beans.BeanWrapper;
+import org.springframework.beans.BeanWrapperImpl;
 
 import java.beans.BeanInfo;
 import java.beans.Introspector;
@@ -34,6 +37,9 @@ public class BeanU extends BeanUtil {
      * @return void
      */
     public static void copyPropertiesOnly(Object source, Object target, String... copyProperties) {
+        if(ValidU.isEmpty(copyProperties)) {
+            return;
+        }
         final HashSet<String> ignoreSet = new HashSet<>();
         List<String> copyKeyList = Convert.toList(String.class, copyProperties);
         if(source instanceof Map) {
@@ -56,6 +62,44 @@ public class BeanU extends BeanUtil {
         }
 
         BeanUtil.copyProperties(source, target, Convert.toStrArray(ignoreSet));
+    }
+
+    /**
+     * 忽略NULL类型字段
+     * @author smalle
+     * @since 2020/12/22
+     * @param src
+     * @param target
+     * @param ignoreProperties
+     */
+    public static void copyPropertiesIgnoreNull(Object src, Object target, String... ignoreProperties) {
+        String[] names = getNullPropertyNames(src);
+        if(ValidU.isNotEmpty(ignoreProperties)) {
+            names = ArrayUtil.addAll(names, ignoreProperties);
+        }
+        BeanUtil.copyProperties(src, target, names);
+    }
+
+    /**
+     * 获取对象中值为NULL的字段
+     * @author smalle
+     * @since 2021/1/9
+     * @param source
+     * @return java.lang.String[]
+     */
+    public static String[] getNullPropertyNames(Object source) {
+        final BeanWrapper src = new BeanWrapperImpl(source);
+        java.beans.PropertyDescriptor[] pds = src.getPropertyDescriptors();
+
+        Set<String> emptyNames = new HashSet<>();
+        for(java.beans.PropertyDescriptor pd : pds) {
+            Object srcValue = src.getPropertyValue(pd.getName());
+            if(srcValue == null) {
+                emptyNames.add(pd.getName());
+            }
+        }
+        String[] result = new String[emptyNames.size()];
+        return emptyNames.toArray(result);
     }
 
     /**
