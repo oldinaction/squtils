@@ -8,6 +8,7 @@ import java.util.Set;
 
 /**
  * 验证密码是否符合规则
+ * @author smalle
  */
 @Data
 @Accessors(chain = true)
