@@ -1,5 +1,6 @@
 package cn.aezo.utils.base;
 
+import cn.aezo.utils.mix.PasswordChecker;
 import cn.hutool.core.exceptions.ValidateException;
 import cn.hutool.core.lang.Validator;
 
@@ -17,6 +18,7 @@ import java.util.regex.Pattern;
  * @since 2017/2/9 21:04
  */
 public class ValidU extends Validator {
+    public static PasswordChecker PasswordChecker = new PasswordChecker();
 
     /**
      * 验证是否为非空，为空时抛出异常<br>
@@ -200,6 +202,10 @@ public class ValidU extends Validator {
         } catch (ParseException e) {
             return false;
         }
+    }
+
+    public static boolean checkPassword(String pass) {
+        return PasswordChecker.check(pass);
     }
 
     /**

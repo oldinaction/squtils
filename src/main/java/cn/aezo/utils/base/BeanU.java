@@ -2,9 +2,9 @@ package cn.aezo.utils.base;
 
 import cn.hutool.core.bean.BeanUtil;
 import cn.hutool.core.bean.PropDesc;
+import cn.hutool.core.bean.copier.CopyOptions;
 import cn.hutool.core.collection.CollUtil;
 import cn.hutool.core.convert.Convert;
-import cn.hutool.core.util.ArrayUtil;
 import org.springframework.beans.BeanWrapper;
 import org.springframework.beans.BeanWrapperImpl;
 
@@ -73,11 +73,7 @@ public class BeanU extends BeanUtil {
      * @param ignoreProperties
      */
     public static void copyPropertiesIgnoreNull(Object src, Object target, String... ignoreProperties) {
-        String[] names = getNullPropertyNames(src);
-        if(ValidU.isNotEmpty(ignoreProperties)) {
-            names = ArrayUtil.addAll(names, ignoreProperties);
-        }
-        BeanUtil.copyProperties(src, target, names);
+        BeanUtil.copyProperties(src, target, CopyOptions.create().ignoreNullValue().setIgnoreProperties(ignoreProperties));
     }
 
     /**

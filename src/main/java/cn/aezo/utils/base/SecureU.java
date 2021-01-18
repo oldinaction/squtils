@@ -26,7 +26,7 @@ import java.util.UUID;
  * @author smalle
  * @date 2019-11-08 17:28
  */
-public class PassU {
+public class SecureU {
     // ====================== 简单加密
     /**
      * md5和base64加密

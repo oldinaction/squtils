@@ -7,6 +7,7 @@ import lombok.SneakyThrows;
 
 import java.io.*;
 import java.net.URL;
+import java.util.Date;
 import java.util.UUID;
 
 /**
@@ -86,23 +87,81 @@ public class FileU extends FileUtil {
         return new File(url.getFile());
     }
 
-    // SQ ===============================================================
-
-    public static File newFileSafe(String fileFullName) throws IOException {
+    /**
+     * 创建文件，会自动创建父目录
+     * @param fileFullName 文件路径
+     */
+    @SneakyThrows
+    public static File newFileSafe(String fileFullName) {
         File file = new File(fileFullName);
         boolean flag;
         if (!file.getParentFile().exists()) {
             flag = file.getParentFile().mkdirs();
             if(!flag) {
-                throw new IOException("创建父目录失败");
+                throw new ExceptionU("创建父目录失败");
             }
             flag = file.createNewFile();
             if(!flag) {
-                throw new IOException("创建文件失败");
+                throw new ExceptionU("创建文件失败");
             }
         }
         return file;
     }
+
+    /**
+     * 复制文件
+     * @param is
+     * @param toFile 复制到的文件完整路径。建议使用 FileU.newFile 传入文件(会自动创建目录)
+     * @throws IOException
+     */
+    @SneakyThrows
+    public static void copyFile(InputStream is, Object toFile) {
+        FileOutputStream out = null;
+        try {
+            if(toFile instanceof String) {
+                out = new FileOutputStream((String) toFile);
+            } else {
+                out = new FileOutputStream((File) toFile);
+            }
+
+            byte[] b = new byte[1024];
+            int n;
+            while((n = is.read(b))!=-1) {
+                out.write(b, 0, n);
+            }
+        } finally {
+            close(is, out);
+        }
+    }
+
+    /**
+     * 文件上传保存到本地
+     * @author smalle
+     * @since 2021/1/13
+     * @param is
+     * @param originFileName
+     * @param rootPath 保存文件根路径
+     * @param datePathFormat 保存文件的日期路径格式. eg: yyyy/MM
+     * @return filePath
+     */
+    public static String saveFile(InputStream is, String originFileName, String rootPath, String datePathFormat) {
+        try {
+            String filePath = "/" + DateU.format(new Date(), datePathFormat) + "/" + cn.hutool.core.lang.UUID.fastUUID();
+            if(ValidU.isNotEmpty(originFileName)) {
+                String[] split = originFileName.split("\\.");
+                if(split.length > 1) {
+                    filePath = filePath + "." + split[split.length - 1];
+                }
+            }
+            File file = FileU.newFileSafe(rootPath + filePath);
+            FileU.copyFile(is, file);
+            return filePath;
+        } finally {
+            IoUtil.close(is);
+        }
+    }
+
+    // SQ ===============================================================
 
     /**
      * 智能创建目录(无父目录会自动创建，目录分割符需为"/")
@@ -299,32 +358,6 @@ public class FileU extends FileUtil {
             writer.write(content);
         }  finally {
             close(writer);
-        }
-    }
-
-    /**
-     * 复制文件
-     * @param fromFileOrInputStream
-     * @param toFile 复制到的文件完整路径。建议使用FileU.newFile传入文件(会自动创建目录)
-     * @throws IOException
-     */
-    public static void copyFile(Object fromFileOrInputStream, File toFile) throws IOException {
-        InputStream ins = null;
-        FileOutputStream out = null;
-        try {
-            if(fromFileOrInputStream instanceof File) {
-                ins = new FileInputStream((File) fromFileOrInputStream);
-            } else {
-                ins = (InputStream) fromFileOrInputStream;
-            }
-            out = new FileOutputStream(toFile);
-            byte[] b = new byte[1024];
-            int n;
-            while((n=ins.read(b))!=-1) {
-                out.write(b, 0, n);
-            }
-        } finally {
-            close(ins, out);
         }
     }
 

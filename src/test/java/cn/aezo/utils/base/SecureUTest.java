@@ -19,17 +19,17 @@ import java.util.Map;
  * @author smalle
  * @date 2020-11-26 23:15
  */
-public class PassUTest {
+public class SecureUTest {
 
     @Test
     public void aesTest() {
         System.out.println("Base64.encode(\")|][d&%^+=-··~!o`\") = " + Base64.encode(")|][d&%^+=-··~!o`"));
 
 
-        String e = PassU.aesEncrypt(MiscU.toMap("username", "smalle", "role", "admin",
+        String e = SecureU.aesEncrypt(MiscU.toMap("username", "smalle", "role", "admin",
                 "description", "O(∩_∩)O哈哈~O(∩_∩)O哈哈~", "createTime", System.currentTimeMillis()).toString());
         System.out.println("加密后 = " + e); // 3/dzpNqIfJvzLymZfbCP29D2S4JGyv2JSGfOoK9KaXznO4N47eJxPVEwyLwolC+wdfz5u49RV1ARHkl+wsblwb1DAOU1dKnLyDSflzyhvwuALruxLSdLY9ioiywDktBmly8bXj3KQml1nMJQkSEe2A==
-        String d = PassU.aesDecrypt(e);
+        String d = SecureU.aesDecrypt(e);
         System.out.println("解密后 = " + d); // {role=admin, createTime=1606926017920, description=O(∩_∩)O哈哈~O(∩_∩)O哈哈~, username=smalle}
     }
 
@@ -39,11 +39,11 @@ public class PassUTest {
     @Test
     public void rasTest() throws Exception {
         // 1.甲方初始化密钥，生成密钥对
-        Map<String, Object> keyMap = PassU.rsaInitKey();
+        Map<String, Object> keyMap = SecureU.rsaInitKey();
         // 公钥(由甲方给乙方)
-        byte[] publicKey = PassU.rsaGetPublicKey(keyMap);
+        byte[] publicKey = SecureU.rsaGetPublicKey(keyMap);
         // 私钥(甲方自己保管)
-        byte[] privateKey = PassU.rsaGetPrivateKey(keyMap);
+        byte[] privateKey = SecureU.rsaGetPrivateKey(keyMap);
         // Base64.encode(publicKey);
         String publicKeyStr = "MFwwDQYJKoZIhvcNAQEBBQADSwAwSAJBAJtfJsyNOdOtOsVxhelevk92JrpvvsZryyZZF8+K4ttdHK+Nmuqn+1/nWO8q7HlSTKUgiLVUrITf/0Pl/IrRO4UCAwEAAQ==";
         // Base64.encode(privateKey);
@@ -57,11 +57,11 @@ public class PassUTest {
         String str = "------甲方向乙方发送数据RSA算法";
         System.out.println("原文:" + str);
         // 甲方使用私钥进行数据的加密
-        byte[] code1 = PassU.rsaEncryptByPrivateKey(str.getBytes(), privateKeyStr);
+        byte[] code1 = SecureU.rsaEncryptByPrivateKey(str.getBytes(), privateKeyStr);
         System.out.println("加密后的数据：" + Base64.encode(code1)); // HJ04XIANAmoGoqByx4MoG9b+61C6rruSx3Uczws/CmmIkywM9mTOXtClY/ZNG1e+q8XI510Ig6E1WZEKnIqrAA==
         System.out.println("===========乙方使用甲方提供的公钥对数据进行解密==============");
         // 乙方进行数据的解密
-        byte[] decode1 = PassU.rsaDecryptByPublicKey(code1, publicKeyStr);
+        byte[] decode1 = SecureU.rsaDecryptByPublicKey(code1, publicKeyStr);
         System.out.println("乙方解密后的数据：" + new String(decode1) + "\n");
 
         // 3.乙加密->甲解密
@@ -69,11 +69,11 @@ public class PassUTest {
         str = "------乙方向甲方发送数据RSA算法";
         System.out.println("原文:" + str);
         // 乙方使用公钥对数据进行加密
-        byte[] code2 = PassU.rsaEncryptByPublicKey(str.getBytes(), publicKeyStr);
+        byte[] code2 = SecureU.rsaEncryptByPublicKey(str.getBytes(), publicKeyStr);
         System.out.println("加密后的数据：" + Base64.encode(code2)); // Oz0Y4cLyMbRQ8DZ8shWnY2F2tpeLmy8l7UqzA8NecSOpft1CEvVSK3Toq8ga0Fdryw+jk3dqytSr30wzCKL29Q==
         System.out.println("===========甲方使用私钥对数据进行解密==============");
         // 甲方使用私钥对数据进行解密
-        byte[] decode2 = PassU.rsaDecryptByPrivateKey(code2, privateKeyStr);
+        byte[] decode2 = SecureU.rsaDecryptByPrivateKey(code2, privateKeyStr);
         System.out.println("甲方解密后的数据：" + new String(decode2));
     }
 

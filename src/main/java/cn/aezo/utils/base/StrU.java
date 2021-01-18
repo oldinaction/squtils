@@ -157,6 +157,25 @@ public class StrU extends StrUtil {
 		return str2;
 	}
 
+	/**
+	 * 获取驼峰/下划线简称. 如：helloWorld 或 hello_world => hw
+	 * @author smalle
+	 * @since 2021/1/12
+	 * @param str
+	 * @return java.lang.String
+	 */
+	public static String getUnderlineShortName(String str) {
+		if(ValidU.isEmpty(str)) {
+			return "";
+		}
+		String[] split = StrU.toUnderlineCase(str).toLowerCase().split("_");
+		String ret = "";
+		for (String s : split) {
+			ret += s.charAt(0);
+		}
+		return ret;
+	}
+
 
 	/**
 	 * 解析字节型((2^8)-1 = 0 ~ 225)字符串为字符串.如：104,101,108,108,111 转换成 hello
