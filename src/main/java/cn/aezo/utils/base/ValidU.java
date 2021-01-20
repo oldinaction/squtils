@@ -169,6 +169,19 @@ public class ValidU extends Validator {
         return !isEmpty(arr);
     }
 
+    public static boolean isTrue(Object value) {
+        if(value == null) {
+            return false;
+        }
+        if(value instanceof Boolean) {
+            return (boolean) value;
+        }
+        return false;
+    }
+
+    public static boolean isFalse(Object value) {
+        return !(isTrue(value));
+    }
 
     /** 相互equals(包含null == null) */
     public static boolean equals(Object obj, Object obj2) {
