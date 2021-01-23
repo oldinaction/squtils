@@ -26,11 +26,11 @@ public class SecureUTest {
         System.out.println("Base64.encode(\")|][d&%^+=-··~!o`\") = " + Base64.encode(")|][d&%^+=-··~!o`"));
 
 
-        String e = SecureU.aesEncrypt(MiscU.toMap("username", "smalle", "role", "admin",
+        String e = SecureU.aesEncrypt(MiscU.toMap("username", "smalle", "roleCode", "admin",
                 "description", "O(∩_∩)O哈哈~O(∩_∩)O哈哈~", "createTime", System.currentTimeMillis()).toString());
         System.out.println("加密后 = " + e); // 3/dzpNqIfJvzLymZfbCP29D2S4JGyv2JSGfOoK9KaXznO4N47eJxPVEwyLwolC+wdfz5u49RV1ARHkl+wsblwb1DAOU1dKnLyDSflzyhvwuALruxLSdLY9ioiywDktBmly8bXj3KQml1nMJQkSEe2A==
         String d = SecureU.aesDecrypt(e);
-        System.out.println("解密后 = " + d); // {role=admin, createTime=1606926017920, description=O(∩_∩)O哈哈~O(∩_∩)O哈哈~, username=smalle}
+        System.out.println("解密后 = " + d); // {roleCode=admin, createTime=1606926017920, description=O(∩_∩)O哈哈~O(∩_∩)O哈哈~, username=smalle}
     }
 
     /**
