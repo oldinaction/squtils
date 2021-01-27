@@ -145,7 +145,7 @@ public class MiscU {
 	 * @date 2016年11月26日 下午8:27:37
 	 */
 	@SuppressWarnings({ "rawtypes", "unchecked" })
-	public static <K> Map<K, List> listMapGroupBy(List dataList, Object key) {
+	public static <K> Map<K, List> groupByMapKey(List dataList, Object key) {
 		Map<K, List> resultMap = new HashMap<K, List>();
 		for (Map map : (List<Map>) dataList) {
 			if(resultMap.containsKey(map.get(key))){
@@ -169,7 +169,7 @@ public class MiscU {
 	 * @param classes
 	 * @return
 	 */
-	public static Map<Object, List> listBeanGroupBy(List<? extends Object> beanList, String filedName, Class classes) {
+	public static Map<Object, List> groupByBeanKey(List<? extends Object> beanList, String filedName, Class classes) {
 		HashMap<Object, List> resultMap = new HashMap();
 
 		Method method = null;
