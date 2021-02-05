@@ -2,17 +2,32 @@ package cn.aezo.utils.base;
 
 import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
-import java.util.ArrayList;
-import java.util.Collection;
-import java.util.HashMap;
-import java.util.HashSet;
-import java.util.LinkedHashSet;
-import java.util.LinkedList;
-import java.util.List;
-import java.util.Map;
-import java.util.Set;
+import java.util.*;
 
+/**
+ * 集合操作工具类
+ * @author smalle
+ * @since 2017/2/3
+ */
 public class MiscU {
+
+	public static void sort(List<? extends Comparable> list) {
+		sort(list, true);
+	}
+
+	public static void sortToDesc(List<? extends Comparable> list) {
+        sort(list, false);
+	}
+
+    public static void sort(List<? extends Comparable> list, boolean yesAsc) {
+        list.sort((c1, c2) -> {
+            if (c1 instanceof String) {
+                return yesAsc ? ((String) c1).compareToIgnoreCase((String) c2) : ((String) c2).compareToIgnoreCase((String) c1);
+            } else {
+                return yesAsc ? c1.compareTo(c2) : c2.compareTo(c1);
+            }
+        });
+    }
 
 	// ==============
 	// 操作List
@@ -25,7 +40,7 @@ public class MiscU {
 	 * @param valueName
 	 * @return
 	 */
-	public static Map<String, Object> extractMap(List list, Object keyName, Object valueName) {
+	public static Map<String, Object> extractMap(List<Object> list, Object keyName, Object valueName) {
 		Map retMap = new HashMap();
 
 		for(int i=0, n=list.size(); i<n; i++){
@@ -45,12 +60,12 @@ public class MiscU {
 	 * @return
 	 * @throws Exception
 	 */
-	public static Map<String, Object> extractMap(List list, List keyNames, List valueNames) {
-		Map retMap = new HashMap();
+	public static Map<String, Object> extractMap(List<Object> list, List keyNames, List valueNames) {
+		Map<String, Object> retMap = new HashMap<String, Object>();
 
 		for(int i=0, n=list.size(); i<n; i++){
 			Object bean = list.get(i);
-			Map map = BeanU.transBean2Map(bean);
+			Map<String, Object> map = BeanU.transBean2Map(bean);
 
 			String keyStr = "";
 			for (Object keyName : keyNames) {
@@ -79,7 +94,7 @@ public class MiscU {
 	 */
 	@Deprecated
 	public static Map<String, Object> extractMap2(List<? extends Map<String, Object>> list, String keyName, String valueName) {
-		Map<String, Object> retMap = new HashMap();
+		Map<String, Object> retMap = new HashMap<>();
 		for (Map map : list) {
 			if(map.get(keyName) != null) {
 				String key = String.valueOf(map.get(keyName));
