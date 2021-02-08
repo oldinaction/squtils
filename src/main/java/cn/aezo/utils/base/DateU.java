@@ -6,9 +6,12 @@ import java.sql.Timestamp;
 import java.text.DateFormat;
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
+import java.util.ArrayList;
 import java.util.Calendar;
 import java.util.Date;
 import java.util.GregorianCalendar;
+import java.util.List;
+import java.util.Map;
 
 /**
  * Created by smalle on 2017/1/12.
@@ -287,6 +290,59 @@ public class DateU extends DateUtil {
         calendar.set(Calendar.MILLISECOND, 999);
 
         return calendar.getTime();
+    }
+
+    /**
+     * 将Map中的字符串时间转成时间格式
+     * @author smalle
+     * @since 2021/2/8
+     * @param map
+     * @param pattern 时间格式，默认为 yyyy-MM-dd HH:mm:ss
+     * @param keys 需要转换的字段名，字段值支持String/String[]/List<String>
+     * @return void
+     */
+    public static void parseContextDateStr(Map<String, Object> map, String pattern, String... keys) {
+        if(ValidU.isEmpty(pattern)) {
+            pattern = "yyyy-MM-dd HH:mm:ss";
+        }
+        SimpleDateFormat sdf = new SimpleDateFormat(pattern);
+        for (String key : keys) {
+            try {
+                if(map.get(key) != null) {
+                    if(map.get(key) instanceof String) {
+                        map.put(key, sdf.parse((String) map.get(key)));
+                    } else if(map.get(key) instanceof String[]) {
+                        String[] arr = (String[]) map.get(key);
+                        Date[] tm = new Date[arr.length];
+                        for (int i = 0; i < arr.length; i++) {
+                            if(ValidU.isNotEmpty(arr[i])) {
+                                tm[i] = sdf.parse(arr[i]);
+                            } else {
+                                tm[i] = null;
+                            }
+                        }
+                        map.put(key, tm);
+                    } else if (map.get(key) instanceof List) {
+                        List arr = (List) map.get(key);
+                        if(arr.size() != 0 && arr.get(0) instanceof String) {
+                            List<Date> tm = new ArrayList<>();
+                            for (int i = 0; i < arr.size(); i++) {
+                                if(arr.get(i) instanceof String) {
+                                    if(ValidU.isNotEmpty(arr.get(i))) {
+                                        tm.add(sdf.parse((String) arr.get(i)));
+                                    } else {
+                                        tm.add(null);
+                                    }
+                                }
+                            }
+                            map.put(key, tm);
+                        }
+                    }
+                }
+            } catch (ParseException e) {
+                throw new ExceptionU("解析时间出错");
+            }
+        }
     }
 
 }

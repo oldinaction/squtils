@@ -1,5 +1,7 @@
 package cn.aezo.utils.base;
 
+import cn.hutool.core.collection.CollUtil;
+
 import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
 import java.util.*;
@@ -12,29 +14,20 @@ import java.util.*;
 public class MiscU {
 
 	public static void sort(List<? extends Comparable> list) {
-		sort(list, true);
+		Collections.sort(list);
 	}
 
 	public static void sortToDesc(List<? extends Comparable> list) {
-        sort(list, false);
+		Collections.sort(list);
+		Collections.reverse(list);
 	}
-
-    public static void sort(List<? extends Comparable> list, boolean yesAsc) {
-        list.sort((c1, c2) -> {
-            if (c1 instanceof String) {
-                return yesAsc ? ((String) c1).compareToIgnoreCase((String) c2) : ((String) c2).compareToIgnoreCase((String) c1);
-            } else {
-                return yesAsc ? c1.compareTo(c2) : c2.compareTo(c1);
-            }
-        });
-    }
 
 	// ==============
 	// 操作List
 	// ==============
 
 	/**
-	 * 将 List(存放的Map) 按照其中map的某两个字段(keyName:valueName)提取成一个map
+	 * 将 List(存放的Map) 按照其中map的某两个字段(keyName: valueName)提取成一个map
 	 * @param list
 	 * @param keyName
 	 * @param valueName
@@ -57,13 +50,13 @@ public class MiscU {
 	 * @param list
 	 * @param keyNames
 	 * @param valueNames
-	 * @return
+	 * @return Map<String, String>
 	 * @throws Exception
 	 */
 	public static Map<String, Object> extractMap(List<Object> list, List keyNames, List valueNames) {
 		Map<String, Object> retMap = new HashMap<String, Object>();
 
-		for(int i=0, n=list.size(); i<n; i++){
+		for(int i=0, n=list.size(); i<n; i++) {
 			Object bean = list.get(i);
 			Map<String, Object> map = BeanU.transBean2Map(bean);
 
@@ -151,6 +144,24 @@ public class MiscU {
 		return results;
 	}
 
+	public static <K, V> Map<K, V> fieldValueMap(Iterable<V> iterable, String fieldName) {
+		Map<K, V> retMap = new HashMap<>();
+		boolean yesMap = false;
+		Iterator<V> iterator = iterable.iterator();
+		while (iterator.hasNext()) {
+			V next = iterator.next();
+			if(next instanceof Map) {
+				yesMap = true;
+				retMap.put((K) ((Map) next).get(fieldName), next);
+			}
+		}
+		if(yesMap) {
+			return retMap;
+		} else {
+			return  CollUtil.fieldValueMap(iterable, fieldName);
+		}
+	}
+
 	/**
 	 * 将 List(存放的Map) 按照map的某个字段(key)的值分组
 	 * @param dataList
@@ -160,17 +171,13 @@ public class MiscU {
 	 * @date 2016年11月26日 下午8:27:37
 	 */
 	@SuppressWarnings({ "rawtypes", "unchecked" })
-	public static <K> Map<K, List> groupByMapKey(List dataList, Object key) {
+	public static <K> Map<K, List> groupByMapKey(List<Map> dataList, Object key) {
 		Map<K, List> resultMap = new HashMap<K, List>();
-		for (Map map : (List<Map>) dataList) {
-			if(resultMap.containsKey(map.get(key))){
+		for (Map map : dataList) {
+			if(resultMap.containsKey(map.get(key))) {
 				resultMap.get(map.get(key)).add(map);
 			} else {
-				List<Map> list = new ArrayList<Map>();
-				list.add(map);
-				if(ValidU.isNotEmpty(map.get(key))) { // 业务上要求不为空
-					resultMap.put((K) map.get(key), list);
-				}
+				resultMap.put((K) map.get(key), toList(map));
 			}
 		}
 
