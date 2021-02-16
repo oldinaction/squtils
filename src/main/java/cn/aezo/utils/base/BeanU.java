@@ -5,6 +5,7 @@ import cn.hutool.core.bean.PropDesc;
 import cn.hutool.core.bean.copier.CopyOptions;
 import cn.hutool.core.collection.CollUtil;
 import cn.hutool.core.convert.Convert;
+import cn.hutool.core.util.ReflectUtil;
 import org.springframework.beans.BeanWrapper;
 import org.springframework.beans.BeanWrapperImpl;
 
@@ -74,6 +75,20 @@ public class BeanU extends BeanUtil {
      */
     public static void copyPropertiesIgnoreNull(Object src, Object target, String... ignoreProperties) {
         BeanUtil.copyProperties(src, target, CopyOptions.create().ignoreNullValue().setIgnoreProperties(ignoreProperties));
+    }
+
+    /**
+     * 忽略NULL类型字段
+     * @author smalle
+     * @since 2020/12/22
+     * @param src
+     * @param tClass
+     * @param ignoreProperties
+     */
+    public static <T> T copyPropertiesIgnoreNull(Object src, Class<T> tClass, String... ignoreProperties) {
+        T target = ReflectUtil.newInstanceIfPossible(tClass);
+        copyProperties(src, target, CopyOptions.create().ignoreNullValue().setIgnoreProperties(ignoreProperties));
+        return target;
     }
 
     /**
