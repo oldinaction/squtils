@@ -5,8 +5,10 @@ import org.springframework.aop.framework.AdvisedSupport;
 import org.springframework.aop.framework.AopProxy;
 import org.springframework.aop.support.AopUtils;
 import org.springframework.beans.BeansException;
+import org.springframework.beans.factory.support.DefaultListableBeanFactory;
 import org.springframework.context.ApplicationContext;
 import org.springframework.context.ApplicationContextAware;
+import org.springframework.context.support.GenericApplicationContext;
 import org.springframework.core.io.ClassPathResource;
 import org.springframework.core.io.Resource;
 import org.springframework.core.io.support.PropertiesLoaderUtils;
@@ -75,6 +77,19 @@ public class SpringU implements ApplicationContextAware {
      */
     public static <T> T getBean(String name,Class<T> clazz){
         return getApplicationContext().getBean(name, clazz);
+    }
+
+    /**
+     * 向Spring容器中注册Bean
+     * @author smalle
+     * @since 202012/26
+     * @param beanName
+     * @param singletonObject
+     */
+    public static void registerBean(String beanName, Object singletonObject) {
+        GenericApplicationContext genericApplicationContext = (GenericApplicationContext) applicationContext;
+        DefaultListableBeanFactory defaultListableBeanFactory = genericApplicationContext.getDefaultListableBeanFactory();
+        defaultListableBeanFactory.registerSingleton(beanName, singletonObject);
     }
 
     /**

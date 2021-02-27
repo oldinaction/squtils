@@ -17,7 +17,7 @@ import java.util.regex.Pattern;
  * Created by smalle on 2017/11/19.
  */
 public class JdbcU {
-    private static Pattern FROM_PATTERN = Pattern.compile("(?s)(.*?)[ \t\n\r]+from[ \t\n\r]+(.*?)", Pattern.CASE_INSENSITIVE);
+    private static Pattern FROM_PATTERN = Pattern.compile("(?s)(.*?)([ \t\n\r]+from[ \t\n\r])+(.*?)", Pattern.CASE_INSENSITIVE);
 
     /**
      * ResultSet转成List，Map中的key为数据库字段大写
@@ -141,7 +141,11 @@ public class JdbcU {
 
         if(returnTotals) {
             Matcher m = FROM_PATTERN.matcher(sql);
-            sql = m.replaceFirst(", count(*) over () paging_total__ from ");
+            while (m.find()) {
+                String group = m.group(2);
+                sql = sql.replaceFirst(group, ", count(*) over () paging_total__ from ");
+                break;
+            }
             // sql = sql.replaceFirst(" (?i)from ", ", count(*) over () paging_total__ from ");
         }
         sql = "select * from (select rownum as rn__, paging_t1.* from (" + sql + ") paging_t1 where rownum < " +
