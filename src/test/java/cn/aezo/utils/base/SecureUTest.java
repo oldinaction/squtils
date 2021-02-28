@@ -3,16 +3,6 @@ package cn.aezo.utils.base;
 import cn.hutool.core.codec.Base64;
 import org.junit.Test;
 
-import javax.crypto.BadPaddingException;
-import javax.crypto.Cipher;
-import javax.crypto.IllegalBlockSizeException;
-import javax.crypto.NoSuchPaddingException;
-import javax.crypto.SecretKey;
-import javax.crypto.spec.IvParameterSpec;
-import javax.crypto.spec.SecretKeySpec;
-import java.security.InvalidAlgorithmParameterException;
-import java.security.InvalidKeyException;
-import java.security.NoSuchAlgorithmException;
 import java.util.Map;
 
 /**
@@ -24,7 +14,6 @@ public class SecureUTest {
     @Test
     public void aesTest() {
         System.out.println("Base64.encode(\")|][d&%^+=-··~!o`\") = " + Base64.encode(")|][d&%^+=-··~!o`"));
-
 
         String e = SecureU.aesEncrypt(MiscU.toMap("username", "smalle", "roleCode", "admin",
                 "description", "O(∩_∩)O哈哈~O(∩_∩)O哈哈~", "createTime", System.currentTimeMillis()).toString());
@@ -75,17 +64,5 @@ public class SecureUTest {
         // 甲方使用私钥对数据进行解密
         byte[] decode2 = SecureU.rsaDecryptByPrivateKey(code2, privateKeyStr);
         System.out.println("甲方解密后的数据：" + new String(decode2));
-    }
-
-    // U2FsdGVkX180eWfWtaygenRVWK1bhS9hOUOcqLSkI/I=
-    @Test
-    public void test () throws NoSuchPaddingException, NoSuchAlgorithmException, BadPaddingException, IllegalBlockSizeException, InvalidAlgorithmParameterException, InvalidKeyException {
-        Cipher cipher = Cipher.getInstance("AES/CBC/PKCS5Padding");
-        SecretKey secretKey = new SecretKeySpec("0000000000000000".getBytes(), "AES");
-        IvParameterSpec ivParameterSpec = new IvParameterSpec("0000000000000000".getBytes());
-        cipher.init(Cipher.DECRYPT_MODE, secretKey, ivParameterSpec);
-
-        byte[] decrypted = cipher.doFinal("U2FsdGVkX18djOTC/fQNDQXJca2Jz0RlEoSsjRi6E0I=".getBytes());
-        System.out.println(new String(decrypted));
     }
 }
