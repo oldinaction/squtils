@@ -252,7 +252,6 @@ public class SecureU {
      * @return byte[] 加密数据. 可使用Base64.encode得到字符串
      */
     public static byte[] rsaEncryptByPrivateKey(byte[] data, String key) throws Exception {
-
         //取得私钥
         PKCS8EncodedKeySpec pkcs8KeySpec = new PKCS8EncodedKeySpec(Base64.decode(key));
         KeyFactory keyFactory = KeyFactory.getInstance(RSA_KEY);
@@ -272,7 +271,6 @@ public class SecureU {
      * @return byte[] 加密数据. 可使用Base64.encode得到字符串
      */
     public static byte[] rsaEncryptByPublicKey(byte[] data, String key) throws Exception {
-
         //实例化密钥工厂
         KeyFactory keyFactory = KeyFactory.getInstance(RSA_KEY);
         //初始化公钥
@@ -280,7 +278,6 @@ public class SecureU {
         X509EncodedKeySpec x509KeySpec = new X509EncodedKeySpec(Base64.decode(key));
         //产生公钥
         PublicKey pubKey = keyFactory.generatePublic(x509KeySpec);
-
         //数据加密
         Cipher cipher = Cipher.getInstance(keyFactory.getAlgorithm());
         cipher.init(Cipher.ENCRYPT_MODE, pubKey);
@@ -314,7 +311,6 @@ public class SecureU {
      * @return byte[] 解密数据. 可使用Base64.encode得到字符串
      */
     public static byte[] rsaDecryptByPublicKey(byte[] data, String key) throws Exception {
-
         //实例化密钥工厂
         KeyFactory keyFactory = KeyFactory.getInstance(RSA_KEY);
         //初始化公钥

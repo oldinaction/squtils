@@ -1,5 +1,6 @@
 package cn.aezo.utils.base;
 
+import cn.hutool.core.exceptions.UtilException;
 import cn.hutool.core.util.ArrayUtil;
 import cn.hutool.core.util.ClassUtil;
 import cn.hutool.core.util.ReflectUtil;
@@ -14,6 +15,44 @@ import java.lang.reflect.Method;
  * @since 2020-12-10 21:04
  */
 public class ReflectU extends ReflectUtil {
+    private static final int MAX_CAUSE = 10;
+
+    /**
+     * 解决反射获取不到最终异常
+     * @author smalle
+     * @since 2021/3/31
+     * @param object
+     * @param method
+     * @param args
+     * @throws ExceptionU
+     * @return T
+     */
+    public static <T> T invoke(Object object, Method method, Object... args) throws ExceptionU {
+        try {
+            return ReflectUtil.invoke(object, method, args);
+        } catch (Throwable e) {
+            for (int i = 0; i < MAX_CAUSE; i++) {
+                if(e.getCause() != null) {
+                    e = e.getCause();
+                } else {
+                    break;
+                }
+            }
+            if(e instanceof ExceptionU) {
+                throw (ExceptionU) e;
+            } else {
+                throw new ExceptionU(e.getMessage(), e);
+            }
+        }
+    }
+
+    public static <T> T invoke(Object object, String methodName, Object... args) throws ExceptionU {
+        final Method method = getMethodOfObj(object, methodName, args);
+        if (null == method) {
+            throw new UtilException(StrUtil.format("No such method: [{}]", methodName));
+        }
+        return invoke(object, method, args);
+    }
 
     /**
      * 仅获取当前类的方法(包括继承的直接父类方法)

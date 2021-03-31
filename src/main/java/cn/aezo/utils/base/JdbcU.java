@@ -86,21 +86,21 @@ public class JdbcU {
      * @author smalle
      * @date 2017年1月4日 下午4:56:44
      */
-    @Deprecated
+    // @Deprecated
     public static String getStr4SQLINParam(String[] values, boolean trim){
         List<String> list = Arrays.asList(values);
         return getStr4SQLINParam(list, trim);
     }
 
     /**
-     * 将list转换成sql语句中的in参数(不包含括号). 可使用StrUtil.join()代替
+     * 将list转换成sql语句中的in参数(不包含括号). 可使用StrUtil.join()代替，单引号？
      * @param list
      * @param trim 是否对list中的数据执行trim函数
      * @return
      * @author smalle
      * @date 2017年1月4日 下午4:56:21
      */
-    @Deprecated
+    // @Deprecated
     public static String getStr4SQLINParam(List<String> list, boolean trim) {
         if(trim) {
             List<String> tempList = new ArrayList<>();
