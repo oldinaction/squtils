@@ -165,19 +165,52 @@ public class MiscU {
 	/**
 	 * 将 List(存放的Map) 按照map的某个字段(key)的值分组
 	 * @param dataList
-	 * @param key 分组字段
+	 * @param key 分组字段。可以传入Long型等，但是返回的Map.key为字符串
 	 * @return
 	 * @author smalle
 	 * @date 2016年11月26日 下午8:27:37
 	 */
 	@SuppressWarnings({ "rawtypes", "unchecked" })
-	public static <K> Map<K, List> groupByMapKey(List<Map> dataList, Object key) {
-		Map<K, List> resultMap = new HashMap<K, List>();
+	public static Map<String, List> groupByMapKey(List<Map> dataList, Object key) {
+		Map<String, List> resultMap = new HashMap<>();
 		for (Map map : dataList) {
-			if(resultMap.containsKey(map.get(key))) {
-				resultMap.get(map.get(key)).add(map);
+			String keyStr = String.valueOf(map.get(key));
+			if(resultMap.containsKey(keyStr)) {
+				resultMap.get(keyStr).add(map);
 			} else {
-				resultMap.put((K) map.get(key), toList(map));
+				resultMap.put(keyStr, toList(map));
+			}
+		}
+
+		return resultMap;
+	}
+
+	/**
+	 * 将 List(存放的Map) 按照map的某几个字段(key)的值分组
+	 * @param dataList
+	 * @param joinStr 关联字符，默认为$
+	 * @param keys 分组字段。可以传入Long型等，但是返回的Map.key为字符串
+	 * @return
+	 * @author smalle
+	 * @date 2016年11月26日 下午8:27:37
+	 */
+	public static Map<String, List> groupByMapKey(List dataList, String joinStr, Object... keys) {
+		Map<String, List> resultMap = new HashMap<String, List>();
+		if(joinStr == null) {
+			joinStr = "$";
+		}
+		for (Map map : (List<Map>) dataList) {
+			String keyStr = "";
+			for (Object key : keys) {
+				keyStr += joinStr + String.valueOf(map.get(key));
+			}
+			if(ValidU.isNotEmpty(keyStr)) {
+				keyStr = keyStr.substring(1);
+			}
+			if(resultMap.containsKey(keyStr)){
+				resultMap.get(keyStr).add(map);
+			} else {
+				resultMap.put(keyStr, toList(map));
 			}
 		}
 
@@ -497,8 +530,11 @@ public class MiscU {
 		return map;
 	}
 
+	/**
+	 * 往一个map中按照MiscU.toMap的方式加入数据
+	 */
 	@SuppressWarnings("unchecked")
-	private static <K, V> Map<String, V> populateMap(Map<String, V> map, Object... data) {
+	public static <K, V> Map<String, V> populateMap(Map<String, V> map, Object... data) {
 		for (int i = 0; i < data.length;) {
 			map.put((String) data[i++], (V) data[i++]);
 		}
