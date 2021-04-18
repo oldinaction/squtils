@@ -11,7 +11,6 @@ import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.annotation.Lazy;
 import org.springframework.mail.javamail.JavaMailSender;
 import org.springframework.mail.javamail.MimeMessageHelper;
-import org.springframework.stereotype.Service;
 
 import javax.annotation.PostConstruct;
 import javax.mail.internet.MimeMessage;
@@ -23,7 +22,6 @@ import java.util.Map;
  * @author smalle
  * @since 2021-01-05
  */
-@Service
 @Slf4j
 public class EmailService {
 
@@ -36,7 +34,7 @@ public class EmailService {
     private String username;
 
     @Lazy
-    @Autowired(required = false)
+    @Autowired
     public EmailService(JavaMailSender javaMailSender) {
         EmailService.javaMailSender = javaMailSender;
     }

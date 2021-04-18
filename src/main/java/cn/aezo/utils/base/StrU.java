@@ -111,7 +111,7 @@ public class StrU extends StrUtil {
 	 * @param fromat
 	 * @return
 	 * @author smalle
-	 * @date 2016年12月25日 上午11:05:40
+	 * @date 2016年12月25日 上午8:05:40
 	 */
 	public static String nowTime(String fromat) {
 		Date currentTime = new Date();

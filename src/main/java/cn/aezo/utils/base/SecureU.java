@@ -24,7 +24,7 @@ import java.util.UUID;
 
 /**
  * @author smalle
- * @date 2019-11-08 17:28
+ * @date 2019-11-08 19:28
  */
 public class SecureU {
     // ====================== 简单加密

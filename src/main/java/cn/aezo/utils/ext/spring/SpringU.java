@@ -20,7 +20,7 @@ import java.util.Properties;
 /**
  * Spring常用工具
  * @author smalle
- * @date 2020-11-22 16:42
+ * @date 2020-11-22 21:42
  */
 @Component
 public class SpringU implements ApplicationContextAware {
@@ -93,7 +93,7 @@ public class SpringU implements ApplicationContextAware {
     }
 
     /**
-     * 获取AOP代理的目标对象
+     * 获取AOP代理的目标对象 TODO AopUtils.getTargetClass 获取类
      * @param proxy 代理对象
      * @return 目标对象
      * @throws Exception

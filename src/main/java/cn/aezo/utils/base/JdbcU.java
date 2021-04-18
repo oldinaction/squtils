@@ -47,7 +47,7 @@ public class JdbcU {
      * @param st
      * @param conn
      * @author smalle
-     * @date 2016年9月29日 上午9:48:26
+     * @date 2016年9月29日 上午8:48:26
      */
     public static void close(ResultSet rs, Statement st, Connection conn) {
         try {
@@ -84,7 +84,7 @@ public class JdbcU {
      * @param trim 是否对数组中的数据执行trim函数
      * @return
      * @author smalle
-     * @date 2017年1月4日 下午4:56:44
+     * @date 2017年1月4日 下午8:56:44
      */
     // @Deprecated
     public static String getStr4SQLINParam(String[] values, boolean trim){
@@ -98,7 +98,7 @@ public class JdbcU {
      * @param trim 是否对list中的数据执行trim函数
      * @return
      * @author smalle
-     * @date 2017年1月4日 下午4:56:21
+     * @date 2017年1月4日 下午8:56:21
      */
     // @Deprecated
     public static String getStr4SQLINParam(List<String> list, boolean trim) {
