@@ -8,7 +8,6 @@ import cn.hutool.extra.template.TemplateUtil;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
-import org.springframework.context.annotation.Lazy;
 import org.springframework.mail.javamail.JavaMailSender;
 import org.springframework.mail.javamail.MimeMessageHelper;
 
@@ -33,7 +32,6 @@ public class EmailService {
     @Value("${spring.mail.username:}")
     private String username;
 
-    @Lazy
     @Autowired
     public EmailService(JavaMailSender javaMailSender) {
         EmailService.javaMailSender = javaMailSender;

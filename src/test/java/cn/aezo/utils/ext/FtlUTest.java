@@ -3,7 +3,6 @@ package cn.aezo.utils.ext;
 import cn.aezo.utils.base.MiscU;
 import cn.aezo.utils.ext.tpl.FtlU;
 import lombok.SneakyThrows;
-import org.junit.Test;
 
 import java.io.File;
 import java.io.FileOutputStream;
@@ -14,8 +13,8 @@ import java.io.FileOutputStream;
  */
 public class FtlUTest {
 
+    // @Test
     @SneakyThrows
-    @Test
     public void getNextNo() {
         FtlU.rendToConsole("Hello ${name}", MiscU.toMap("name", "smalle1"));
         FtlU.rendToStream("Hello ${name}", MiscU.toMap("name", "smalle2"),

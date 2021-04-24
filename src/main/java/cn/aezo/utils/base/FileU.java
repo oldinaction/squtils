@@ -15,79 +15,6 @@ import java.util.UUID;
  */
 public class FileU extends FileUtil {
     /**
-     * 基于流从classpath获取文件内容(一般用于读取文本文件)
-     * @author smalle
-     * @since 2020/12/23
-     * @param srcXpath 如：data.json，/spring/config.xml
-     * @throws Exception 如找不到相关文件时会报错
-     * @return java.lang.String
-     */
-    @SneakyThrows
-    public static String getFileContentByClasspath(String srcXpath) {
-        if (!srcXpath.startsWith("/")) {
-            srcXpath = "/" + srcXpath;
-        }
-
-        String content;
-        InputStream inputStream = FileU.class.getResourceAsStream(srcXpath);
-        BufferedReader reader = new BufferedReader(new InputStreamReader(inputStream, "utf-8"));
-        StringBuilder builder = new StringBuilder();
-        char[] charArray = new char[200];
-        int number;
-        while ((number = reader.read(charArray)) != -1) {
-            builder.append(charArray, 0, number);
-        }
-        content = builder.toString();
-        return content;
-    }
-
-    /**
-     * 基于流读取classpath文件并生成临时文件返回(一般用于读取二进制文件)<br/>
-     * 1.SpringBoot打包成jar后无法直接返回File，此方式是生成一个临时文件，使用完之后建议删除临时文件<br/>
-     * 2.下列方式在IDEA中可获取，打包成(SpringBoot)JAR后无法获取<br/>
-     *
-     * ResourceUtils.getFile(ResourceUtils.CLASSPATH_URL_PREFIX + "data.json"); // spring<br/>
-     * FileUtil.file(getClass().getClassLoader().getResource("data.json")); // hutool<br/>
-     * FileUtil.file(ResourceUtil.getResource("data.json")); // hutool<br/>
-     * FileU.getFileByClasspath("data.json"); // 同 getClass().getClassLoader().getResource("data.json")<br/>
-     *
-     * @author smalle
-     * @since 2020/12/23
-     * @param relativePath
-     * @throws Exception 如找不到相关文件时会报错
-     * @return java.io.File
-     */
-    @SneakyThrows
-    public static File getFileTempByClasspath(String relativePath) {
-        File tempFile = null;
-        InputStream in = null;
-        try {
-            ClassPathResource classPathResource = new ClassPathResource(relativePath);
-            in = classPathResource.getStream();
-            tempFile = File.createTempFile(UUID.randomUUID().toString(), "");
-            FileUtil.writeFromStream(in, tempFile);
-        } finally {
-            if(in != null) {
-                IoUtil.close(in);
-            }
-        }
-        return tempFile;
-    }
-
-    /**
-     * 根据classpath获取文件(SpringBoot打包成jar后，此方法无效) {@link FileU#getFileTempByClasspath}
-     * @param relativePath 相对classpath的路径, 开头不需要/ (如：cn/aezo/utils/data.json)
-     * @return
-     */
-    public static File getFileByClasspath(String relativePath) {
-        URL url = FileU.class.getClassLoader().getResource(relativePath);
-        if(url == null) {
-            return null;
-        }
-        return new File(url.getFile());
-    }
-
-    /**
      * 创建文件，会自动创建父目录
      * @param fileFullName 文件路径
      */
@@ -159,6 +86,148 @@ public class FileU extends FileUtil {
         } finally {
             IoUtil.close(is);
         }
+    }
+
+    /**
+     * 基于流从classpath获取文件内容(一般用于读取文本文件)
+     * @author smalle
+     * @since 2020/12/23
+     * @param srcXpath 如：data.json，/spring/config.xml
+     * @throws Exception 如找不到相关文件时会报错
+     * @return java.lang.String
+     */
+    public static String getFileContentByClasspath(String srcXpath) {
+        return getFileContentByClasspath(srcXpath, "utf-8");
+    }
+
+    @SneakyThrows
+    public static String getFileContentByClasspath(String srcXpath, String charsetName) {
+        if (!srcXpath.startsWith("/")) {
+            srcXpath = "/" + srcXpath;
+        }
+
+        String content;
+        InputStream inputStream = FileU.class.getResourceAsStream(srcXpath);
+        BufferedReader reader = new BufferedReader(new InputStreamReader(inputStream, charsetName));
+        StringBuilder builder = new StringBuilder();
+        char[] charArray = new char[200];
+        int number;
+        while ((number = reader.read(charArray)) != -1) {
+            builder.append(charArray, 0, number);
+        }
+        content = builder.toString();
+        return content;
+    }
+
+    /**
+     * 基于流读取classpath文件并生成临时文件返回(一般用于读取二进制文件)<br/>
+     * 1.SpringBoot打包成jar后无法直接返回File，此方式是生成一个临时文件，使用完之后建议删除临时文件<br/>
+     * 2.下列方式在IDEA中可获取，打包成(SpringBoot)JAR后无法获取<br/>
+     *
+     * ResourceUtils.getFile(ResourceUtils.CLASSPATH_URL_PREFIX + "data.json"); // spring<br/>
+     * FileUtil.file(getClass().getClassLoader().getResource("data.json")); // hutool<br/>
+     * FileUtil.file(ResourceUtil.getResource("data.json")); // hutool<br/>
+     * FileU.getFileByClasspath("data.json"); // 同 getClass().getClassLoader().getResource("data.json")<br/>
+     *
+     * @author smalle
+     * @since 2020/12/23
+     * @param relativePath
+     * @throws Exception 如找不到相关文件时会报错
+     * @return java.io.File
+     */
+    @SneakyThrows
+    public static File getFileTempByClasspath(String relativePath) {
+        File tempFile = null;
+        InputStream in = null;
+        try {
+            ClassPathResource classPathResource = new ClassPathResource(relativePath);
+            in = classPathResource.getStream();
+            tempFile = File.createTempFile(UUID.randomUUID().toString(), "");
+            FileUtil.writeFromStream(in, tempFile);
+        } finally {
+            if(in != null) {
+                IoUtil.close(in);
+            }
+        }
+        return tempFile;
+    }
+
+    /**
+     * 根据classpath获取文件(SpringBoot打包成jar后，此方法无效) {@link FileU#getFileTempByClasspath}
+     * @param relativePath 相对classpath的路径, 开头不需要/ (如：cn/aezo/utils/data.json)
+     * @return
+     */
+    public static File getFileByClasspath(String relativePath) {
+        URL url = FileU.class.getClassLoader().getResource(relativePath);
+        if(url == null) {
+            return null;
+        }
+        return new File(url.getFile());
+    }
+
+    /**
+     * 获取文件编码
+     * @return
+     */
+    private String getFileCharset(File sourceFile) {
+        byte[] first3Bytes = new byte[3];
+        try (BufferedInputStream bis = new BufferedInputStream(new FileInputStream(sourceFile))) {
+            bis.mark(0);
+            int read = bis.read(first3Bytes, 0, 3);
+            if (read == -1) {
+                // 文件编码为 ANSI
+                return "GBK";
+            }
+
+            if (first3Bytes[0] == (byte) 0xFF && first3Bytes[1] == (byte) 0xFE) {
+                // 文件编码为 Unicode
+                return "UTF-16LE";
+            }
+
+            if (first3Bytes[0] == (byte) 0xFE && first3Bytes[1] == (byte) 0xFF) {
+                // 文件编码为 Unicode big endian
+                return "UTF-16BE";
+            }
+
+            if (first3Bytes[0] == (byte) 0xEF && first3Bytes[1] == (byte) 0xBB && first3Bytes[2] == (byte) 0xBF) {
+                // 文件编码为 UTF-8
+                return "UTF-8";
+            }
+
+            bis.reset();
+
+            while ((read = bis.read()) != -1) {
+                if (read >= 0xF0) {
+                    break;
+                }
+                if (0x80 <= read && read <= 0xBF) {
+                    break;
+                }
+                if (0xC0 <= read && read <= 0xDF) {
+                    read = bis.read();
+                    if (0x80 <= read && read <= 0xBF) {
+                        // (0x80 - 0xBF),也可能在GB编码内
+                        continue;
+                    }
+
+                    break;
+                } else if (0xE0 <= read && read <= 0xEF) {
+                    // 也有可能出错，但是几率较小
+                    read = bis.read();
+                    if (0x80 <= read && read <= 0xBF) {
+                        read = bis.read();
+                        if (0x80 <= read && read <= 0xBF) {
+                            return "UTF-8";
+                        }
+                        break;
+                    }
+                    break;
+                }
+            }
+        } catch (Exception e) {
+            throw new ExceptionU("获取文件编码出错", e);
+        }
+        return "GBK";
     }
 
     // SQ ===============================================================
@@ -531,7 +600,7 @@ public class FileU extends FileUtil {
     /**
      * 换行符
      */
-    public enum LINE_SEPARATOR {
+    public static enum LINE_SEPARATOR {
         /**
          * windows 系统
          */
