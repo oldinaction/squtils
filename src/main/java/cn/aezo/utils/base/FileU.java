@@ -88,6 +88,15 @@ public class FileU extends FileUtil {
         }
     }
 
+    public static void saveFileDirect(InputStream is, String originFileName, String rootPath) {
+        try {
+            File file = FileU.newFileSafe(rootPath + originFileName);
+            FileU.copyFile(is, file);
+        } finally {
+            IoUtil.close(is);
+        }
+    }
+
     /**
      * 基于流从classpath获取文件内容(一般用于读取文本文件)
      * @author smalle
