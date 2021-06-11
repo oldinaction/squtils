@@ -18,6 +18,14 @@ import java.util.Map;
 @Slf4j
 public class JsonU {
 
+    public static String toJsonStr(Object obj) {
+        return JSONUtil.toJsonStr(obj);
+    }
+
+    public static <T> T toBean(String jsonString, Class<T> beanClass) {
+        return JSONUtil.toBean(jsonString, beanClass);
+    }
+
     public static Map<String, Object> toMapSafe(String str) {
         Map<String, Object> ret = JSONUtil.toBean(str, Map.class, true);
         if(ret == null) {
