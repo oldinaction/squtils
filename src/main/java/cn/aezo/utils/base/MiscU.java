@@ -112,7 +112,7 @@ public class MiscU {
 		Method method = null;
 		Method[] methods = classes.getMethods();
 		for (Method m : methods) {
-			if(("get" + StrU.toUpperCaseFirst(filedName)).equals(m.getName())) {
+			if(("get" + StrU.upperFirst(filedName)).equals(m.getName())) {
 				method = m;
 				break;
 			}
@@ -230,7 +230,7 @@ public class MiscU {
 		Method method = null;
 		Method[] methods = classes.getMethods();
 		for (Method m : methods) {
-			if(("get" + StrU.toUpperCaseFirst(filedName)).equals(m.getName())) {
+			if(("get" + StrU.upperFirst(filedName)).equals(m.getName())) {
 				method = m;
 				break;
 			}

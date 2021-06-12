@@ -121,24 +121,6 @@ public class StrU extends StrUtil {
 	}
 
 	/**
-	 * 首字母大写
-	 */
-	public static String toUpperCaseFirst(String string) {
-		char[] methodName = string.toCharArray();
-		methodName[0] = Character.toUpperCase(methodName[0]);
-		return String.valueOf(methodName);
-	}
-
-	/**
-	 * 首字母小写
-	 */
-	public static String toLowerCaseFirst(String string) {
-		char[] methodName = string.toCharArray();
-		methodName[0] = Character.toLowerCase(methodName[0]);
-		return String.valueOf(methodName);
-	}
-
-	/**
 	 * 获取驼峰/下划线简称. 如：helloWorld 或 hello_world => hw
 	 * @author smalle
 	 * @since 2021/1/12
