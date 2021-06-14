@@ -158,7 +158,7 @@ public class MiscU {
 		if(yesMap) {
 			return retMap;
 		} else {
-			return  CollUtil.fieldValueMap(iterable, fieldName);
+			return CollUtil.fieldValueMap(iterable, fieldName);
 		}
 	}
 
