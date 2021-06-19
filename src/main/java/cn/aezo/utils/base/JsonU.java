@@ -1,6 +1,8 @@
 package cn.aezo.utils.base;
 
+import cn.aezo.utils.func.AdjustJsonItemValueFunc;
 import cn.hutool.json.JSONArray;
+import cn.hutool.json.JSONObject;
 import cn.hutool.json.JSONUtil;
 import lombok.extern.slf4j.Slf4j;
 
@@ -8,7 +10,9 @@ import java.io.BufferedReader;
 import java.io.InputStream;
 import java.io.InputStreamReader;
 import java.net.URL;
+import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
 
@@ -40,6 +44,49 @@ public class JsonU {
             ret = new JSONArray();
         }
         return ret;
+    }
+
+    /**
+     * 递归处理JSON字符串的每一项，将其值进行trim
+     * @param jsonStr
+     * @return
+     */
+    public static Map<String, Object> adjustJsonItemValueWithTrim(String jsonStr) {
+        return adjustJsonItemValue(jsonStr, (k, v) -> {
+            if (v instanceof String) {
+                return v.toString().trim();
+            }
+            return v;
+        });
+    }
+
+    /**
+     * 递归处理JSON字符串的每一项
+     * @param jsonStr
+     * @param adjustFunc 处理函数
+     * @return
+     */
+    public static Map<String, Object> adjustJsonItemValue(String jsonStr, AdjustJsonItemValueFunc adjustFunc) {
+        Map<String, Object> map = new HashMap<>();
+        JSONObject jsonObject = JSONUtil.toBean(jsonStr, JSONObject.class, true);
+        for (String k : jsonObject.keySet()) {
+            Object v = jsonObject.get(k);
+            if (v instanceof JSONArray) {
+                List<Map<String, Object>> list = new ArrayList<>();
+                Iterator<Object> it = ((JSONArray) v).iterator();
+                while (it.hasNext()) {
+                    Object obj = it.next();
+                    list.add(adjustJsonItemValue(obj.toString(), adjustFunc));
+                }
+                map.put(k, list);
+            } else if (v instanceof JSONObject) {
+                map.put(k, adjustJsonItemValue(v.toString(), adjustFunc));
+            } else {
+                Object adjustValue = adjustFunc.adjustValue(k, v);
+                map.put(k, adjustValue);
+            }
+        }
+        return map;
     }
 
     /**
