@@ -43,12 +43,46 @@ public class JsonU {
     }
 
     /**
-     * 通过HTTP获取JSON数据（Map）
+     * 根据URL地址，获取其中的参数
+     * @param url
+     * @return
+     */
+    public static Map<String, String> getMapByUrl(String url) {
+        Map<String, String> map = new HashMap<String, String>();
+        if (!url.contains("?")) {
+            return new HashMap<>();
+        }
+        String[] parts = url.split("\\?", 2);
+        if (parts.length < 2) {
+            return new HashMap<>();
+        }
+        String parsedStr = parts[1];
+        if (parsedStr.contains("&")) {
+            String[] multiParamObj = parsedStr.split("&");
+            for (String obj : multiParamObj) {
+                parseBasicParam(map, obj);
+            }
+            return map;
+        }
+        parseBasicParam(map, parsedStr);
+        return map;
+
+    }
+    private static void parseBasicParam(Map<String, String> map, String str) {
+        String[] paramObj = str.split("=");
+        if (paramObj.length < 2) {
+            return;
+        }
+        map.put(paramObj[0], paramObj[1]);
+    }
+
+    /**
+     * 通过HTTP请求获取JSON数据（Map）
      * 北京的天气接口: "http://apistore.baidu.com/microservice/cityinfo?cityname=%E5%8C%97%E4%BA%AC"
      * @param url
      * @return
      */
-    public static Map<String, Object> getMapByUrl(String url) {
+    public static Map<String, Object> getMapByUrlGet(String url) {
         try {
             InputStream in = new URL(url).openStream();
             BufferedReader reader = new BufferedReader(new InputStreamReader(in));
@@ -65,11 +99,11 @@ public class JsonU {
     }
 
     /**
-     * 通过HTTP获取JSON数据（List）
+     * 通过HTTP请求获取JSON数据（List）
      * @param url
      * @return
      */
-    public static List<Map> getListByUrl(String url) {
+    public static List<Map> getListByUrlGet(String url) {
         try {
             InputStream in = new URL(url).openStream();
             BufferedReader reader = new BufferedReader(new InputStreamReader(in));
