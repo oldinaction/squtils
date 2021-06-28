@@ -157,7 +157,7 @@ public class ValidU extends Validator {
     }
 
     public static Boolean hasEmpty(Object... arr) {
-        return !isNotEmpty(arr);
+        return !isAllNotEmpty(arr);
     }
 
     /** 至少有一个不为空(true) */
@@ -166,7 +166,7 @@ public class ValidU extends Validator {
     }
 
     public static Boolean hasNotEmpty(Object... arr) {
-        return !isEmpty(arr);
+        return !isAllEmpty(arr);
     }
 
     public static boolean isTrue(Object value) {
