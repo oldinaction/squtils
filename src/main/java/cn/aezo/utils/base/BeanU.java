@@ -33,10 +33,15 @@ public class BeanU extends BeanUtil {
      * @author smalle
      * @since 2020/12/22
      * @param source
-     * @param target
+     * @param tClass
      * @param copyProperties
      * @return void
      */
+    public static <T> T copyPropertiesOnly(Object source, Class<T> tClass, String... copyProperties) {
+        T target = ReflectUtil.newInstanceIfPossible(tClass);
+        copyPropertiesOnly(source, target, copyProperties);
+        return target;
+    }
     public static void copyPropertiesOnly(Object source, Object target, String... copyProperties) {
         if(ValidU.isEmpty(copyProperties)) {
             return;

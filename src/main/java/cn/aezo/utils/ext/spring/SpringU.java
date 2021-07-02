@@ -1,6 +1,7 @@
 package cn.aezo.utils.ext.spring;
 
 import lombok.SneakyThrows;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.aop.framework.AdvisedSupport;
 import org.springframework.aop.framework.AopProxy;
 import org.springframework.aop.support.AopUtils;
@@ -8,6 +9,9 @@ import org.springframework.beans.BeansException;
 import org.springframework.beans.factory.support.DefaultListableBeanFactory;
 import org.springframework.context.ApplicationContext;
 import org.springframework.context.ApplicationContextAware;
+import org.springframework.context.MessageSource;
+import org.springframework.context.NoSuchMessageException;
+import org.springframework.context.i18n.LocaleContextHolder;
 import org.springframework.context.support.GenericApplicationContext;
 import org.springframework.core.io.ClassPathResource;
 import org.springframework.core.io.Resource;
@@ -15,6 +19,7 @@ import org.springframework.core.io.support.PropertiesLoaderUtils;
 import org.springframework.stereotype.Component;
 
 import java.lang.reflect.Field;
+import java.util.Locale;
 import java.util.Properties;
 
 /**
@@ -22,6 +27,7 @@ import java.util.Properties;
  * @author smalle
  * @date 2020-11-22 21:42
  */
+@Slf4j
 @Component
 public class SpringU implements ApplicationContextAware {
 
@@ -120,6 +126,19 @@ public class SpringU implements ApplicationContextAware {
         // 读取配置文件
         Resource resource = new ClassPathResource(classpath);
         return PropertiesLoaderUtils.loadProperties(resource);
+    }
+
+    private String getLocalMessage(String keyCode) {
+        String localMessage = null;
+        Locale locale = null;
+        try {
+            locale = LocaleContextHolder.getLocale();
+            localMessage = SpringU.getBean(MessageSource.class).getMessage(keyCode, null, locale);
+        } catch (NoSuchMessageException e1) {
+            log.warn("invalid i18n! errorCode: " + keyCode + ", local: " + locale);
+        }
+
+        return localMessage;
     }
 
     private static Object getCglibProxyTargetObject(Object proxy) throws Exception {

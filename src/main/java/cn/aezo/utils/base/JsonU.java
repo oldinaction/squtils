@@ -72,11 +72,16 @@ public class JsonU {
         for (String k : jsonObject.keySet()) {
             Object v = jsonObject.get(k);
             if (v instanceof JSONArray) {
-                List<Map<String, Object>> list = new ArrayList<>();
+                List list = new ArrayList<>();
                 Iterator<Object> it = ((JSONArray) v).iterator();
                 while (it.hasNext()) {
                     Object obj = it.next();
-                    list.add(adjustJsonItemValue(obj.toString(), adjustFunc));
+                    if(obj instanceof JSONArray || obj instanceof JSONObject) {
+                        list.add(adjustJsonItemValue(obj.toString(), adjustFunc));
+                    } else {
+                        list.add(adjustFunc.adjustValue(k, obj));
+                    }
+                    map.put(k, list);
                 }
                 map.put(k, list);
             } else if (v instanceof JSONObject) {
@@ -95,7 +100,7 @@ public class JsonU {
      * @return
      */
     public static Map<String, String> getMapByUrl(String url) {
-        Map<String, String> map = new HashMap<String, String>();
+        Map<String, String> map = new HashMap<>();
         if (!url.contains("?")) {
             return new HashMap<>();
         }
