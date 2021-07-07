@@ -144,6 +144,47 @@ public class MiscU {
 		return results;
 	}
 
+	/**
+	 * 将List按元素的某个Key转换成Map, Key一般是唯一值
+	 * @author smalle
+	 * @since 2021/7/6
+	 * @param iterable 支持元素为Map或Bean
+	 * @param fieldName
+	 * @throws
+	 * @return java.util.Map<java.lang.String, V> 会自动将元素的Key转成字符串
+	 */
+	public static <V> Map<String, V> fieldValueMapSimple(Iterable<V> iterable, String fieldName) {
+		Map<String, V> retMap = new HashMap<>();
+		boolean yesMap = false;
+		Iterator<V> iterator = iterable.iterator();
+		while (iterator.hasNext()) {
+			V next = iterator.next();
+			if(next instanceof Map) {
+				yesMap = true;
+				Object key = ((Map) next).get(fieldName);
+				retMap.put(key == null ? "" : key.toString(), next);
+			}
+		}
+		if(yesMap) {
+			return retMap;
+		} else {
+			Map<Object, V> objectVMap = CollUtil.fieldValueMap(iterable, fieldName);
+			for (Map.Entry<Object, V> entry : objectVMap.entrySet()) {
+				retMap.put(entry.getKey().toString(), entry.getValue());
+			}
+			return retMap;
+		}
+	}
+
+	/**
+	 * 将List按元素的某个Key转换成Map, Key一般是唯一值
+	 * @author smalle
+	 * @since 2021/7/6
+	 * @param iterable 支持元素为Map或Bean
+	 * @param fieldName
+	 * @throws
+	 * @return java.util.Map<java.lang.String, V> 会将元素的Key的元素类型值作为Map的Key
+	 */
 	public static <K, V> Map<K, V> fieldValueMap(Iterable<V> iterable, String fieldName) {
 		Map<K, V> retMap = new HashMap<>();
 		boolean yesMap = false;

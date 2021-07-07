@@ -81,7 +81,7 @@ public class SpringU implements ApplicationContextAware {
      * @param clazz
      * @return T
      */
-    public static <T> T getBean(String name,Class<T> clazz){
+    public static <T> T getBean(String name, Class<T> clazz){
         return getApplicationContext().getBean(name, clazz);
     }
 

@@ -293,6 +293,54 @@ public class DateU extends DateUtil {
     }
 
     /**
+     * 填充日期字符串后面的时间并转换为日期
+     * @author smalle
+     * @since 2021/2/8
+     * @param map
+     * @param keys 需要改变时间的字段名，字段值支持String/String[]/List<String>
+     * @return void
+     */
+    public static void fillTimeStrAndParse(Map<String, Object> map, String... keys) {
+        fillTimeStr(map, keys);
+        parseContextDateStr(map, null, keys);
+    }
+
+    /**
+     * 填充日期字符串后面的时间
+     * @author smalle
+     * @since 2021/2/8
+     * @param map
+     * @param keys 需要填充时间的字段名，字段值支持String/String[]/List<String>
+     * @return void
+     */
+    public static void fillTimeStr(Map<String, Object> map, String... keys) {
+        for (String key : keys) {
+            if(ValidU.isEmpty(map.get(key))) {
+                continue;
+            }
+            Object val = map.get(key);
+            if(val instanceof String[]) {
+                String[] arr = (String[]) map.get(key);
+                if(arr.length > 0) {
+                    arr[0] = arr[0] + " 00:00:00";
+                }
+                if(arr.length > 1) {
+                    arr[1] = arr[1] + " 23:59:59";
+                }
+            }
+            if(val instanceof List) {
+                List arr = (List) map.get(key);
+                if(arr.size() > 0 && arr.get(0) instanceof String) {
+                    arr.set(0, arr.get(0) + " 00:00:00");
+                }
+                if(arr.size() > 1 && arr.get(1) instanceof String) {
+                    arr.set(1, arr.get(1) + " 23:59:59");
+                }
+            }
+        }
+    }
+
+    /**
      * 将Map中的字符串时间转成时间格式
      * @author smalle
      * @since 2021/2/8
