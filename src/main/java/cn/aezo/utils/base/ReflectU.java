@@ -9,6 +9,7 @@ import sun.misc.Unsafe;
 
 import java.lang.reflect.Field;
 import java.lang.reflect.Method;
+import java.lang.reflect.Modifier;
 
 /**
  * @author smalle
@@ -55,7 +56,98 @@ public class ReflectU extends ReflectUtil {
     }
 
     /**
-     * 仅获取当前类的方法(包括继承的直接父类方法)
+     * 调用类的静态方法<br/>
+     * 注意使用 ReflectU.getMethodWithArgs 不能非常准确能获取Method
+     * @author smalle
+     * @since 2021/7/9
+     * @param clazz
+     * @param methodName
+     * @param args
+     * @throws
+     * @return T
+     */
+    public static  <T> T invokeStaticMethod(Class<?> clazz, String methodName, Object... args) {
+        Method publicMethod = ReflectU.getMethodWithArgs(clazz, methodName, args);
+        return ReflectU.invokeStatic(publicMethod, args);
+    }
+
+    public static Method getMethodWithArgs(Class<?> clazz, String methodName, Object... args) {
+        return getMethodWithArgs(clazz, methodName, null, null, null, args);
+    }
+
+    /**
+     * 基于参数值，反射获取获取类方法<br/>
+     * 1.不能非常准确能获取Method，基于类型可准确获取方法(如：ReflectUtil.getPublicMethod)<br/>
+     * 2.ClassUtil.getClasses(args)可根据参数值获取类型，但是如参数值为NULL，则返回的类型为Object，如果对应参数类型为Map等，则无法准确获取<br/>
+     * @author smalle
+     * @since 2021/7/10
+     * @param clazz
+     * @param methodName
+     * @param yesPublic
+     * @param yesStatic
+     * @param returnClazz
+     * @param args
+     * @throws
+     * @return java.lang.reflect.Method
+     */
+    public static Method getMethodWithArgs(Class<?> clazz, String methodName, Boolean yesPublic, Boolean yesStatic,
+                                           Class<?> returnClazz, Object... args) {
+        Method[] methods = ReflectU.getMethods(clazz, item -> {
+            boolean matchName = item.getName().equals(methodName);
+            if (!matchName) {
+                return false;
+            }
+
+            Class<?> returnType = item.getReturnType();
+            if(returnClazz != null && !returnClazz.isAssignableFrom(returnType)) {
+                return false;
+            }
+
+            int modifiers = item.getModifiers();
+            if(yesPublic != null && yesPublic && !Modifier.isPublic(modifiers)) {
+                return false;
+            }
+            if(yesStatic != null && yesStatic && !Modifier.isStatic(modifiers)) {
+                return false;
+            }
+
+            Class<?>[] parameterTypes = item.getParameterTypes();
+            if (args == null) {
+                return parameterTypes.length != 0;
+            }
+            if (parameterTypes.length != args.length) {
+                return false;
+            }
+            for (int i = 0; i < args.length; i++) {
+                Class<?> parameterType = parameterTypes[i];
+                Object arg = args[i];
+                if (arg != null) {
+                    Class<?> aClass = arg.getClass();
+                    if (!parameterType.isAssignableFrom(aClass)) {
+                        return false;
+                    }
+                } else {
+                    boolean flag = MiscU.toList(long.class, double.class, float.class, boolean.class,
+                            char.class, byte.class, short.class, int.class).contains(parameterType);
+                    if (flag) {
+                        return false;
+                    }
+                }
+            }
+
+            return true;
+        });
+
+        if(methods.length == 0) {
+            return null;
+        } else if(methods.length == 1) {
+            return methods[0];
+        }
+        throw new ExceptionU("存在多个相关服务方法");
+    }
+
+    /**
+     * 仅获取当前类和直接继承父类的方法
      * @author smalle
      * @since 2020/12/10 21:07 
      * @param clazz
