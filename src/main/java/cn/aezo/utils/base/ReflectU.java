@@ -72,7 +72,7 @@ public class ReflectU extends ReflectUtil {
     }
 
     public static Method getMethodWithArgs(Class<?> clazz, String methodName, Object... args) {
-        return getMethodWithArgs(clazz, methodName, null, null, null, args);
+        return getMethodWithFeature(clazz, methodName, null, null, null, args);
     }
 
     /**
@@ -90,7 +90,7 @@ public class ReflectU extends ReflectUtil {
      * @throws
      * @return java.lang.reflect.Method
      */
-    public static Method getMethodWithArgs(Class<?> clazz, String methodName, Boolean yesPublic, Boolean yesStatic,
+    public static Method getMethodWithFeature(Class<?> clazz, String methodName, Boolean yesPublic, Boolean yesStatic,
                                            Class<?> returnClazz, Object... args) {
         Method[] methods = ReflectU.getMethods(clazz, item -> {
             boolean matchName = item.getName().equals(methodName);

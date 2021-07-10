@@ -105,20 +105,6 @@ public class StrU extends StrUtil {
 
 		return randomStr.toString();
 	}
-	
-	/**
-	 * 日期格式：yyyy-MM-dd HH:mm:ss.SSS
-	 * @param fromat
-	 * @return
-	 * @author smalle
-	 * @date 2016年12月25日 上午8:05:40
-	 */
-	public static String nowTime(String fromat) {
-		Date currentTime = new Date();
-    	SimpleDateFormat formatter = new SimpleDateFormat(fromat);
-    	String dateString = formatter.format(currentTime);
-		return dateString;
-	}
 
 	/**
 	 * 获取驼峰/下划线简称. 如：helloWorld 或 hello_world => hw

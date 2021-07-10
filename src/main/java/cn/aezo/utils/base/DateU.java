@@ -17,6 +17,30 @@ import java.util.Map;
  * Created by smalle on 2017/1/12.
  */
 public class DateU extends DateUtil {
+
+    /**
+     * 日期格式：yyyy-MM-dd HH:mm:ss.SSS
+     * @param format
+     * @return
+     * @author smalle
+     * @date 2016年12月25日 上午8:05:40
+     */
+    public static String nowTimeStr(String format) {
+        Date currentTime = new Date();
+        SimpleDateFormat formatter = new SimpleDateFormat(format);
+        String dateString = formatter.format(currentTime);
+        return dateString;
+    }
+
+    /**
+     * 返回系统当前时间
+     * @return Timestamp for right now
+     */
+    public static Timestamp nowTimestamp() {
+        return getTimestamp(System.currentTimeMillis());
+    }
+
+
     /**
      * 日期打印(yyyy-MM-dd HH:mm:ss)
      * @param date
@@ -64,14 +88,6 @@ public class DateU extends DateUtil {
             return "";
         }
         return dateFormat.format(date);
-    }
-
-    /**
-     * 返回系统当前时间
-     * @return Timestamp for right now
-     */
-    public static Timestamp nowTimestamp() {
-        return getTimestamp(System.currentTimeMillis());
     }
 
     /**
