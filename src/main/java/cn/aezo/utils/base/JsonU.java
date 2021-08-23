@@ -52,7 +52,17 @@ public class JsonU {
      * @return
      */
     public static Object adjustJsonItemValueWithTrim(String jsonStr) {
-        return adjustJsonItemValue(jsonStr, (v, k) -> {
+        Object obj = jsonStr;
+        try {
+            obj = JSONUtil.parseObj(jsonStr);
+        } catch (Exception e) {
+            try {
+                obj = JSONUtil.parseArray(jsonStr);
+            } catch (Exception e2) {
+                // do nothing
+            }
+        }
+        return adjustJsonItemValue(obj, (v, k) -> {
             if (v instanceof String) {
                 return v.toString().trim();
             }
