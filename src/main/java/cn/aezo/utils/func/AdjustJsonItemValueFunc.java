@@ -6,5 +6,5 @@ package cn.aezo.utils.func;
  */
 @FunctionalInterface
 public interface AdjustJsonItemValueFunc {
-    Object adjustValue(String key, Object value);
+    Object adjustValue(Object value, String key);
 }

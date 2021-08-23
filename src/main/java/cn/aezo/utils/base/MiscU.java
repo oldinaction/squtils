@@ -303,6 +303,29 @@ public class MiscU {
 		return resultMap;
 	}
 
+	/**
+	 * 计算集合的单差集，即只返回【集合1】中有，但是【集合2】中没有的元素，例如：
+	 *
+	 * <pre>
+	 *     subtract([1,2,3,4],[2,3,4,5]) -》 [1]
+	 * </pre>
+	 *
+	 * @param coll1 集合1，支持NULL
+	 * @param coll2 集合2，支持NULL
+	 * @param <T>   元素类型
+	 * @return 单差集
+	 */
+    public static <T> Collection<T> subtract(Collection<T> coll1, Collection<T> coll2) {
+        if(ValidU.isEmpty(coll1)) {
+            return new ArrayList<>();
+        }
+        if(ValidU.isEmpty(coll2)) {
+            return coll1;
+        }
+        // CollUtil.subtractToList 如果参数2位空集合，则返回空集合
+        return CollUtil.subtract(coll1, coll2);
+    }
+
 	// ==============
 	// 操作Map
 	// ==============

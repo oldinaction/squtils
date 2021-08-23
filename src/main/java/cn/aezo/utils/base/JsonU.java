@@ -10,9 +10,9 @@ import java.io.BufferedReader;
 import java.io.InputStream;
 import java.io.InputStreamReader;
 import java.net.URL;
-import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.Iterator;
+import java.util.LinkedList;
 import java.util.List;
 import java.util.Map;
 
@@ -51,8 +51,8 @@ public class JsonU {
      * @param jsonStr
      * @return
      */
-    public static Map<String, Object> adjustJsonItemValueWithTrim(String jsonStr) {
-        return adjustJsonItemValue(jsonStr, (k, v) -> {
+    public static Object adjustJsonItemValueWithTrim(String jsonStr) {
+        return adjustJsonItemValue(jsonStr, (v, k) -> {
             if (v instanceof String) {
                 return v.toString().trim();
             }
@@ -61,38 +61,65 @@ public class JsonU {
     }
 
     /**
-     * 递归处理JSON字符串的每一项
-     * @param jsonStr
+     * 递归处理JSON的每一项
+     * @param json
      * @param adjustFunc 处理函数
      * @return
      */
-    public static Map<String, Object> adjustJsonItemValue(String jsonStr, AdjustJsonItemValueFunc adjustFunc) {
-        Map<String, Object> map = new HashMap<>();
-        JSONObject jsonObject = JSONUtil.toBean(jsonStr, JSONObject.class, true);
-        for (String k : jsonObject.keySet()) {
-            Object v = jsonObject.get(k);
-            if (v instanceof JSONArray) {
-                List list = new ArrayList<>();
-                Iterator<Object> it = ((JSONArray) v).iterator();
-                while (it.hasNext()) {
-                    Object obj = it.next();
-                    if(obj instanceof JSONArray || obj instanceof JSONObject) {
-                        list.add(adjustJsonItemValue(obj.toString(), adjustFunc));
-                    } else {
-                        list.add(adjustFunc.adjustValue(k, obj));
-                    }
-                    map.put(k, list);
+    public static Object adjustJsonItemValue(Object json, AdjustJsonItemValueFunc adjustFunc) {
+        if (json instanceof JSONArray) {
+            List list = new LinkedList();
+            Iterator<Object> it = ((JSONArray) json).iterator();
+            while (it.hasNext()) {
+                Object obj = it.next();
+                if(obj instanceof JSONArray || obj instanceof JSONObject) {
+                    list.add(adjustJsonItemValue(obj.toString(), adjustFunc));
+                } else {
+                    // 普通对象
+                    list.add(adjustFunc.adjustValue(obj, null));
                 }
-                map.put(k, list);
-            } else if (v instanceof JSONObject) {
-                map.put(k, adjustJsonItemValue(v.toString(), adjustFunc));
-            } else {
-                Object adjustValue = adjustFunc.adjustValue(k, v);
-                map.put(k, adjustValue);
             }
+            return list;
+        } else if (json instanceof JSONObject) {
+            Map<String, Object> map = new HashMap<>();
+            JSONObject jsonObject = (JSONObject) json;
+            for (String k : jsonObject.keySet()) {
+                Object v = jsonObject.get(k);
+                map.put(k, adjustJsonItemValue(v.toString(), adjustFunc));
+            }
+            return map;
+        } else {
+            // 普通对象
+            return adjustFunc.adjustValue(json, null);
         }
-        return map;
     }
+    // public static Map<String, Object> adjustJsonItemValue(String jsonStr, AdjustJsonItemValueFunc adjustFunc) {
+    //     Map<String, Object> map = new HashMap<>();
+    //     JSONObject jsonObject = JSONUtil.toBean(jsonStr, JSONObject.class, true);
+    //     for (String k : jsonObject.keySet()) {
+    //         Object v = jsonObject.get(k);
+    //         if (v instanceof JSONArray) {
+    //             List list = new ArrayList<>();
+    //             Iterator<Object> it = ((JSONArray) v).iterator();
+    //             while (it.hasNext()) {
+    //                 Object obj = it.next();
+    //                 if(obj instanceof JSONArray || obj instanceof JSONObject) {
+    //                     list.add(adjustJsonItemValue(obj.toString(), adjustFunc));
+    //                 } else {
+    //                     list.add(adjustFunc.adjustValue(k, obj));
+    //                 }
+    //                 map.put(k, list);
+    //             }
+    //             map.put(k, list);
+    //         } else if (v instanceof JSONObject) {
+    //             map.put(k, adjustJsonItemValue(v.toString(), adjustFunc));
+    //         } else {
+    //             Object adjustValue = adjustFunc.adjustValue(k, v);
+    //             map.put(k, adjustValue);
+    //         }
+    //     }
+    //     return map;
+    // }
 
     /**
      * 根据URL地址，获取其中的参数
