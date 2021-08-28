@@ -83,7 +83,7 @@ public class JsonU {
             while (it.hasNext()) {
                 Object obj = it.next();
                 if(obj instanceof JSONArray || obj instanceof JSONObject) {
-                    list.add(adjustJsonItemValue(obj.toString(), adjustFunc));
+                    list.add(adjustJsonItemValue(obj, adjustFunc));
                 } else {
                     // 普通对象
                     list.add(adjustFunc.adjustValue(obj, null));
@@ -95,7 +95,7 @@ public class JsonU {
             JSONObject jsonObject = (JSONObject) json;
             for (String k : jsonObject.keySet()) {
                 Object v = jsonObject.get(k);
-                map.put(k, adjustJsonItemValue(v.toString(), adjustFunc));
+                map.put(k, adjustJsonItemValue(v, adjustFunc));
             }
             return map;
         } else {

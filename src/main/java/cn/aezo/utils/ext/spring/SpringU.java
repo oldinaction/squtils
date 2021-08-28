@@ -1,5 +1,6 @@
 package cn.aezo.utils.ext.spring;
 
+import cn.hutool.core.convert.Convert;
 import lombok.SneakyThrows;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.aop.framework.AdvisedSupport;
@@ -19,7 +20,9 @@ import org.springframework.core.io.support.PropertiesLoaderUtils;
 import org.springframework.stereotype.Component;
 
 import java.lang.reflect.Field;
+import java.util.List;
 import java.util.Locale;
+import java.util.Map;
 import java.util.Properties;
 
 /**
@@ -58,7 +61,7 @@ public class SpringU implements ApplicationContextAware {
      * @throws
      * @return java.lang.Object
      */
-    public static Object getBean(String name){
+    public static Object getBean(String name) {
         return getApplicationContext().getBean(name);
     }
 
@@ -69,7 +72,7 @@ public class SpringU implements ApplicationContextAware {
      * @param clazz
      * @return T
      */
-    public static <T> T getBean(Class<T> clazz){
+    public static <T> T getBean(Class<T> clazz) {
         return getApplicationContext().getBean(clazz);
     }
 
@@ -81,8 +84,30 @@ public class SpringU implements ApplicationContextAware {
      * @param clazz
      * @return T
      */
-    public static <T> T getBean(String name, Class<T> clazz){
+    public static <T> T getBean(String name, Class<T> clazz) {
         return getApplicationContext().getBean(name, clazz);
+    }
+
+    /**
+     * 通过Clazz返回指定类型的所有Bean
+     * @author smalle
+     * @since 2020/11/29
+     * @param clazz
+     * @return T
+     */
+    public static <T> Map<String, T> getBeanMapOfType(Class<T> clazz) {
+        return getApplicationContext().getBeansOfType(clazz);
+    }
+
+    /**
+     * 通过Clazz返回指定类型的所有Bean
+     * @author smalle
+     * @since 2020/11/29
+     * @param clazz
+     * @return T
+     */
+    public static <T> List<T> getBeanListOfType(Class<T> clazz) {
+        return Convert.toList(clazz, getBeanMapOfType(clazz).values());
     }
 
     /**
