@@ -75,6 +75,11 @@ public class ValidU extends Validator {
             return true;
         }
 
+        // cn.hutool.json.JSONNull 对NULL做了处理
+        if (value.equals(null)) {
+            return true;
+        }
+
         if (value instanceof String) {
             return ((String) value).length() == 0;
         }

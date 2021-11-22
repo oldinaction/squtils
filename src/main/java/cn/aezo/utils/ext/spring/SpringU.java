@@ -27,6 +27,7 @@ import java.util.Properties;
 
 /**
  * Spring常用工具
+ * 可使用@EnableSqU来激活，防止在@PostConstruct中使用时出现SpringU还未初始化而导致空指针
  * @author smalle
  * @date 2020-11-22 21:42
  */
