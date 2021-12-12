@@ -18,7 +18,7 @@
     <hutool.version>5.5.1</hutool.version>
     <lombok.version>1.18.18</lombok.version>
     <servlet.version>3.1.0</servlet.version>
-    <spring.boot.version>2.2.4.RELEASE</spring.boot.version>
+    <spring.boot.version>2.1.0.RELEASE</spring.boot.version>
     <freemarker.version>2.3.29</freemarker.version>
   </properties>
 
