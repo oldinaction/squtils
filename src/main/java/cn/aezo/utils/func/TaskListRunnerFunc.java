@@ -7,6 +7,6 @@ import java.util.List;
  * @since 2021-04-14
  */
 @FunctionalInterface
-public interface TaskListRunner<E> {
+public interface TaskListRunnerFunc<E> {
     void run(List<E> list);
 }

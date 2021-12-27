@@ -30,12 +30,20 @@ public class JsonU {
         return JSONUtil.toBean(jsonString, beanClass);
     }
 
+    public static Map<String, Object> toMap(String str) {
+        return JSONUtil.toBean(str, Map.class, true);
+    }
+
     public static Map<String, Object> toMapSafe(String str) {
         Map<String, Object> ret = JSONUtil.toBean(str, Map.class, true);
         if(ret == null) {
             ret = new HashMap<>();
         }
         return ret;
+    }
+
+    public static JSONArray toList(String str) {
+        return JSONUtil.toBean(str, JSONArray.class, true);
     }
 
     public static JSONArray toListSafe(String str) {

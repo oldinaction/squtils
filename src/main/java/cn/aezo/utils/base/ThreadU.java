@@ -1,6 +1,6 @@
 package cn.aezo.utils.base;
 
-import cn.aezo.utils.func.TaskListRunner;
+import cn.aezo.utils.func.TaskListRunnerFunc;
 import cn.hutool.core.util.NumberUtil;
 
 import java.math.RoundingMode;
@@ -20,7 +20,7 @@ public class ThreadU {
      * @param taskListRunner 执行逻辑单元
      * @return void
      */
-    public static <E> void taskSplit(List<E> list, Integer perNum, TaskListRunner<E> taskListRunner) {
+    public static <E> void taskSplit(List<E> list, Integer perNum, TaskListRunnerFunc<E> taskListRunnerFunc) {
         if (ValidU.isEmpty(list)) {
             return;
         }
@@ -36,7 +36,7 @@ public class ThreadU {
                 end = list.size();
             }
             List<E> listItem = list.subList(start, end);
-            taskListRunner.run(listItem);
+            taskListRunnerFunc.run(listItem);
         }
     }
 }
