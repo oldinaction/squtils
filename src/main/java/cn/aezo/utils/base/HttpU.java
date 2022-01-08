@@ -2,6 +2,7 @@ package cn.aezo.utils.base;
 
 import cn.hutool.http.HttpUtil;
 
+import java.io.UnsupportedEncodingException;
 import java.net.Inet4Address;
 import java.net.InetAddress;
 import java.net.NetworkInterface;
@@ -12,6 +13,40 @@ import java.util.Enumeration;
 import java.util.List;
 
 public class HttpU extends HttpUtil {
+    private final static String ENCODE = "UTF-8";
+
+    /**
+     * URL 转码
+     */
+    public static String urlEncoder(String str) {
+        String result = "";
+        if (null == str) {
+            return "";
+        }
+        try {
+            result = java.net.URLEncoder.encode(str, ENCODE);
+        } catch (UnsupportedEncodingException e) {
+            e.printStackTrace();
+        }
+        return result;
+    }
+
+    /**
+     * URL 解码
+     */
+    public static String urlDecoder(String str) {
+        String result = "";
+        if (null == str) {
+            return "";
+        }
+        try {
+            result = java.net.URLDecoder.decode(str, ENCODE);
+        } catch (UnsupportedEncodingException e) {
+            e.printStackTrace();
+        }
+        return result;
+    }
+
     /**
      * 获取一个合理的ipv4(使用VPN/虚拟机后优先取VPN/虚拟机的内网)
      * @return
