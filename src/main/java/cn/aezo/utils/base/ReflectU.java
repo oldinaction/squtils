@@ -1,6 +1,5 @@
 package cn.aezo.utils.base;
 
-import cn.hutool.core.exceptions.UtilException;
 import cn.hutool.core.util.ArrayUtil;
 import cn.hutool.core.util.ClassUtil;
 import cn.hutool.core.util.ReflectUtil;
@@ -48,9 +47,13 @@ public class ReflectU extends ReflectUtil {
     }
 
     public static <T> T invoke(Object object, String methodName, Object... args) throws ExceptionU {
-        final Method method = getMethodOfObj(object, methodName, args);
+        Method method = getMethodOfObj(object, methodName, args);
         if (null == method) {
-            throw new UtilException(StrUtil.format("No such method: [{}]", methodName));
+            method = ReflectU.getMethodWithFeature(object.getClass(), methodName,
+                    null, false, null, args);
+            if(null == method) {
+                throw new ExceptionU(StrUtil.format("No such method: [{}]", methodName));
+            }
         }
         return invoke(object, method, args);
     }
