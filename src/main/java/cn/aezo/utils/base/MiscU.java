@@ -582,7 +582,7 @@ public class MiscU {
 	 * @return The resulting Map
 	 */
 	@SuppressWarnings("unchecked")
-	public static <K, V> Map<String, V> toMap(Object... data) {
+	public static <K, V> Map<String, V> toMapAll(Object... data) {
 		if (data.length % 2 == 1) {
 			IllegalArgumentException e = new IllegalArgumentException("You must pass an even sized array to the toMap method (size = " + data.length + ")");
 			throw e;
