@@ -117,14 +117,47 @@ public class FileU extends FileUtil {
 
         String content;
         InputStream inputStream = FileU.class.getResourceAsStream(srcXpath);
-        BufferedReader reader = new BufferedReader(new InputStreamReader(inputStream, charsetName));
-        StringBuilder builder = new StringBuilder();
-        char[] charArray = new char[200];
-        int number;
-        while ((number = reader.read(charArray)) != -1) {
-            builder.append(charArray, 0, number);
+        BufferedReader reader = null;
+        try {
+            reader = new BufferedReader(new InputStreamReader(inputStream, charsetName));
+            StringBuilder builder = new StringBuilder();
+            char[] charArray = new char[200];
+            int number;
+            while ((number = reader.read(charArray)) != -1) {
+                builder.append(charArray, 0, number);
+            }
+            content = builder.toString();
+        } finally {
+            if(reader != null) {
+                reader.close();
+            }
         }
-        content = builder.toString();
+        return content;
+    }
+
+    @SneakyThrows
+    public static String getFileContent(String path) {
+        return getFileContent(new File(path));
+    }
+
+    @SneakyThrows
+    public static String getFileContent(File file) {
+        String content;
+        BufferedReader reader = null;
+        try {
+            StringBuilder builder = new StringBuilder();
+            reader = new BufferedReader(new FileReader(file));
+            char[] charArray = new char[200];
+            int number;
+            while ((number = reader.read(charArray)) != -1) {
+                builder.append(charArray, 0, number);
+            }
+            content = builder.toString();
+        } finally {
+            if(reader != null) {
+                reader.close();
+            }
+        }
         return content;
     }
 
