@@ -1,6 +1,5 @@
 package cn.aezo.utils.base;
 
-import cn.hutool.core.codec.Base64;
 import sun.misc.BASE64Encoder;
 
 import javax.crypto.Cipher;
@@ -18,6 +17,7 @@ import java.security.interfaces.RSAPrivateKey;
 import java.security.interfaces.RSAPublicKey;
 import java.security.spec.PKCS8EncodedKeySpec;
 import java.security.spec.X509EncodedKeySpec;
+import java.util.Base64;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.UUID;
@@ -170,7 +170,7 @@ public class SecureU {
             byte[] contentBytes = content.getBytes();
             Cipher cipher = initCipher(instanceName, key, iv, Cipher.ENCRYPT_MODE);
             byte[] encryptedBytes = cipher.doFinal(contentBytes);
-            return Base64.encode(encryptedBytes);
+            return Base64.getEncoder().encodeToString(encryptedBytes);
         } catch (Exception e) {
             throw new ExceptionU("加密出错", e);
         }
@@ -178,7 +178,7 @@ public class SecureU {
 
     public static String aesDecrypt(String content, String instanceName, String key, String iv) {
         try {
-            byte[] encryptedBytes = Base64.decode(content);
+            byte[] encryptedBytes = Base64.getDecoder().decode(content);
             Cipher cipher = initCipher(instanceName, key, iv, Cipher.DECRYPT_MODE);
             byte[] decryptedBytes = cipher.doFinal(encryptedBytes);
             if(decryptedBytes == null) {
@@ -201,6 +201,7 @@ public class SecureU {
     // ====================== 非对称密钥算法(公钥私钥不一致)
     /**
      * 参考：https://www.cnblogs.com/frank-quan/p/7073457.html
+     * TODO: https://www.cnblogs.com/mengq0815/p/10596071.html
      * RSA算法相对于DES/AES等对称加密算法，速度慢一些
      *
      * 总原则：公钥加密，私钥解密 / 私钥加密，公钥解密
@@ -217,9 +218,9 @@ public class SecureU {
     public static final String RSA_KEY = "RSA";
     // 密钥长度，DH算法的默认密钥长度是1024。密钥长度必须是64的倍数，在512到65536位之间
     private static final int RSA_KEY_SIZE = 512;
-    // 公钥Key
+    // 公钥Key，存储公钥字符串到Map中的Key
     private static final String RSA_PUBLIC_KEY = "RSAPublicKey";
-    // 私钥Key
+    // 私钥Key，存储私钥字符串到Map中的Key
     private static final String RSA_PRIVATE_KEY = "RSAPrivateKey";
 
     /**
@@ -253,7 +254,7 @@ public class SecureU {
      */
     public static byte[] rsaEncryptByPrivateKey(byte[] data, String key) throws Exception {
         //取得私钥
-        PKCS8EncodedKeySpec pkcs8KeySpec = new PKCS8EncodedKeySpec(Base64.decode(key));
+        PKCS8EncodedKeySpec pkcs8KeySpec = new PKCS8EncodedKeySpec(Base64.getDecoder().decode(key));
         KeyFactory keyFactory = KeyFactory.getInstance(RSA_KEY);
         //生成私钥
         PrivateKey privateKey = keyFactory.generatePrivate(pkcs8KeySpec);
@@ -275,7 +276,7 @@ public class SecureU {
         KeyFactory keyFactory = KeyFactory.getInstance(RSA_KEY);
         //初始化公钥
         //密钥材料转换
-        X509EncodedKeySpec x509KeySpec = new X509EncodedKeySpec(Base64.decode(key));
+        X509EncodedKeySpec x509KeySpec = new X509EncodedKeySpec(Base64.getDecoder().decode(key));
         //产生公钥
         PublicKey pubKey = keyFactory.generatePublic(x509KeySpec);
         //数据加密
@@ -293,7 +294,7 @@ public class SecureU {
      */
     public static byte[] rsaDecryptByPrivateKey(byte[] data, String key) throws Exception {
         //取得私钥
-        PKCS8EncodedKeySpec pkcs8KeySpec = new PKCS8EncodedKeySpec(Base64.decode(key));
+        PKCS8EncodedKeySpec pkcs8KeySpec = new PKCS8EncodedKeySpec(Base64.getDecoder().decode(key));
         KeyFactory keyFactory = KeyFactory.getInstance(RSA_KEY);
         //生成私钥
         PrivateKey privateKey = keyFactory.generatePrivate(pkcs8KeySpec);
@@ -315,7 +316,7 @@ public class SecureU {
         KeyFactory keyFactory = KeyFactory.getInstance(RSA_KEY);
         //初始化公钥
         //密钥材料转换
-        X509EncodedKeySpec x509KeySpec = new X509EncodedKeySpec(Base64.decode(key));
+        X509EncodedKeySpec x509KeySpec = new X509EncodedKeySpec(Base64.getDecoder().decode(key));
         //产生公钥
         PublicKey pubKey = keyFactory.generatePublic(x509KeySpec);
         //数据解密
