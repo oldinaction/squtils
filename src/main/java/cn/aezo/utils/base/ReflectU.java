@@ -9,6 +9,9 @@ import sun.misc.Unsafe;
 import java.lang.reflect.Field;
 import java.lang.reflect.Method;
 import java.lang.reflect.Modifier;
+import java.util.Arrays;
+import java.util.List;
+import java.util.stream.Collectors;
 
 /**
  * @author smalle
@@ -78,6 +81,10 @@ public class ReflectU extends ReflectUtil {
         return getMethodWithFeature(clazz, methodName, null, null, null, args);
     }
 
+    public static Method[] getMethodsWithName(Class<?> clazz, String methodName) {
+        return ReflectU.getMethods(clazz, item -> item.getName().equals(methodName));
+    }
+
     /**
      * 基于参数值，反射获取获取类方法<br/>
      * 1.不能非常准确能获取Method，基于类型可准确获取方法(如：ReflectUtil.getPublicMethod)<br/>
@@ -95,25 +102,12 @@ public class ReflectU extends ReflectUtil {
      */
     public static Method getMethodWithFeature(Class<?> clazz, String methodName, Boolean yesPublic, Boolean yesStatic,
                                            Class<?> returnClazz, Object... args) {
-        Method[] methods = ReflectU.getMethods(clazz, item -> {
-            boolean matchName = item.getName().equals(methodName);
-            if (!matchName) {
-                return false;
-            }
-
-            Class<?> returnType = item.getReturnType();
-            if(returnClazz != null && !returnClazz.isAssignableFrom(returnType)) {
-                return false;
-            }
-
-            int modifiers = item.getModifiers();
-            if(yesPublic != null && yesPublic && !Modifier.isPublic(modifiers)) {
-                return false;
-            }
-            if(yesStatic != null && yesStatic && !Modifier.isStatic(modifiers)) {
-                return false;
-            }
-
+        Integer argsCount = args == null ? null : args.length;
+        Method[] methods = getMethodsWithNameAndArgsNum(clazz, methodName, yesPublic, yesStatic, returnClazz, argsCount);
+        if(ValidU.isEmpty(methods)) {
+            throw new ExceptionU("存在多个相关服务方法");
+        }
+        List<Method> methodList = Arrays.stream(methods).filter(item -> {
             Class<?>[] parameterTypes = item.getParameterTypes();
             if (args == null) {
                 return parameterTypes.length != 0;
@@ -139,14 +133,46 @@ public class ReflectU extends ReflectUtil {
             }
 
             return true;
-        });
+        }).collect(Collectors.toList());
 
-        if(methods.length == 0) {
+        if(methodList.size() == 0) {
             return null;
-        } else if(methods.length == 1) {
-            return methods[0];
+        } else if(methodList.size() == 1) {
+            return methodList.get(0);
         }
         throw new ExceptionU("存在多个相关服务方法");
+    }
+
+    public static Method[] getMethodsWithNameAndArgsNum(Class<?> clazz, String methodName, Boolean yesPublic,
+                                                        Boolean yesStatic, Class<?> returnClazz, Integer argsCount) {
+        Method[] methods = ReflectU.getMethods(clazz, item -> {
+            boolean matchName = item.getName().equals(methodName);
+            if (!matchName) {
+                return false;
+            }
+
+            Class<?> returnType = item.getReturnType();
+            if(returnClazz != null && !returnClazz.isAssignableFrom(returnType)) {
+                return false;
+            }
+
+            int modifiers = item.getModifiers();
+            if(yesPublic != null && yesPublic && !Modifier.isPublic(modifiers)) {
+                return false;
+            }
+            if(yesStatic != null && yesStatic && !Modifier.isStatic(modifiers)) {
+                return false;
+            }
+
+            if (argsCount != null) {
+                Class<?>[] parameterTypes = item.getParameterTypes();
+                if (parameterTypes.length != argsCount) {
+                    return false;
+                }
+            }
+            return true;
+        });
+        return methods;
     }
 
     /**

@@ -3,6 +3,10 @@ package cn.aezo.utils.base;
 import cn.hutool.core.util.CharUtil;
 import cn.hutool.core.util.StrUtil;
 
+import java.io.BufferedReader;
+import java.io.ByteArrayInputStream;
+import java.io.InputStream;
+import java.io.InputStreamReader;
 import java.io.UnsupportedEncodingException;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
@@ -182,6 +186,47 @@ public class StrU extends StrUtil {
 		} else {
 			return sb.toString();
 		}
+	}
+
+	/**
+	 * 将一个字符串转化为输入流
+	 *
+	 * @param strContent
+	 * @return
+	 */
+	public static InputStream getStrToStream(String strContent) {
+		if (strContent != null && !strContent.trim().equals("")) {
+			try {
+				ByteArrayInputStream tInputStringStream = new ByteArrayInputStream(strContent.getBytes());
+				return tInputStringStream;
+			} catch (Exception ex) {
+				ex.printStackTrace();
+			}
+		}
+		return null;
+	}
+
+	/**
+	 * 将一个输入流转化为字符串
+	 *
+	 * @param tInputStream
+	 * @return
+	 */
+	public static String getStreamToStr(InputStream tInputStream) {
+		if (tInputStream != null) {
+			try {
+				BufferedReader tBufferedReader = new BufferedReader(new InputStreamReader(tInputStream));
+				StringBuilder sb = new StringBuilder();
+				String sTempOneLine;
+				while ((sTempOneLine = tBufferedReader.readLine()) != null) {
+					sb.append(sTempOneLine);
+				}
+				return sb.toString();
+			} catch (Exception ex) {
+				ex.printStackTrace();
+			}
+		}
+		return null;
 	}
 
 	/**

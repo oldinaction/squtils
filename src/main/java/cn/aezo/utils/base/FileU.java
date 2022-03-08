@@ -66,19 +66,24 @@ public class FileU extends FileUtil {
      * @author smalle
      * @since 2021/1/13
      * @param is
-     * @param originFileName
-     * @param rootPath 保存文件根路径
-     * @param datePathFormat 保存文件的日期路径格式. eg: yyyy/MM
+     * @param originFileNameOrSuffix 原始文件名或文件后缀(用于自动分析文件后缀)
+     * @param rootPath 保存文件根路径 /data
+     * @param datePathFormat 保存文件的日期路径格式. eg: yyyy/MM/dd
      * @return filePath
      */
-    public static String saveFile(InputStream is, String originFileName, String rootPath, String datePathFormat) {
+    public static String saveFile(InputStream is, String originFileNameOrSuffix, String rootPath, String datePathFormat) {
         try {
             String filePath = "/" + DateU.format(new Date(), datePathFormat) + "/" + cn.hutool.core.lang.UUID.fastUUID();
-            if(ValidU.isNotEmpty(originFileName)) {
-                String[] split = originFileName.split("\\.");
+            if(ValidU.isNotEmpty(originFileNameOrSuffix)) {
+                String[] split = originFileNameOrSuffix.split("\\.");
                 if(split.length > 1) {
                     filePath = filePath + "." + split[split.length - 1];
+                } else if(originFileNameOrSuffix.startsWith(".")) {
+                    filePath = filePath + originFileNameOrSuffix;
                 }
+            }
+            if (rootPath.endsWith("/")) {
+                rootPath = rootPath.substring(0, rootPath.length() - 1);
             }
             File file = FileU.newFileSafe(rootPath + filePath);
             FileU.copyFile(is, file);
