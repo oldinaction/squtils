@@ -69,7 +69,7 @@ public class FileU extends FileUtil {
      * @param originFileNameOrSuffix 原始文件名或文件后缀(用于自动分析文件后缀)
      * @param rootPath 保存文件根路径 /data
      * @param datePathFormat 保存文件的日期路径格式. eg: yyyy/MM/dd
-     * @return filePath
+     * @return filePath 如: /yyyy/MM/dd/uuid.xx
      */
     public static String saveFile(InputStream is, String originFileNameOrSuffix, String rootPath, String datePathFormat) {
         try {
