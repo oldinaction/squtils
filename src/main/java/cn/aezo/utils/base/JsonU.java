@@ -1,15 +1,15 @@
 package cn.aezo.utils.base;
 
 import cn.aezo.utils.func.AdjustJsonItemValueFunc;
-import cn.hutool.json.JSONArray;
-import cn.hutool.json.JSONObject;
 import cn.hutool.json.JSONUtil;
 import lombok.extern.slf4j.Slf4j;
 
 import java.io.BufferedReader;
 import java.io.InputStream;
 import java.io.InputStreamReader;
+import java.lang.reflect.Method;
 import java.net.URL;
+import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.Iterator;
 import java.util.LinkedList;
@@ -17,39 +17,86 @@ import java.util.List;
 import java.util.Map;
 
 /**
- * Created by smalle on 2017/12/30.
+ * 注意:<br/>
+ * Hutool解析json字符串时，如果不忽略NULL，则会将NULL值设值成JSONNull对象<br/>
+ * 而Jackson在序列话输出时会出现报错"No serializer found for class cn.hutool.json.JSONNull"<br/>
+ * 因此需要增加下列转换器<br/>
+ * <pre>
+ * simpleModule.addSerializer(JSONNull.class, new JsonSerializer<JSONNull>(){
+ *     @Override
+ *     public void serialize(JSONNull jsonNull, JsonGenerator jsonGenerator
+ *             , SerializerProvider serializerProvider) throws IOException {
+ *         jsonGenerator.writeNull();
+ *     }
+ * });
+ * simpleModule.addDeserializer(JSONNull.class, new JsonDeserializer<JSONNull>() {
+ *     @Override
+ *     public JSONNull deserialize(JsonParser jsonParser
+ *             , DeserializationContext deserializationContext) {
+ *         return null;
+ *     }
+ * });
+ * </pre>
+ *
+ * @author smalle
+ * @date 2017/12/30
  */
 @Slf4j
 public class JsonU {
+    private static Method toMapMethod = null;
+    private static Method toBeanMethod = null;
+    private static Method toListMethod = null;
+
+    static {
+        try {
+            Class jacksonUClass = Class.forName("cn.aezo.utils.ext.JacksonU");
+            toMapMethod = jacksonUClass.getMethod("toMap", String.class);
+            toBeanMethod = jacksonUClass.getMethod("toBean", String.class, Class.class);
+            toListMethod = jacksonUClass.getMethod("toList", String.class);
+        } catch (ClassNotFoundException | NoSuchMethodException e) {
+        }
+    }
 
     public static String toJsonStr(Object obj) {
         return JSONUtil.toJsonStr(obj);
     }
 
-    public static <T> T toBean(String jsonString, Class<T> beanClass) {
-        return JSONUtil.toBean(jsonString, beanClass);
-    }
-
     public static Map<String, Object> toMap(String str) {
-        return JSONUtil.toBean(str, Map.class, true);
+        if(toMapMethod != null) {
+            return ReflectU.invokeStatic(toMapMethod, str);
+        } else {
+            return JSONUtil.toBean(str, Map.class, true);
+        }
     }
 
     public static Map<String, Object> toMapSafe(String str) {
-        Map<String, Object> ret = JSONUtil.toBean(str, Map.class, true);
+        Map<String, Object> ret = toMap(str);
         if(ret == null) {
             ret = new HashMap<>();
         }
         return ret;
     }
 
-    public static JSONArray toList(String str) {
-        return JSONUtil.toBean(str, JSONArray.class, true);
+    public static <T> T toBean(String str, Class<T> beanClass) {
+        if(toBeanMethod != null) {
+            return ReflectU.invokeStatic(toBeanMethod, str, beanClass);
+        } else {
+            return JSONUtil.toBean(str, beanClass);
+        }
     }
 
-    public static JSONArray toListSafe(String str) {
-        JSONArray ret = JSONUtil.toBean(str, JSONArray.class, true);
+    public static List<Map<String, Object>> toList(String str) {
+        if(toListMethod != null) {
+            return ReflectU.invokeStatic(toListMethod, str);
+        } else {
+            return JSONUtil.toBean(str, List.class, true);
+        }
+    }
+
+    public static List toListSafe(String str) {
+        List ret = toList(str);
         if(ret == null) {
-            ret = new JSONArray();
+            ret = new ArrayList();
         }
         return ret;
     }
@@ -62,10 +109,10 @@ public class JsonU {
     public static Object adjustJsonItemValueWithTrim(String jsonStr) {
         Object obj = jsonStr;
         try {
-            obj = JSONUtil.parseObj(jsonStr);
+            obj = toMap(jsonStr);
         } catch (Exception e) {
             try {
-                obj = JSONUtil.parseArray(jsonStr);
+                obj = toList(jsonStr);
             } catch (Exception e2) {
                 // do nothing
             }
@@ -85,12 +132,12 @@ public class JsonU {
      * @return
      */
     public static Object adjustJsonItemValue(Object json, AdjustJsonItemValueFunc adjustFunc) {
-        if (json instanceof JSONArray) {
+        if (json instanceof List) {
             List list = new LinkedList();
-            Iterator<Object> it = ((JSONArray) json).iterator();
+            Iterator<Object> it = ((List) json).iterator();
             while (it.hasNext()) {
                 Object obj = it.next();
-                if(obj instanceof JSONArray || obj instanceof JSONObject) {
+                if(obj instanceof List || obj instanceof Map) {
                     list.add(adjustJsonItemValue(obj, adjustFunc));
                 } else {
                     // 普通对象
@@ -98,10 +145,10 @@ public class JsonU {
                 }
             }
             return list;
-        } else if (json instanceof JSONObject) {
-            Map<String, Object> map = new HashMap<>();
-            JSONObject jsonObject = (JSONObject) json;
-            for (String k : jsonObject.keySet()) {
+        } else if (json instanceof Map) {
+            Map map = new HashMap<>();
+            Map jsonObject = (Map) json;
+            for (Object k : jsonObject.keySet()) {
                 Object v = jsonObject.get(k);
                 map.put(k, adjustJsonItemValue(v, adjustFunc));
             }
@@ -111,33 +158,6 @@ public class JsonU {
             return adjustFunc.adjustValue(json, null);
         }
     }
-    // public static Map<String, Object> adjustJsonItemValue(String jsonStr, AdjustJsonItemValueFunc adjustFunc) {
-    //     Map<String, Object> map = new HashMap<>();
-    //     JSONObject jsonObject = JSONUtil.toBean(jsonStr, JSONObject.class, true);
-    //     for (String k : jsonObject.keySet()) {
-    //         Object v = jsonObject.get(k);
-    //         if (v instanceof JSONArray) {
-    //             List list = new ArrayList<>();
-    //             Iterator<Object> it = ((JSONArray) v).iterator();
-    //             while (it.hasNext()) {
-    //                 Object obj = it.next();
-    //                 if(obj instanceof JSONArray || obj instanceof JSONObject) {
-    //                     list.add(adjustJsonItemValue(obj.toString(), adjustFunc));
-    //                 } else {
-    //                     list.add(adjustFunc.adjustValue(k, obj));
-    //                 }
-    //                 map.put(k, list);
-    //             }
-    //             map.put(k, list);
-    //         } else if (v instanceof JSONObject) {
-    //             map.put(k, adjustJsonItemValue(v.toString(), adjustFunc));
-    //         } else {
-    //             Object adjustValue = adjustFunc.adjustValue(k, v);
-    //             map.put(k, adjustValue);
-    //         }
-    //     }
-    //     return map;
-    // }
 
     /**
      * 根据URL地址，获取其中的参数
@@ -188,7 +208,7 @@ public class JsonU {
             while((line=reader.readLine())!=null){
                 sb.append(line);
             }
-            return JSONUtil.toBean(sb.toString(), Map.class);
+            return toMap(sb.toString());
         } catch (Exception e) {
             log.error("", e);
         }
@@ -200,7 +220,7 @@ public class JsonU {
      * @param url
      * @return
      */
-    public static List<Map> getListByUrlGet(String url) {
+    public static List<Map<String, Object>> getListByUrlGet(String url) {
         try {
             InputStream in = new URL(url).openStream();
             BufferedReader reader = new BufferedReader(new InputStreamReader(in));
@@ -209,7 +229,7 @@ public class JsonU {
             while((line=reader.readLine())!=null){
                 sb.append(line);
             }
-            return JSONUtil.toList((JSONArray) JSONUtil.toBean(sb.toString(), JSONArray.class, true), Map.class);
+            return toList(sb.toString());
         } catch (Exception e) {
             log.error("", e);
         }

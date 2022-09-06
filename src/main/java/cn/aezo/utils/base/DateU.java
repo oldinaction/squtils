@@ -28,8 +28,35 @@ public class DateU extends DateUtil {
     public static String nowTimeStr(String format) {
         Date currentTime = new Date();
         SimpleDateFormat formatter = new SimpleDateFormat(format);
-        String dateString = formatter.format(currentTime);
-        return dateString;
+        return formatter.format(currentTime);
+    }
+
+    /**
+     * 当前时间 yyyy-MM-dd
+     */
+    public static String nowDateDefault() {
+        return nowTimeStr("yyyy-MM-dd");
+    }
+
+    /**
+     * 当前时间 yyyy/MM/dd
+     */
+    public static String nowDateDefault2() {
+        return nowTimeStr("yyyy/MM/dd");
+    }
+
+    /**
+     * 当前时间 yyyy-MM-dd HH:mm:ss
+     */
+    public static String nowTimeDefault() {
+        return nowTimeStr("yyyy-MM-dd HH:mm:ss");
+    }
+
+    /**
+     * 当前时间 yyyy/MM/dd HH:mm:ss
+     */
+    public static String nowTimeDefault2() {
+        return nowTimeStr("yyyy/MM/dd HH:mm:ss");
     }
 
     /**

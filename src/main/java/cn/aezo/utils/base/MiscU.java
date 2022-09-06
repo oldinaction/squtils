@@ -212,9 +212,9 @@ public class MiscU {
 	 * @date 2016年11月26日 下午8:27:37
 	 */
 	@SuppressWarnings({ "rawtypes", "unchecked" })
-	public static Map<String, List> groupByMapKey(List<Map> dataList, Object key) {
+	public static Map<String, List> groupByMapKey(List dataList, Object key) {
 		Map<String, List> resultMap = new HashMap<>();
-		for (Map map : dataList) {
+		for (Map map : (List<Map>) dataList) {
 			String keyStr = String.valueOf(map.get(key));
 			if(resultMap.containsKey(keyStr)) {
 				resultMap.get(keyStr).add(map);
@@ -235,7 +235,7 @@ public class MiscU {
 	 * @author smalle
 	 * @date 2016年11月26日 下午8:27:37
 	 */
-	public static Map<String, List> groupByMapKey(List dataList, String joinStr, Object... keys) {
+	public static Map<String, List> groupByMapKeys(List dataList, String joinStr, Object... keys) {
 		Map<String, List> resultMap = new HashMap<String, List>();
 		if(joinStr == null) {
 			joinStr = "$";
@@ -282,9 +282,7 @@ public class MiscU {
 				Object retObj = null;
 				try {
 					retObj = method.invoke(object);
-				} catch (IllegalAccessException e) {
-					e.printStackTrace();
-				} catch (InvocationTargetException e) {
+				} catch (IllegalAccessException | InvocationTargetException e) {
 					e.printStackTrace();
 				}
 
@@ -293,9 +291,7 @@ public class MiscU {
 				} else {
 					ArrayList list = new ArrayList();
 					list.add(object);
-					if(null != retObj) {
-						resultMap.put(retObj, list);
-					}
+					resultMap.put(retObj, list);
 				}
 			}
 		}

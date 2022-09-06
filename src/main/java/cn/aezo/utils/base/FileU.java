@@ -3,6 +3,9 @@ package cn.aezo.utils.base;
 import cn.hutool.core.io.FileUtil;
 import cn.hutool.core.io.IoUtil;
 import cn.hutool.core.io.resource.ClassPathResource;
+import cn.hutool.core.util.ArrayUtil;
+import cn.hutool.core.util.RandomUtil;
+import cn.hutool.core.util.StrUtil;
 import lombok.SneakyThrows;
 
 import java.io.*;
@@ -275,6 +278,35 @@ public class FileU extends FileUtil {
             throw new ExceptionU("获取文件编码出错", e);
         }
         return "GBK";
+    }
+
+    public static String addFileSubName(String originFileName) {
+        String sub = RandomUtil.randomString(6);
+        return addFileSubName(originFileName, sub);
+    }
+
+    /**
+     * 给文件增加后缀名称，如 test.txt => test_123.txt
+     * @author smalle
+     * @since 2022/7/21
+     * @param originFileName
+     * @param subName
+     * @return java.lang.String
+     */
+    public static String addFileSubName(String originFileName, String subName) {
+        if(ValidU.isEmpty(originFileName)) {
+            return originFileName;
+        }
+        String[] split = originFileName.split("\\.");
+        if(split.length == 1) {
+            originFileName += "_" + subName;
+        } else {
+            String suffix = split[split.length - 1];
+            String[] subArr = ArrayUtil.sub(split, 0, split.length - 1);
+            String join = StrUtil.join(".", subArr);
+            originFileName = join + "_" + subName + "." + suffix;
+        }
+        return originFileName;
     }
 
     // SQ ===============================================================

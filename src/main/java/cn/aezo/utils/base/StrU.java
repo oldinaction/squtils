@@ -26,6 +26,13 @@ public class StrU extends StrUtil {
 	 */
 	private static OrderNo orderNo = new OrderNo(0, 0);
 
+	public static String toCamelCase(CharSequence name) {
+		if(name != null && !name.toString().contains("-")) {
+			// StrUtil.toCamelCase没有下划线则不会转换
+			return name.toString().toLowerCase();
+		}
+		return StrUtil.toCamelCase(name);
+	}
 
 	/**
 	 * 将驼峰式命名的字符串转换为中划线方式。例如：<br/>
@@ -42,7 +49,6 @@ public class StrU extends StrUtil {
 	public static String toDashedCase(CharSequence str) {
 		return toSymbolCase(str, CharUtil.DASHED);
 	}
-
 
 	/**
 	 * 连接字符串
@@ -128,7 +134,6 @@ public class StrU extends StrUtil {
 		}
 		return ret;
 	}
-
 
 	/**
 	 * 解析字节型((2^8)-1 = 0 ~ 225)字符串为字符串.如：104,101,108,108,111 转换成 hello
