@@ -2,7 +2,6 @@ package cn.aezo.utils.base;
 
 import cn.hutool.core.util.CharUtil;
 import cn.hutool.core.util.StrUtil;
-
 import java.io.BufferedReader;
 import java.io.ByteArrayInputStream;
 import java.io.InputStream;
@@ -21,10 +20,6 @@ public class StrU extends StrUtil {
 	 * 字母、数字（去掉0, o, l, 1）
 	 */
 	private static final char[] letterNumberIncomplete = new char[] {'q', 'w', 'e', 'r', 't', 'y', 'u', 'i', 'p', 'a', 's', 'd', 'f', 'g', 'h', 'j', 'k', 'z', 'x', 'c', 'v', 'b', 'n', 'm', '2', '3', '4', '5', '6', '7', '8', '9'};
-	/**
-	 * 生成唯一订单编号
-	 */
-	private static OrderNo orderNo = new OrderNo(0, 0);
 
 	public static String toCamelCase(CharSequence name) {
 		if(name != null && !name.toString().contains("-")) {
@@ -234,11 +229,99 @@ public class StrU extends StrUtil {
 		return null;
 	}
 
+
 	/**
-	 * 获取下一个雪花ID编号(如：381785090499280897)
+	 * 对字符串进行长度截取<br/>
+	 * 如用于将长字符串，存入数据库中，避免过长 数据库保存失败<br/>
+	 * @param content 需要截取的字符串
+	 * @param lengthMax 数据库中存储的最大长度
+	 * @param lengthCN 汉字占的字节数
+	 * @return List<String>
+	 */
+	public static String getHeadStr(String content, int lengthMax, int lengthCN) {
+		List<String> resultList = new ArrayList<>();
+		if (ValidU.isEmpty(content) || lengthCN <= 0 || (lengthMax <= lengthCN)) {
+			// throw new RuntimeException("参数非法");
+			return "";
+		}
+		try {
+			while(true) {
+				//最好情况：content即使都是中文，也 <= lengthMax
+				if (content.length() <= lengthMax / lengthCN) {
+					resultList.add(content);
+					break;
+				}
+				//有超长的可能
+				else {
+					int lenStart = 0;
+					//截取到lengthMax / lengthCN，计算总长度
+					for (int i = 0; i < lengthMax / lengthCN; i++) {
+						//获取每个c的长度+++
+						String c = content.substring(i,i+1);
+						lenStart += c.getBytes("UTF-8").length;
+					}
+					StringBuilder builder = new StringBuilder(content.substring(0, (lengthMax / lengthCN)));
+					//循环:当达到最大能储存的最大值 或者 剩下的content取完
+					int i = lengthMax / lengthCN;
+					while (lenStart <= lengthMax && i < content.length()) {
+						String c = content.substring(i,i+1);
+						lenStart += c.getBytes("UTF-8").length;
+						builder.append(c);
+						i++;
+					}
+					//应清楚：当因为达到上限跳出循环时，while循环中的所有操作都是多余的
+					// 包括：i++ -> bug01
+					// 包括：builder最后一次append -> bug02
+					//为何退出循环？
+					// 1：加到content结束，没有达到lengthMax->直接add到resultList
+					// 2：达到了上限->content被赋值成后半段
+					if (lenStart <= lengthMax) {
+						resultList.add(content);
+						break;
+					}else {
+						//bug01
+						content = content.substring(i-1);
+						String line = builder.toString();
+						//bug02
+						resultList.add(line.substring(0,line.length()-1));
+					}
+				}
+			}
+		} catch (UnsupportedEncodingException e) {
+			e.printStackTrace();
+		}
+		return resultList.get(0);
+	}
+
+	public static int length(String value, int lengthZh) {
+		if(ValidU.isEmpty(value)) {
+			return 0;
+		}
+		int valueLength = 0;
+		String chinese = "[\u0391-\uFFE5]";
+		for (int i = 0; i < value.length(); i++) {
+			String temp = value.substring(i, i + 1);
+			if (temp.matches(chinese)) {
+				valueLength += lengthZh;
+			} else {
+				valueLength += 1;
+			}
+		}
+		return valueLength;
+	}
+
+	// ==================================== 雪花ID ====================================
+	/**
+	 * 生成唯一订单编号
+	 */
+	private static OrderNo orderNo = new OrderNo(0, 0);
+
+	/**
+	 * 获取下一个雪花ID编号(如：381785090499280897)<br/>
+	 * 或者使用 IdUtil.getSnowflakeNextId <br/>
 	 *
-	 * 381785090499280897
-	 * 792800768355729408
+	 * 381785090499280897<br/>
+	 * 792800768355729408<br/>
 	 *
 	 * @return String
 	 */
@@ -263,6 +346,10 @@ public class StrU extends StrUtil {
 	public static String getNextNo(Boolean startDate) {
 		long id = orderNo.nextId();
 		return startDate ? (new SimpleDateFormat("yyyyMMdd").format(new Date()) + id) : ("" + id);
+	}
+
+	public static void setOrderNo(OrderNo orderNo) {
+		StrU.orderNo = orderNo;
 	}
 
 	/**

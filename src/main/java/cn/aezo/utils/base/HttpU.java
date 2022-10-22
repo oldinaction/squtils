@@ -51,7 +51,7 @@ public class HttpU extends HttpUtil {
      * 获取一个合理的ipv4(使用VPN/虚拟机后优先取VPN/虚拟机的内网)
      * @return
      */
-    public String getIP() {
+    public static String getIP() {
         try {
             // 根据hostname找ip
             InetAddress address = InetAddress.getLocalHost();
@@ -80,7 +80,7 @@ public class HttpU extends HttpUtil {
      * @param onlyIPv4 是否仅获取Ipv4地址
      * @return
      */
-    public List<String> getAllIP(boolean onlyIPv4) {
+    public static List<String> getAllIP(boolean onlyIPv4) {
         List<String> ips = new ArrayList<>();
 
         try {

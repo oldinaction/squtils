@@ -5,6 +5,10 @@ package cn.aezo.utils.base;
  * Created by smalle on 2017/5/11.
  */
 public class ExceptionU extends RuntimeException {
+    public ExceptionU() {
+        super();
+    }
+
     /**
      * 通用错误
      * @param message

@@ -1,6 +1,7 @@
 package cn.aezo.utils.ext.spring;
 
 import cn.aezo.utils.base.ValidU;
+import cn.hutool.core.convert.Convert;
 import cn.hutool.extra.template.Template;
 import cn.hutool.extra.template.TemplateConfig;
 import cn.hutool.extra.template.TemplateEngine;
@@ -13,7 +14,9 @@ import org.springframework.mail.javamail.MimeMessageHelper;
 
 import javax.annotation.PostConstruct;
 import javax.mail.internet.MimeMessage;
+import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.List;
 import java.util.Map;
 
 /**
@@ -52,22 +55,34 @@ public class EmailService {
      * @since 2021/2/6
      * @param subject 主题
      * @param content 内容
-     * @param to 收件人
+     * @param to 收件人, 支持使用;或,来分割多个邮箱
      * @return boolean
      */
     public static boolean sendEmail(String subject, String content, String... to) {
+        List<String> arr = Arrays.asList(to);
+        List<String> arrList = new ArrayList<>();
+        for (String item : arr) {
+            if(item.contains(";")) {
+                arrList.addAll(Convert.toList(String.class, item.split(";")));
+            } else if(item.contains(",")) {
+                arrList.addAll(Convert.toList(String.class, item.split(",")));
+            } else {
+                arrList.add(item);
+            }
+        }
         try {
             MimeMessage mimeMessage = javaMailSender.createMimeMessage();
             MimeMessageHelper messageHelper = new MimeMessageHelper(mimeMessage,true);
             messageHelper.setFrom(sender);
-            messageHelper.setTo(to);
+            messageHelper.setTo(arrList.toArray(new String[]{}));
             messageHelper.setSubject(subject);
             messageHelper.setText(content,true);
             javaMailSender.send(mimeMessage);
-            log.debug("邮件发送成功. 邮件内容：" + content + ". 收件人：" + Arrays.asList(to));
+            log.debug("邮件发送成功. 邮件内容：" + content + ". 收件人：" + arrList);
             return true;
         } catch (Exception e) {
-            log.error("邮件发送出错. 邮件内容：" + content + ". 收件人：" + Arrays.asList(to), e);
+            log.debug("邮件发送出错. 邮件内容：" + content + ". 收件人：" + arrList, e);
+            log.error("邮件发送出错", e);
             return false;
         }
     }

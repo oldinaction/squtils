@@ -1,5 +1,6 @@
 package cn.aezo.utils.ext.spring;
 
+import cn.aezo.utils.base.ValidU;
 import cn.hutool.core.convert.Convert;
 import lombok.SneakyThrows;
 import lombok.extern.slf4j.Slf4j;
@@ -14,6 +15,7 @@ import org.springframework.context.MessageSource;
 import org.springframework.context.NoSuchMessageException;
 import org.springframework.context.i18n.LocaleContextHolder;
 import org.springframework.context.support.GenericApplicationContext;
+import org.springframework.core.env.Environment;
 import org.springframework.core.io.ClassPathResource;
 import org.springframework.core.io.Resource;
 import org.springframework.core.io.support.PropertiesLoaderUtils;
@@ -122,6 +124,21 @@ public class SpringU implements ApplicationContextAware {
         GenericApplicationContext genericApplicationContext = (GenericApplicationContext) applicationContext;
         DefaultListableBeanFactory defaultListableBeanFactory = genericApplicationContext.getDefaultListableBeanFactory();
         defaultListableBeanFactory.registerSingleton(beanName, singletonObject);
+    }
+
+    public static String getEnvProperty(String key) {
+        Environment environment = getBean(Environment.class);
+        return environment.getProperty(key);
+    }
+
+    public static <T> T getEnvProperty(String key, Class<T> targetType) {
+        Environment environment = getBean(Environment.class);
+        return environment.getProperty(key, targetType);
+    }
+
+    public static <T> T getEnvProperty(String key, Class<T> targetType, T defaultValue) {
+        T envProperty = getEnvProperty(key, targetType);
+        return ValidU.isNotEmpty(envProperty) ? envProperty : defaultValue;
     }
 
     /**

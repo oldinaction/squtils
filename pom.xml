@@ -24,7 +24,21 @@
   </properties>
 
   <dependencies>
-    <!-- 需要外部提供的依赖 START -->
+    <dependency>
+      <groupId>cn.hutool</groupId>
+      <artifactId>hutool-all</artifactId>
+      <version>${hutool.version}</version>
+      <scope>provided</scope>
+    </dependency>
+
+    <dependency>
+      <groupId>org.projectlombok</groupId>
+      <artifactId>lombok</artifactId>
+      <version>${lombok.version}</version>
+      <optional>true</optional>
+    </dependency>
+
+    <!-- 可选依赖 START -->
     <dependency>
       <groupId>javax.servlet</groupId>
       <artifactId>javax.servlet-api</artifactId>
@@ -39,6 +53,15 @@
       <optional>true</optional>
     </dependency>
 
+    <!-- HttpContextU -->
+    <dependency>
+      <groupId>org.springframework.boot</groupId>
+      <artifactId>spring-boot-starter-web</artifactId>
+      <version>${spring.boot.version}</version>
+      <optional>true</optional>
+    </dependency>
+
+    <!-- EmailService -->
     <dependency>
       <groupId>org.springframework.boot</groupId>
       <artifactId>spring-boot-starter-mail</artifactId>
@@ -46,46 +69,42 @@
       <optional>true</optional>
     </dependency>
 
+    <!-- FtlU -->
     <dependency>
       <groupId>org.freemarker</groupId>
       <artifactId>freemarker</artifactId>
       <version>${freemarker.version}</version>
       <optional>true</optional>
     </dependency>
-    <!-- 需要外部提供的依赖 END -->
 
-    <dependency>
-      <groupId>org.projectlombok</groupId>
-      <artifactId>lombok</artifactId>
-      <version>${lombok.version}</version>
-      <optional>true</optional>
-    </dependency>
-
-    <dependency>
-      <groupId>cn.hutool</groupId>
-      <artifactId>hutool-all</artifactId>
-      <version>${hutool.version}</version>
-      <scope>provided</scope>
-    </dependency>
-
+    <!-- JacksonU -->
     <dependency>
       <groupId>com.fasterxml.jackson.core</groupId>
       <artifactId>jackson-annotations</artifactId>
       <version>${jackson.version}</version>
-      <scope>provided</scope>
+      <optional>true</optional>
     </dependency>
     <dependency>
       <groupId>com.fasterxml.jackson.core</groupId>
       <artifactId>jackson-core</artifactId>
       <version>${jackson.version}</version>
-      <scope>provided</scope>
+      <optional>true</optional>
     </dependency>
     <dependency>
       <groupId>com.fasterxml.jackson.core</groupId>
       <artifactId>jackson-databind</artifactId>
       <version>${jackson.version}</version>
-      <scope>provided</scope>
+      <optional>true</optional>
     </dependency>
+
+    <!-- ReflectionsU -->
+    <dependency>
+      <groupId>org.reflections</groupId>
+      <artifactId>reflections</artifactId>
+      <version>0.9.10</version>
+      <optional>true</optional>
+    </dependency>
+    <!-- 可选依赖 END -->
 
     <dependency>
       <groupId>junit</groupId>
