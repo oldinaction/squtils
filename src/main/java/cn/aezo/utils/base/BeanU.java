@@ -27,6 +27,25 @@ import java.util.function.Consumer;
  * Created by smalle on 2017/1/15.
  */
 public class BeanU extends BeanUtil {
+    /**
+     * 兼容Hutool高版本(如v5.3兼容v5.8)
+     */
+    public static <T> T copyProperties(Object source, Class<T> tClass) {
+        if(null == source){
+            return null;
+        }
+        T target = ReflectUtil.newInstanceIfPossible(tClass);
+        copyProperties(source, target);
+        return target;
+    }
+
+    /**
+     * 兼容Hutool高版本(如v5.3兼容v5.8)
+     */
+    public static void copyProperties(Object source, Object target) {
+        // 兼容Hutool高版本: 直接写成 copyProperties(source, target) 会找不到方法
+        copyProperties(source, target, CopyOptions.create());
+    }
 
     /**
      * 仅复制部分字段
